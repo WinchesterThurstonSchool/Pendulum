@@ -1,0 +1,31 @@
+{
+  "name": "pendulum",
+  "version": "1.0.0",
+  "description": "A collaborative research environment",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WinchesterThurstonSchool/Pendulum.git"
+  },
+  "keywords": [
+    "main",
+    "threejs",
+    "mathquill"
+  ],
+  "author": "Yuelong",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/WinchesterThurstonSchool/Pendulum/issues"
+  },
+  "homepage": "https://github.com/WinchesterThurstonSchool/Pendulum#readme",
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}
