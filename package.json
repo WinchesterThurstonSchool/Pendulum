@@ -26,7 +26,5 @@
     "url": "https://github.com/WinchesterThurstonSchool/Pendulum/issues"
   },
   "homepage": "https://github.com/WinchesterThurstonSchool/Pendulum#readme",
-  "devDependencies": {
-    "mocha": "^5.2.0"
-  }
+  "devDependencies": {}
 }
