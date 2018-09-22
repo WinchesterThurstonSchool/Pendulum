@@ -1,5 +1,4 @@
 # Pendulum
-
 ## What is Pendulum?
 A pendulum, is the first object that I found the exact motion of which cannot be obtained through calculus, and was later simulated through a computer program. The ultimate goal for Pendulum is that it will evolve into a space for researchers to conduct any kind of experiments and research, including topics of classical mechanics, electricity, waves, chemistry, and even quantum mechanics, in an collaborative online environment. Its baseline infrastructure will entail a graphing system that allows visualization of different math concepts --- parametric functions, multivariable functions, contours, vector fields, etc., and a system of matrix solvers that produce reliable and fast solutions through numerical methods. Beyond that, the works of users will be saved in a cloud source, and can be shared with the greater community at their will.  The interface will be designed to be accessible and direct. Using language and symbols that are common in math and science, one can easily define geometry, state of motion, internal structures, and any other conceivable properties of an object. 
 

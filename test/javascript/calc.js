@@ -1,4 +1,4 @@
-const operations = require('./operations.js');
+const operations = require('../src/operations.js');
 const readline = require('readline');
 // Use readline to create command line interface
 const rl = readline.createInterface({
