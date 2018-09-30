@@ -2,7 +2,7 @@
   "name": "pendulum",
   "version": "1.0.0",
   "description": "A collaborative research environment",
-  "main": "index.js",
+  "private": true,
   "directories": {
     "doc": "docs",
     "test": "test"

@@ -10,10 +10,16 @@
 <body>
     <script src="../node_modules/three/build/three.min.js"></script>
     <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="js/pixi.min.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        graph3D();
+        graph3D((x,y)=>1/(1+y*x* y * x));
+        //graph2D();
     </script>
-    Hello World
+    <style>
+        canvas{
+            background: white;
+        }
+    </style>
 </body>
 </html>
