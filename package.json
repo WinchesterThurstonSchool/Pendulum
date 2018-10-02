@@ -28,6 +28,7 @@
   "homepage": "https://github.com/WinchesterThurstonSchool/Pendulum#readme",
   "devDependencies": {
     "mocha": "^5.2.0",
+    "pixi.js": "^4.8.2",
     "webpack": "^4.20.2"
   },
   "dependencies": {

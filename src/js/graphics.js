@@ -1,5 +1,5 @@
 // import * as THREE from 'three';
-// import * as PIXI from './pixi.min.js'
+//import * as PIXI from 'pixi.js'
 
 function graph3D(func){
 
@@ -84,7 +84,48 @@ function graph3D(func){
 }
 
 function graph2D(func){
+    //Define resize listener
+    window.addEventListener("resize", onResize);
+    function onResize() {
+        var height = window.innerHeight,
+            width = window.innerWidth;
+        app.renderer.resize(width, height)
+    }
 
+   var app = new PIXI.Application({
+       width: window.innerWidth, // default: 800
+       height: window.innerHeight, // default: 600
+       antialias: true, // default: false
+       transparent: true, // default: false
+       resolution: 1 // default: 1
+   });
+
+   //Set renderer size
+   app.renderer.autoResize = true;
+   app.renderer.resize(window.innerWidth, window.innerHeight);
+
+    // add render view to DOM
+    document.body.appendChild(app.view);
+
+
+     //Geometry definition
+     var size = 200;
+     var tr = new Transformer(range = 20, scale = 500);
+     var vertices = new Array();
+     for (var i = 0; i < 1; i += 1.0 / size) {
+         var cod = tr.map(i);
+         vertices.push(tr.toP(cod[0], func(cod[0])));
+     };
+
+    var graphics = new PIXI.Graphics();
+
+    graphics.lineStyle(2, 0xffd900, 1);
+    // draw a shape
+    graphics.moveTo(vertices[0][0],vertices[0][1]);
+    for(var i = 1; i<size; i++){
+        graphics.lineTo(vertices[i][0], vertices[i][1]);
+    }
+    app.stage.addChild(graphics);
 }
 
 function Transformer(range = 10, scale = 4) {
@@ -96,6 +137,9 @@ function Transformer(range = 10, scale = 4) {
 
     this.map = function (a, b = 0) {
         return new Array(this.range * a - this.range / 2, this.range * b - this.range / 2);
+    }
+    this.toP = function(a, b =0){
+        return new Array(a/this.range*this.scale+window.innerWidth/2, -b/this.range*this.scale+window.innerHeight/2);
     }
 }
 //  window.addEventListener("resize", onResize);
