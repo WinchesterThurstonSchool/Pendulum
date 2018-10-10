@@ -8,17 +8,22 @@
     <link rel="stylesheet" href="css/canvas.css">
 </head>
 <body>
+    <div id="root">
+        <div id="navbar">
+            hello world
+        </div>
+        <div id="defpanel" style="background-color: blue"></div>
+        <div id="graphpanel"></div>
+    </div>
+    <style>
+
+    </style>
     <script src="../node_modules/three/build/three.min.js"></script>
     <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        graph3D((x,y)=>Math.sin(x));
+        graph3D((x,y)=>(Math.sin(y)*Math.cos(x)));
     </script>
-    <style>
-        canvas{
-            background: white;
-        }
-    </style>
 </body>
 </html>

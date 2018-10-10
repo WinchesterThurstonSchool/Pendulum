@@ -1,13 +1,14 @@
 // import * as THREE from 'three';
 //import * as PIXI from 'pixi.js'
 
-function graph3D(func){
-
+function graph3D(func=((x=0,y=0)=>0)){
     //Define resize listener
     window.addEventListener("resize", onResize);
+    var panel = document.getElementById("graphpanel");
+    console.log(panel.offsetHeight);
     function onResize() {
         var height = window.innerHeight,
-            width = window.innerWidth;
+            width = window.innerWidth*0.8;
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
@@ -16,7 +17,7 @@ function graph3D(func){
 
     //Define scene and camera
     var scene = new THREE.Scene();
-    var aspect = window.innerWidth / window.innerHeight;
+    var aspect = window.innerWidth*0.8 / window.innerHeight;
     var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
     camera.position.z = 5;
     var renderer = new THREE.WebGLRenderer({
@@ -25,15 +26,15 @@ function graph3D(func){
     });
 
     //Setup renderer
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth*0.8, window.innerHeight);
+    panel.appendChild(renderer.domElement);
 
     //Geometry definition
     var size = 200;
     var columns = new Array(size);
     var tr = new Transformer();
     var geometry = new THREE.Geometry();
-    var controls = new THREE.OrbitControls(camera);
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
     for (var i = 0; i < 1; i += 1.0 / size) {
         var column = new Array(size);
         for (var j = 0; j < 1; j += 1 / size) {

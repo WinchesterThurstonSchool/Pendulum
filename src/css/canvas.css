@@ -1,5 +1,51 @@
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 body {
     size: 100%;
     margin: 0;
     overflow: hidden;
+}
+
+#root {
+    --blue: #00aaff;
+    --blueShadow: #006ea5;
+    --yellow: #fbff00;
+    --gray: #f3f3f3;
+    --grayShadow: #535353;
+    background: #fbff00;
+    size: 100%;
+    margin: 0;
+}
+
+#navbar{
+    width: 100%;
+    height: 10 pt;
+    background: #293f50;
+    color: white;
+    font: 300 16px/50px "Lato",
+    "Open Sans",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+ 
+#defpanel{
+    float: left;
+    background: #006ea5;
+}
+
+#graphpanel{
+    float: right;
+    background: var(--blue);
+}
+
+canvas{
+    border-left: 5px solid var(--blueShadow);
 }
