@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>Cloudnest - Pendulum</title>
     <link rel="stylesheet" href="css/canvas.css">
 </head>
 <body>
     <div id="root">
-        <div id="navbar">
-            hello world
+        <div id="navbar" align="center">
+            Pendulum
+            <input id="settings" type="image" src="../assets/settingsIcon.png">
         </div>
-        <div id="defpanel" style="background-color: blue"></div>
+        <div id="defpanel">
+            
+        </div>
         <div id="graphpanel"></div>
+        
     </div>
     <style>
 
@@ -23,7 +29,8 @@
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        graph3D((x,y)=>(Math.sin(y)*Math.cos(x)));
+        graph3D((x,y)=>Math.sin(y)-Math.cos(x));
+        // graph2D((x)=>Math.sin(x));
     </script>
 </body>
 </html>

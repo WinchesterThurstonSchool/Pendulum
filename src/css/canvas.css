@@ -6,46 +6,61 @@
     box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+}
+
 body {
-    size: 100%;
+    height: 100%;
     margin: 0;
     overflow: hidden;
 }
 
 #root {
-    --blue: #00aaff;
+    --blue: #3abdff;
     --blueShadow: #006ea5;
     --yellow: #fbff00;
     --gray: #f3f3f3;
     --grayShadow: #535353;
-    background: #fbff00;
-    size: 100%;
-    margin: 0;
+    height: 100%;
+    background: aliceblue;
 }
 
 #navbar{
     width: 100%;
-    height: 10 pt;
+    padding: 2pt;
+    align-items: center;
     background: #293f50;
     color: white;
-    font: 300 16px/50px "Lato",
+    font: 500 16px/50px "Lato",
     "Open Sans",
     "Helvetica Neue",
     Helvetica,
     Arial,
     sans-serif;
 }
- 
-#defpanel{
-    float: left;
-    background: #006ea5;
-}
 
 #graphpanel{
     float: right;
-    background: var(--blue);
 }
 
-canvas{
-    border-left: 5px solid var(--blueShadow);
+#defpanel {
+    float: left;
+    font-size: 105%;
+    min-width: 300px;
+    width: 20%;
+    height: 100%;
+    padding: 15px;
+    margin: 0px;
+    border-right: 5px solid var(--grayShadow);
+    /* background: #5199eb86; */
+    background: white;
+}
+
+#settings {
+    height: 2em;
+    float: right;
+    float: right;
+    margin: 8px;
+    margin-right: 20px;
 }
