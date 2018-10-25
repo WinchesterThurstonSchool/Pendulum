@@ -1,8 +1,8 @@
-const operations = require('../src/operations.js')
+const operations = require('../src/js/operations.js');
 const assert = require('assert');
 
 it('correctly calculates the sum of 1 and 3', () => {
-    assert.equal(operations.add(1, 3), 5);
+    assert.equal(operations.add(1, 3), 4);
 });
 
 it('correctly calculates the sum of -1 and -1', () => {
@@ -19,4 +19,9 @@ it('correctly calculates the product of 12 and 12', () => {
 
 it('correctly calculates the quotient of 10 and 2', () => {
     assert.equal(operations.divide(10, 2), 5);
+});
+
+it('correctly adds vectors', () => {
+    assert.equal(operations.vadd(new operations.Vec(3,2),new operations.Vec(1,5)), 
+        new operations.Vec(4,7));
 });

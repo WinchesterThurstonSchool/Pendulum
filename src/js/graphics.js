@@ -1,10 +1,41 @@
 // import * as THREE from 'three';
-//import * as PIXI from 'pixi.js'
+//import * as PIXI from 'pixi.js';
+import {Vec} from './operations.js';
 
-function graph3D(func=((x=0,y=0)=>0)){
+function initialize2D() {
     //Define resize listener
     window.addEventListener("resize", onResize);
     var panel = document.getElementById("graphpanel");
+
+    function onResize() {
+        var height = window.innerHeight,
+            width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+        app.renderer.resize(width, height)
+    }
+
+    var app = new PIXI.Application({
+        width: (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300, // default: 800
+        height: window.innerHeight, // default: 600
+        antialias: true, // default: false
+        transparent: true, // default: false
+        resolution: 1 // default: 1
+    });
+    var height = window.innerHeight,
+        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+    //Set renderer size
+    app.renderer.autoResize = true;
+    app.renderer.resize(width, height);
+    app.view.id = "graph";
+    // add render view to DOM
+    panel.appendChild(app.view);
+    return app.stage;
+}
+
+function initialize3D() {
+    //Define resize listener
+    window.addEventListener("resize", onResize);
+    var panel = document.getElementById("graphpanel");
+
     function onResize() {
         var height = window.innerHeight,
             width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
@@ -14,7 +45,7 @@ function graph3D(func=((x=0,y=0)=>0)){
         renderer.render(scene, camera);
     }
     var height = window.innerHeight,
-        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth-300;
+        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
     //Define scene and camera
     var scene = new THREE.Scene();
     var aspect = width / height;
@@ -24,17 +55,70 @@ function graph3D(func=((x=0,y=0)=>0)){
         alpha: true,
         antialias: true
     });
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     //Setup renderer
     renderer.setSize(width, height);
+    renderer.domElement.id = "graph"
     panel.appendChild(renderer.domElement);
 
+    var light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(0, 5, 0);
+    scene.add(light);
+    light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(0, -5, 0);
+    scene.add(light);
+    light = new THREE.AmbientLight(0xffffff, 0.5);
+    light.position.set(0, -5, 0);
+    scene.add(light);
+
+    //Render
+    var render = function () {
+        requestAnimationFrame(render);
+        controls.update();
+        renderer.render(scene, camera);
+    };
+
+    render();
+
+    return scene;
+}
+
+function graph2D(func, {
+    stage,
+    color = 0x569078
+}) {
+
+
+    //Geometry definition
+    var size = 200;
+    var tr = new Transformer(range = 20, scale = 500);
+    var vertices = new Array();
+    for (var i = 0; i < 1; i += 1.0 / size) {
+        var cod = tr.map(i);
+        vertices.push(tr.toP(cod[0], func(cod[0])));
+    };
+
+    var graphics = new PIXI.Graphics();
+
+    graphics.lineStyle(2, color, 1);
+    // draw a shape
+    graphics.moveTo(vertices[0][0], vertices[0][1]);
+    for (var i = 1; i < size; i++) {
+        graphics.lineTo(vertices[i][0], vertices[i][1]);
+    }
+    stage.addChild(graphics);
+}
+
+function graph3D(func = ((x = 0, y = 0) => 0), {
+    scene,
+    color = 0xffffff
+}) {
     //Geometry definition
     var size = 200;
     var columns = new Array(size);
     var tr = new Transformer();
     var geometry = new THREE.Geometry();
-    var controls = new THREE.OrbitControls(camera, renderer.domElement);
     for (var i = 0; i < 1; i += 1.0 / size) {
         var column = new Array(size);
         for (var j = 0; j < 1; j += 1 / size) {
@@ -49,8 +133,8 @@ function graph3D(func=((x=0,y=0)=>0)){
     for (var i = 0; i < size - 1; i += 1) {
         for (var j = 0; j < size - 1; j += 1) {
             //var face1 = new THREE.Face3(i * size + j, i * size + j + 1, (i + 1) * size + j + 1);
-            var face2 = new THREE.Face3(i*size+j,(i+1)*size+j+1, i*size+j+1);
-            var face3 = new THREE.Face3(i*size+j, (i+1)*size+j,(i+1)*size+j+1);
+            var face2 = new THREE.Face3(i * size + j, (i + 1) * size + j + 1, i * size + j + 1);
+            var face3 = new THREE.Face3(i * size + j, (i + 1) * size + j, (i + 1) * size + j + 1);
             //var face4 = new THREE.Face3(i * size + j, (i + 1) * size + j + 1, (i + 1) * size + j);
             geometry.faces.push(face2);
             /* geometry.faces.push(face2);*/
@@ -62,85 +146,15 @@ function graph3D(func=((x=0,y=0)=>0)){
     geometry.computeVertexNormals();
     // geometry.computeFaceNormals();
     //Add surface
-     var materialFront = new THREE.MeshPhongMaterial({
-         opacity: 0.8,
-         color: "#ffffff",
-         transparent:true 
-     });
-     materialFront.depthWrite=false;
-    var materialBack = new THREE.MeshPhongMaterial({
-        side: THREE.BackSide,
+    var materialFront = new THREE.MeshPhongMaterial({
         opacity: 0.8,
-        color: "#ffffff",
-        transparent: true
+        color: color,
+        transparent: true,
+        side: THREE.DoubleSide,
     });
-    materialBack.depthWrite=false;
-    var surfaceFront = new THREE.Mesh(geometry, materialFront);
-    scene.add(surfaceFront);
-    var surfaceBack = new THREE.Mesh(geometry, materialBack);
-    scene.add(surfaceBack);
-    var light = new THREE.DirectionalLight(0xff6400, 0.5);
-    light.position.set(0, 5, 0);
-    scene.add(light);
-    light = new THREE.DirectionalLight(0xff6400,0.5);
-    light.position.set(0, -5, 0);
-    scene.add(light);
-    light = new THREE.AmbientLight(0xff6400, 0.5);
-    light.position.set(0, -5, 0);
-    scene.add(light);
-    //Render
-    var render = function () {
-        requestAnimationFrame(render);
-        controls.update();
-        renderer.render(scene, camera);
-    };
-
-    render();
-}
-
-function graph2D(func){
-    //Define resize listener
-    window.addEventListener("resize", onResize);
-    var panel = document.getElementById("graphpanel");
-    function onResize() {
-        var height = window.innerHeight,
-            width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
-        app.renderer.resize(width, height)
-    }
-    
-    var app = new PIXI.Application({
-        width: (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300, // default: 800
-        height: window.innerHeight, // default: 600
-        antialias: true, // default: false
-        transparent: true, // default: false
-        resolution: 1 // default: 1
-    });
-    var height = window.innerHeight,
-        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
-    //Set renderer size
-    app.renderer.autoResize = true;
-    app.renderer.resize(width, height);
-    // add render view to DOM
-    panel.appendChild(app.view);
-
-     //Geometry definition
-     var size = 200;
-     var tr = new Transformer(range = 20, scale = 500);
-     var vertices = new Array();
-     for (var i = 0; i < 1; i += 1.0 / size) {
-         var cod = tr.map(i);
-         vertices.push(tr.toP(cod[0], func(cod[0])));
-     };
-
-    var graphics = new PIXI.Graphics();
-
-    graphics.lineStyle(2, 0x569078, 1);
-    // draw a shape
-    graphics.moveTo(vertices[0][0],vertices[0][1]);
-    for(var i = 1; i<size; i++){
-        graphics.lineTo(vertices[i][0], vertices[i][1]);
-    }
-    app.stage.addChild(graphics);
+    //  materialFront.depthTest=false;
+    var surface = new THREE.Mesh(geometry, materialFront);
+    scene.add(surface);
 }
 
 function Transformer(range = 10, scale = 4) {
@@ -153,8 +167,8 @@ function Transformer(range = 10, scale = 4) {
     this.map = function (a, b = 0) {
         return new Array(this.range * a - this.range / 2, this.range * b - this.range / 2);
     }
-    this.toP = function(a, b =0){
-        return new Array(a/this.range*this.scale+window.innerWidth*0.8/2, -b/this.range*this.scale+window.innerHeight/2);
+    this.toP = function (a, b = 0) {
+        return new Array(a / this.range * this.scale + window.innerWidth * 0.8 / 2, -b / this.range * this.scale + window.innerHeight / 2);
     }
 }
 //  window.addEventListener("resize", onResize);

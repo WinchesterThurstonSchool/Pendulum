@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kodchasan">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Muli">
     <title>Cloudnest - Pendulum</title>
     <link rel="stylesheet" href="css/canvas.css">
 </head>
@@ -16,10 +18,17 @@
             <input id="settings" type="image" src="../assets/settingsIcon.png">
         </div>
         <div id="defpanel">
-            
+            <button class="btn btn-block" type="button">New Object</button>
         </div>
-        <div id="graphpanel"></div>
-        
+        <div id="graphpanel">
+            <div id="zoomPanel">
+                <button id="zoomInBtn" class="btn glyphicon glyphicon-plus"></button>
+                <br>
+                <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus"></button>
+                <br>
+                <button id="homeBtn" class="btn glyphicon glyphicon-home"></button>
+            </div>
+        </div>
     </div>
     <style>
 
@@ -29,8 +38,11 @@
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        graph3D((x,y)=>Math.sin(y)-Math.cos(x));
-        // graph2D((x)=>Math.sin(x));
+        var scene = initialize3D();
+        //graph2D((x,y)=> Math.sin(x),{stage: scene, color: 0x6789ab});
+        // graph2D(x=>Math.cos(x),{stage:scene});
+        graph3D((x,y)=>Math.cos(y), { scene, color: "#6789ab" });
+        graph2D((x)=>Math.sin(x));
     </script>
 </body>
 </html>

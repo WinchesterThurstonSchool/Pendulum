@@ -32,7 +32,8 @@ body {
     align-items: center;
     background: #293f50;
     color: white;
-    font: 500 16px/50px "Lato",
+    font: 500 22px/50px "Kodchasan",
+    "Muli",
     "Open Sans",
     "Helvetica Neue",
     Helvetica,
@@ -58,9 +59,21 @@ body {
 }
 
 #settings {
-    height: 2em;
+    height: 1.5em;
     float: right;
     float: right;
     margin: 8px;
     margin-right: 20px;
+}
+
+#zoomPanel{
+    position: fixed;
+    top: 70px;
+    right: 25px;
+    z-index: 1;
+}
+
+#zoomInBtn, #zoomOutBtn, #homeBtn {
+    float: right;
+    margin: 2pt;
 }
