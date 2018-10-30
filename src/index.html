@@ -36,13 +36,20 @@
     <script src="../node_modules/three/build/three.min.js"></script>
     <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
+    <script src="js/operations.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        var scene = initialize3D();
-        //graph2D((x,y)=> Math.sin(x),{stage: scene, color: 0x6789ab});
-        // graph2D(x=>Math.cos(x),{stage:scene});
-        graph3D((x,y)=>Math.cos(y), { scene, color: "#6789ab" });
-        graph2D((x)=>Math.sin(x));
+        initialize3D();
+        graphCartesian((x,y)=>Math.sin(x)+Math.cos(y));
+        graphCartesian(x=>-1);
+        graphParametric((u,v)=>{
+            var s = u*2*Math.PI,
+                t = v*2*Math.PI;
+            return new Vec(Math.cos(s)*3+Math.cos(s)*Math.cos(t), 
+                Math.sin(s)*3+Math.sin(s)*Math.cos(t),
+                Math.sin(t));
+        });
+        // graphParametric();
     </script>
 </body>
 </html>
