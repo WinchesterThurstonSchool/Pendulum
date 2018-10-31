@@ -39,17 +39,30 @@
     <script src="js/operations.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        initialize3D();
-        graphCartesian((x,y)=>Math.sin(x)+Math.cos(y));
-        graphCartesian(x=>-1);
-        graphParametric((u,v)=>{
-            var s = u*2*Math.PI,
-                t = v*2*Math.PI;
-            return new Vec(Math.cos(s)*3+Math.cos(s)*Math.cos(t), 
-                Math.sin(s)*3+Math.sin(s)*Math.cos(t),
-                Math.sin(t));
+        initialize2D();
+        // graphCartesian((x,y)=>Math.sin(x)+Math.cos(y));
+        // graphCartesian(x=>-1);
+        // graphParametric((u,v)=>{
+        //     var s = u*2*Math.PI,
+        //         t = v*2*Math.PI;
+        //     return new Vec(Math.cos(s)*3+Math.cos(s)*Math.cos(t), 
+        //         3*Math.sin(s)+Math.sin(s)*Math.cos(t),
+        //         -Math.sin(t));
+        // });
+        for(var i = -10; i <= 10; i+=0.5){
+            var diffEqn = new DiffEqn((t, ys) => new Vec(t+ys[0].x),
+                new Vec(i));
+            var solver = new Euler(diffEqn, 0, 0.01);
+            var func = solver.getSolution();
+            var holder = new Vec();
+            graphCartesian((x) => func(x, holder).x);
+        }
+        // graphCartesian((x)=>1);
+        
+        graphParametric((t)=>{
+            var r = 20*(t-0.5);
+            return new Vec(r,Math.exp(r)-r-1);
         });
-        // graphParametric();
     </script>
 </body>
 </html>

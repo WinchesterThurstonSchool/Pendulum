@@ -101,7 +101,7 @@ function graph2D(func = (x=>0), {
     color = 0x569078
 }) {
     //Geometry definition
-    var size = 200;
+    var size = 1000;
     var tr = new Transformer(range = 20, scale = 500);
     var vertices = new Array();
     for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
