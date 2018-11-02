@@ -20,8 +20,3 @@ it('correctly calculates the product of 12 and 12', () => {
 it('correctly calculates the quotient of 10 and 2', () => {
     assert.equal(operations.divide(10, 2), 5);
 });
-
-it('correctly adds vectors', () => {
-    assert.equal(operations.vadd(new operations.Vec(3,2),new operations.Vec(1,5)), 
-        new operations.Vec(4,7));
-});

@@ -47,38 +47,39 @@ const Vec = function(x = 0, y = 0, z = 0){
 }
 
 const DiffEqn = class{
-    constructor(eqn = (t=0,...n)=>new Vec(), ...inits){
-        this.level = inits.length;
-        this.ydirs = inits;
+    constructor(eqn = (t=0,...n)=>new Vec(), order){
+        this.order = order;
+        this.ydirs = [new Vec()];
         this.hdir = new Vec();
         this.eqn = eqn;
     }
     get y(){
-        if(this.level == 0){
+        if(this.order == 0){
             return this.eqn(t);
         }else{
             return this.ydirs[0];
         }
     }
 }
-const Euler = class{
-    constructor(diffEqn = new DiffEqn(), startTime = 0, dt = 0.1){
+class Euler{
+    constructor(diffEqn = new DiffEqn(), dt = 0.01, startTime = 0, inits = [new Vec()]) {
         this.t = startTime;
         this.dt = dt;
         this.diffEqn = diffEqn;
+        while(inits.length<diffEqn.order) inits.push(new Vec());
+        this.diffEqn.ydirs = inits;
         this.que = 0;
     }
     step(dt=this.dt){
-        this.diffEqn.hdir = this.diffEqn.eqn(this.t,this.diffEqn.ydirs);
         // console.log(this.diffEqn.hdir);
-        // console.log(this.diffEqn.ydirs[this.diffEqn.ydirs.length - 1])
-        this.diffEqn.ydirs[this.diffEqn.ydirs.length-1].add(this.diffEqn.hdir.multiply(dt));
-        // console.log(this.diffEqn.hdir);
-        for(var i = this.diffEqn.level-1; i>0; i--){
+        for (var i = 0; i < this.diffEqn.order-1; i++) {
             // console.log(this.diffEqn.ydirs);
-            this.diffEqn.ydirs[i-1].add(this.diffEqn.ydirs[i].multiply(dt, new Vec()));
+            this.diffEqn.ydirs[i].add(this.diffEqn.ydirs[i+1].multiply(dt, new Vec()));
         }
         this.t+=dt;
+        this.diffEqn.hdir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
+        // console.log(this.diffEqn.hdir);
+        this.diffEqn.ydirs[this.diffEqn.ydirs.length - 1].add(this.diffEqn.hdir.multiply(dt));
     }
     y(t, target = new Vec()){
         let lY, rY;
@@ -113,13 +114,7 @@ const Euler = class{
             var stampN = new Array();
             var solutions = new Array();
             var timeStamps = new Array();
-            var ogState = {
-                t:this.t,
-                dirs: []
-            }
-            for(var i = 0; i<  this.diffEqn.ydirs.length; i++){
-                ogState.dirs.push(this.diffEqn.ydirs[i].clone());
-            }
+            var ogState = this.states;
             for(var i = 0; i<posD; i++){
                 cacheP.push(this.diffEqn.y.clone());
                 stampP.push(this.t);
@@ -161,6 +156,45 @@ const Euler = class{
    linearApprox(t, domain = [0,timestep], range = [0,0]){
         return range[0]+(range[1]-range[0])/(domain[1]-domain[0])*(t-domain[0]);
     }
+
+    get states(){
+        var states = {
+            t: this.t,
+            dirs: []
+        };
+        for (var i = 0; i < this.diffEqn.ydirs.length; i++) {
+            states.dirs.push(this.diffEqn.ydirs[i].clone());
+        }
+        return states;
+    }
+    set states(v){
+        this.t = v.t;
+        this.diffEqn.ydirs = v.dirs;
+    }
+}
+
+class RK2 extends Euler{
+    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
+        super(diffEqn, dt, startTime, inits);
+    }
+    step(dt = this.dt){
+        var k0 = this.states;
+        super.step(dt);
+        var k1 = this.states;
+        var lastDerivative = this.diffEqn.eqn(k0.t,k0.dirs).add(this.diffEqn.eqn(k1.t, k1.dirs)).multiply(0.5);
+        this.states = k0;
+        var dirs = this.diffEqn.ydirs;
+        var holder = new Vec();
+        var lev = this.diffEqn.order;
+        for(var i = 0; i<lev-2; i++){
+             dirs[i].add(dirs[i + 1].multiply(dt, holder)).
+             add(dirs[i + 2].multiply(dt*dt/2, holder));
+        }
+        if(lev-2>=0)dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder)).add(lastDerivative.multiply(dt * dt / 2, holder));
+        if(lev-1>=0)dirs[lev-1].add(lastDerivative.multiply(dt,holder));
+        this.diffEqn.hdir = lastDerivative;
+        this.t+=dt;
+    }
 }
 
 // module.exports = {
@@ -172,8 +206,6 @@ const Euler = class{
 //     cos,
 //     validateNumbers,
 //     Vec,
-//     vadd,
-//     vsubtract,
-//     vdot,
-//     vcross
+//     Euler,
+//     RK2
 // }

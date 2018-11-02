@@ -4,10 +4,12 @@
 
 var globalScene;
 var canvas;
+var tr;
 
-function initialize2D() {
+function initialize2D(range = 20, scale = 500) {
     //Define resize listener
     window.addEventListener("resize", onResize);
+    tr = new Transformer(range, scale);
     var panel = document.getElementById("graphpanel");
     if (canvas)
         panel.removeChild(canvas);
@@ -37,9 +39,10 @@ function initialize2D() {
     return app.stage;
 }
 
-function initialize3D() {
+function initialize3D(range = 20, scale = 4) {
     //Define resize listener
     window.addEventListener("resize", onResize);
+    tr = new Transformer(range, scale);
     var panel = document.getElementById("graphpanel");
     if(canvas)
         panel.removeChild(canvas);
@@ -101,8 +104,7 @@ function graph2D(func = (x=>0), {
     color = 0x569078
 }) {
     //Geometry definition
-    var size = 1000;
-    var tr = new Transformer(range = 20, scale = 500);
+    var size = 200;
     var vertices = new Array();
     for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
         var cod = tr.map(i);
@@ -127,7 +129,6 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
     //Geometry definition
     var size = 200;
     var columns = new Array(size);
-    var tr = new Transformer();
     var geometry = new THREE.Geometry();
     for (var i = 0; i < 1; i += 1.0 / size) {
         var column = new Array(size);
@@ -174,7 +175,6 @@ function parametricCurve(func = (t => new Vec(0,0,0)), {
 
     //Geometry definition
     var size = 200;
-    var tr = new Transformer(range = 20, scale = 500);
     var vertices = new Array();
     for (var i = 0; i < 1+1.0/size; i += 1.0 / size) {
         var vec = func(i);
@@ -198,7 +198,6 @@ function parametricSurface(func = ((u = 0, v = 0) => new Vec(0,0,0)), {
 }) {
     //Geometry definition
     var size = 200;
-    var tr = new Transformer();
     var vecFunc = (u=0,v=0,target) =>{
         var vec = func(u,v).multiply(tr.scale/tr.range);
         return target.set(vec.x, vec.y, vec.z);
