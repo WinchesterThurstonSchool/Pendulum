@@ -47,7 +47,7 @@ const Vec = function(x = 0, y = 0, z = 0){
 }
 
 const DiffEqn = class{
-    constructor(eqn = (t=0,...n)=>new Vec(), order){
+    constructor(eqn = (t=0,...n)=>new Vec(), order = 1){
         this.order = order;
         this.ydirs = [new Vec()];
         this.hdir = new Vec();

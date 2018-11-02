@@ -39,7 +39,7 @@
     <script src="js/operations.js"></script>
     <script src="js/graphics.js"></script>
     <script>
-        initialize2D(20);
+        initialize2D(30);
         // graphCartesian((x,y)=>Math.sin(x)+Math.cos(y));
         // graphCartesian(x=>-1);
         // graphParametric((u,v)=>{
@@ -49,17 +49,17 @@
         //         3*Math.sin(s)+Math.sin(s)*Math.cos(t)
         //         -Math.sin(t));
         // });
-        var diffEqn = new DiffEqn((t, ys) => new Vec(ys[0].x+t),2);
-        var solver = new Euler(diffEqn, 0.01, 0, [new Vec()]);
+        var diffEqn = new DiffEqn((t, ys) => new Vec(ys[0].x));
+        var solver = new Euler(diffEqn, 0.01, 0, [new Vec(1)]);
         var euSolution = solver.getSolution(true, [-25,25]);
-        solver = new RK2(diffEqn, 0.01, 0, [new Vec()]);
+        solver = new RK2(diffEqn, 0.01, 0, [new Vec(1)]);
         var rkSolution = solver.getSolution(true, [-25, 25]);
         var holder = new Vec();
         graphCartesian((x) => euSolution(x, holder).x);
-        graphCartesian((x) => rkSolution(x, holder).x);
+        graphCartesian((x) => rkSolution(x, holder).x, 0x0065fb);
         // graphCartesian((x)=>1);
 
-        var analSolution = (x)=>1/2*(-2*x-Math.exp(-x)+Math.exp(x));
+        var analSolution = (x)=>Math.exp(x);
         
         graphCartesian((x)=> analSolution(x), 0x0065fb);
         graphCartesian((x) => (euSolution(x, holder).x- analSolution(x)), 0xfe0033);
