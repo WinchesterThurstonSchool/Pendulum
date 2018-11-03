@@ -8,3 +8,4 @@ But one may still ask why Pendulum is more advantageous over other products. Som
 
 ## Simulation
 ### Euler Nth-order
+![alt text](https://github.com/WinchesterThurstonSchool/Pendulum/blob/master/assets/Euler(y'%3Dy%2Bx).png)
