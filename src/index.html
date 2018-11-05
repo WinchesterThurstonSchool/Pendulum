@@ -16,8 +16,9 @@
 <body>
     <div id="root">
         <div id="navbar" align="center">
+            <img id="logo" src="../assets/Cloudnest Matallic-small.png" alt="logo">
             Pendulum
-            <input id="settings" type="image" src="../assets/settingsIcon.png">
+            <!-- <input id="settings" type="image" src="../assets/settingsIcon.png"> -->
         </div>
         <div id="defpanel">
             <button class="btn btn-block" type="button">New Object</button>
@@ -50,31 +51,35 @@
             air: 0xf0f8ff,
         };
 
-        initialize2D(20);
-        // graphCartesian((x,y)=>Math.sin(x)+Math.cos(y));
-        // graphCartesian(x=>-1);
-        // graphParametric((u,v)=>{
-        //     var s = u*2*Math.PI,
-        //         t = v*2*Math.PI;
-        //     return new Vec(Math.cos(s)*3+Math.cos(s)*Math.cos(t), 
-        //         3*Math.sin(s)+Math.sin(s)*Math.cos(t)
-        //         -Math.sin(t));
+        initialize3D(10);
+
+        // graphParametric((u, v) => {
+        //     var s = u * 2 * Math.PI,
+        //         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
+        //     return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
+        //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
+        //         -Math.sin(t) - 3);
         // });
-        var holder = new Vec();
-        var diffEqn = new DiffEqn((t, ys) => new Vec(ys[1].x - ys[0].x),2);
+        // var func = (x, y) => Math.sin(x) + Math.cos(y);
+        // graphCartesian(func);
+        // var matrix = getMatrix(2, [[-5,5]], [11]);
+        // apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
+        // graphVectorField((vec) => new Vec(-vec.y*vec.z,vec.x*vec.z, -vec.x*vec.y).multiply(0.5),getMatrix(3, [[-5, 5]],[11]));
+
+        // graphCartesian(x=>-1);
+        // var holder = new Vec();
+        // var diffEqn = new DiffEqn((t, ys) => new Vec(ys[1].x - ys[0].x),2);
         // var solver = new Euler(diffEqn, 0.01, 0, [new Vec(1)]);
-        // var euSolution = solver.getSolution(true, [-25, 25]);
-        for(var i = -5; i <= 5; i+=0.5){
-            var solver = new RK2(diffEqn, 0.01, 7, [new Vec(i)]);
-            var rkSolution = solver.getSolution(true, [-25, 25]);
-            //graphCartesian((x) => euSolution(x, holder).x);
-            graphCartesian((x) => rkSolution(x, holder).x, Color.green);
-        }
-        // graphCartesian((x)=>1);
+        // // var euSolution = solver.getSolution(true, [-25, 25]);
+        // for(var i = -5; i <= 5; i+=0.5){
+        //     var solver = new RK2(diffEqn, 0.01, 7, [new Vec(i), new Vec(-i)]);
+        //     var rkSolution = solver.getSolution(true, [-25, 25]);
+        //     //graphCartesian((x) => euSolution(x, holder).x);
+        //     graphCartesian((x) => rkSolution(x, holder).x, Color.green);
+        // }
+        // var analSolution = (x) => Math.exp(0.5*x)*(-2*Math.cos(Math.sqrt(3)/2*x)+2*Math.sqrt(3)*Math.sin(Math.sqrt(3)/2*x));
 
-        // var analSolution = (x) => Math.exp(x);
-
-        // graphCartesian((x) => analSolution(x), 0x0065fb);
+        // graphCartesian((x) => analSolution(x-7), Color.blue);
         // graphCartesian((x) => (euSolution(x, holder).x - analSolution(x)), 0xfe0033);
         // graphCartesian((x) => (rkSolution(x, holder).x - analSolution(x)), 0x00fe33);
     </script>

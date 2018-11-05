@@ -28,17 +28,24 @@ body {
 
 #navbar{
     width: 100%;
-    padding: 2pt;
     align-items: center;
+    justify-content: center;
     background: #293f50;
     color: white;
     font: 500 22px/50px "Kodchasan",
-    "Muli",
+    "Courier",
     "Open Sans",
     "Helvetica Neue",
     Helvetica,
     Arial,
     sans-serif;
+}
+
+#logo{
+    margin: 8px;
+    margin-left: 20px;
+    height: 1.5em;
+    float: left;
 }
 
 #graphpanel{
