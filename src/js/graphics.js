@@ -1,12 +1,12 @@
-// import * as THREE from 'three';
-//import * as PIXI from 'pixi.js';
-//import * from './operations.js';
+import * as THREE from 'three';
+import * as PIXI from 'pixi.js';
+import {Vec} from './operations.js';
 
 var globalScene;
 var canvas;
 var tr = new Transformer;
 
-var Color = {
+const Color = {
     orange: 0xfb6500,
     green: 0x378b59,
     blue: 0x0065fb,
@@ -15,7 +15,7 @@ var Color = {
     air: 0xf0f8ff,
 };
 
-var materials = {
+const materials = {
     standard: new THREE.MeshPhongMaterial({
         opacity: 0.8,
         transparent: true,
@@ -30,7 +30,49 @@ var materials = {
         color: 0x7890ab,
         opacity: 0.8,
         transparent: true,
+    }),
+    line: new THREE.LineBasicMaterial({
+        color: 0x7890ab,
+        opacity: 0.8
     })
+}
+
+const fieldStyles = {
+    vector: {
+        tipHeight: (length) => length * 0.2,
+        tipRadius: (length) => (length < 10) ? length * 0.05 : 0.5,
+        bodyRadius: (length) => (length < 10) ? length * 0.01 : 0.01,
+        material: materials.opaque,
+        color: 0xfed400
+    },
+    vectorBold: {
+        tipHeight: (length) => length * 0.2,
+        tipRadius: (length) => (length < 10) ? length * 0.1 : 1,
+        bodyRadius: (length) => (length < 10) ? length * 0.025 : 0.25,
+        material: materials.opaque,
+        color: 0xfed400
+    },
+    vectorHeavy: {
+        tipHeight: (length) => length * 0.2,
+        tipRadius: (length) => (length > 1) ? (length < 10) ? length * 0.02 : 0.2 : 0.01,
+        bodyRadius: (length) => (length > 1) ? (length < 10) ? length * 0.01 : 0.1 : 0.01,
+        material: materials.opaque,
+        color: 0xfed400
+    },
+    vectorConstant: {
+        tipHeight: (length) => length * 0.2,
+        tipRadius: (length) => 0.005,
+        bodyRadius: (length) => 0.001,
+        material: materials.opaque,
+        color: 0xfed400
+    },
+    slope: {
+        tipHeight: (length) => 0,
+        tipRadius: (length) => 0.001,
+        bodyRadius: (length)=>0.001,
+        material: materials.opaque,
+        color: Color.green
+    }
 }
 
 function initialize2D(range = 20, scale = 500) {
@@ -44,7 +86,7 @@ function initialize2D(range = 20, scale = 500) {
     function onResize() {
         var height = window.innerHeight,
             width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
-        app.renderer.resize(width, height)
+        
     }
 
     var app = new PIXI.Application({
@@ -56,8 +98,10 @@ function initialize2D(range = 20, scale = 500) {
     });
     var height = window.innerHeight,
         width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+    var ratio = width / height;
     //Set renderer size
     app.renderer.autoResize = true;
+    // app.renderer.resolution = window.devicePixelRatio;
     app.renderer.resize(width, height);
     app.view.id = "graph";
     // add render view to DOM
@@ -98,11 +142,12 @@ function initialize3D(range = 20, scale = 4) {
         alpha: true,
         antialias: true
     });
-    var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     //Setup renderer
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.domElement.id = "graph";
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
     //add dom element
     panel.appendChild(renderer.domElement);
     canvas = renderer.domElement;
@@ -141,7 +186,7 @@ function graph2D(func = (x => 0), {
 
     var graphics = new PIXI.Graphics();
 
-    graphics.lineStyle(2, color, 1);
+    graphics.lineStyle(2, color, 0.8);
     // draw a shape
     graphics.moveTo(vertices[0][0], vertices[0][1]);
     for (var i = 1; i <= size; i++) {
@@ -196,7 +241,7 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
     scene.add(surface);
 }
 
-function parametricCurve(func = (t => new Vec(0, 0, 0)), {
+function parametricCurve2D(func = (t => new Vec(0, 0, 0)), {
     stage,
     color = 0x569078
 }) {
@@ -211,13 +256,32 @@ function parametricCurve(func = (t => new Vec(0, 0, 0)), {
 
     var graphics = new PIXI.Graphics();
 
-    graphics.lineStyle(2, color, 1);
+    graphics.lineStyle(2, color, 0.8);
     // draw a shape
     graphics.moveTo(vertices[0][0], vertices[0][1]);
     for (var i = 1; i <= size; i++) {
         graphics.lineTo(vertices[i][0], vertices[i][1]);
     }
     stage.addChild(graphics);
+}
+
+function parametricCurve3D(func = (t => new Vec(0, 0, 0)), {
+    scene,
+    color = 0x569078
+}) {
+
+    //Geometry definition
+    var size = 200;
+    var geometry = new THREE.Geometry();
+    var vertices = geometry.vertices;
+    for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
+        var vec = func(i);
+        vertices.push(vec.THREE().multiplyScalar(tr.scale / tr.range));
+    };
+    var lineMaterial = materials.line.clone();
+    lineMaterial.color = new THREE.Color(color);
+    var curve = new THREE.Line(geometry, lineMaterial);
+    scene.add(curve);
 }
 
 function parametricSurface(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), {
@@ -261,7 +325,7 @@ function graphCartesian(func = ((x = 0, y = 0) => 0), color = 0xfb6500) {
     }
 }
 
-function graphParametric(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), color = 0x0065fb) {
+function graphParametricSurface(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), color = 0x0065fb) {
     if (globalScene instanceof THREE.Scene) {
         parametricSurface(func, {
             scene: globalScene,
@@ -269,14 +333,29 @@ function graphParametric(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), color = 0x
         });
     }
     if (globalScene instanceof PIXI.Container) {
-        parametricCurve(t => func(t, 0), {
+        parametricCurve2D(t => func(t, 0), {
             stage: globalScene,
             color: color
         });
     }
 }
 
-function graphVector(vec = new Vec(), origin = new Vec(), spec = {
+function graphParametricCurve(func = ((u = 0) => new Vec(0, 0, 0)), color = 0x0065fb) {
+    if (globalScene instanceof THREE.Scene) {
+        parametricCurve3D(func, {
+            scene: globalScene,
+            color: color
+        });
+    }
+    if (globalScene instanceof PIXI.Container) {
+        parametricCurve2D(func, {
+            stage: globalScene,
+            color: color
+        });
+    }
+}
+
+function graphVector(vec = new Vec(), origin = new Vec(), style = {
     tipHeight: (length) => length * 0.2,
     tipRadius: (length) => (length < 10) ? length * 0.05 : 1,
     bodyRadius: (length) => (length < 10) ? length * 0.025 : 0.25,
@@ -284,22 +363,53 @@ function graphVector(vec = new Vec(), origin = new Vec(), spec = {
     color: 0xfed400
 }) {
     if (globalScene instanceof THREE.Scene) {
-        var arrow = new Arrow3D(vec, origin, spec);
+        var arrow = new Arrow3D(vec, origin, style);
         arrow.renderOrder = 0;
         globalScene.add(arrow);
         return arrow;
     }
+    if (globalScene instanceof PIXI.Container) {
+        var body = new PIXI.Graphics();
+        var vlength = vec.magnitude() / tr.range,
+            tH = style.tipHeight(vlength) * tr.scale,
+            tR = style.tipRadius(vlength) * tr.scale,
+            bR = style.bodyRadius(vlength) * tr.scale;
+        var reducedVec = vec.multiply((vlength-tH/tr.scale)/vlength,new Vec());
+        var p0 = tr.toP(origin.x, origin.y),
+            p1 = tr.toP(origin.x + reducedVec.x, origin.y + reducedVec.y);
+        var norm = new Vec(p1[0] - p0[0], p1[1] - p0[1]).cross(new Vec(0, 0, 1)).normalize().multiply(tR),
+            p2 = [p1[0] + norm.x, p1[1] + norm.y],
+            p3 = [p1[0]- norm.x, p1[1] - norm.y],
+            p4 = tr.toP(origin.x+vec.x, origin.y+vec.y);
+        body.lineStyle(bR*2, style.color, 1);
+        body.moveTo(p0[0], p0[1]);
+        body.lineTo(p1[0], p1[1]);
+        globalScene.addChild(body);
+
+        var head = new PIXI.Graphics();
+        head.beginFill(style.color);
+        head.drawPolygon([
+            p2[0], p2[1],
+            p3[0], p3[1],
+            p4[0], p4[1],
+        ]);
+        head.endFill();
+        globalScene.addChild(head);
+    }
 }
 
-function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], spec = {
-    tipHeight: (length) => length * 0.2,
-    tipRadius: (length) => (length>1)?(length < 10) ? length * 0.02 : 0.2 : 0.01,
-    bodyRadius: (length) => (length > 1) ? (length < 10) ? length * 0.01 : 0.1 : 0.01,
-    material: materials.opaque,
-    color: Color.green
-}) {
+function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], style = fieldStyles.vector) {
     for (var i = 0; i < origins.length; i++)
-        graphVector(func(origins[i]), origins[i], spec);
+        graphVector(func(origins[i]), origins[i], style);
+}
+
+function graphSlopeField(func = (x,y)=>0, count = 21, style = fieldStyles.slope){
+    var vecFunc = (vec = new Vec()) => {
+        var slope = func(vec.x, vec.y);
+        return (Number.isFinite(slope))?new Vec(1,slope).normalize().multiply((tr.range)/(count-1)): new Vec(0,1);
+    }
+    var matrix = getMatrix(2, [[-tr.range/2,tr.range/2]], [count]);
+    graphVectorField(vecFunc, matrix, style);
 }
 
 function Transformer(range = 10, scale = 4) {
@@ -319,7 +429,7 @@ function Transformer(range = 10, scale = 4) {
 
 
 class Arrow3D extends THREE.Group {
-    constructor(vec = new Vec(0, 1), origin = new Vec(1), spec = {
+    constructor(vec = new Vec(0, 1), origin = new Vec(1), style = {
         tipHeight: (length) => length * 0.2,
         tipRadius: (length) => length * 0.1,
         bodyRadius: (length) => length * 0.025,
@@ -327,20 +437,22 @@ class Arrow3D extends THREE.Group {
         color: 0x7890ab
     }) {
         super();
-        spec.material.color = new THREE.Color(spec.color);
-        var length = vec.magnitude() / tr.range * tr.scale,
-            tH = spec.tipHeight(length),
-            tR = spec.tipRadius(length),
-            bR = spec.bodyRadius(length);
+        style.material.color = new THREE.Color(style.color);
+        var vlength = vec.magnitude() / tr.range,
+            tH = style.tipHeight(vlength) * tr.scale,
+            tR = style.tipRadius(vlength) * tr.scale,
+            bR = style.bodyRadius(vlength) * tr.scale;
         this.magnitude = vec.magnitude();
-        this.length = length;
-        var headGeometry = new THREE.ConeGeometry(tR, tH, 20, 3);
-        headGeometry.translate(0, length - tH / 2, 0);
-        var headMesh = new THREE.Mesh(headGeometry, spec.material);
-        var cylGeometry = new THREE.CylinderGeometry(bR, bR, length - tH, 20, 3);
-        cylGeometry.translate(0, length / 2 - tH / 2, 0);
-        var cylMesh = new THREE.Mesh(cylGeometry, spec.material);
-        this.add(headMesh);
+        var glength = vlength * tr.scale;
+        if(tH!=0){
+            var headGeometry = new THREE.ConeGeometry(tR, tH, 20, 3);
+            headGeometry.translate(0, glength - tH / 2, 0);
+            var headMesh = new THREE.Mesh(headGeometry, style.material);
+            this.add(headMesh);
+        }
+        var cylGeometry = new THREE.CylinderGeometry(bR, bR, glength - tH, 20, 3);
+        cylGeometry.translate(0, glength / 2 - tH / 2, 0);
+        var cylMesh = new THREE.Mesh(cylGeometry, style.material);
         this.add(cylMesh);
         var dir = vec.THREE().normalize();
         var dirAvg = new THREE.Vector3(0, 1, 0).add(dir).normalize();

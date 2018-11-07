@@ -15,15 +15,15 @@ const validateNumbers = (x, y) => !(isNaN(x) || isNaN(y));
  */
 class Vec {
     constructor(...components) {
-        this.components = (components.length == 2)? [components[0], components[1], 0]:
-            (components.length == 1) ? 
-                (components[0] instanceof Array)? components[0]:
-                [components[0], 0, 0]:
-            (components.length == 0) ? [0,0,0]:
+        this.components = (components.length == 2) ? [components[0], components[1], 0] :
+            (components.length == 1) ?
+            (components[0] instanceof Array) ? components[0] : [components[0], 0, 0] :
+            (components.length == 0) ? [0, 0, 0] :
             components;
-        
+
         this.set = function (...components) {
-            if (components != undefined) this.components = components;
+            this.components = components;
+            return this;
         }
 
         this.add = (b = new Vec(), holder = this) => {
@@ -41,7 +41,7 @@ class Vec {
         this.vdot = (b = new Vec()) => {
             return this.x * b.x + this.y * b.y + this.z * b.z;
         }
-        this.vcross = (b = new Vec(), holder = new Vec()) => {
+        this.cross = (b = new Vec(), holder = new Vec()) => {
             holder.set(this.y * b.z - this.z * b.y, this.z * b.x - this.x * b.z, this.x * b.y - this.y * b.x);
             return holder;
         }
@@ -49,16 +49,16 @@ class Vec {
         this.clone = () => new Vec(this.x, this.y, this.z);
         this.THREE = () => new THREE.Vector3().set(this.x, this.y, this.z);
         this.toLatex = () => "<" + this.x + ", " + this.y + ", " + this.z + ">";
-        this.normalize = () => this.multiply(1/this.magnitude());
+        this.normalize = () => this.multiply(1 / this.magnitude());
     }
     get x() {
-        return this.components[0];
+        return (this.components[0]) ? this.components[0] : 0;
     }
     get y() {
-        return this.components[1];
+        return (this.components[1]) ? this.components[1] : 0;
     }
     get z() {
-        return this.components[2];
+        return (this.components[2]) ? this.components[2] : 0;
     }
     set x(x) {
         this.components[0] = x;
@@ -251,22 +251,22 @@ function stackMatrix(dimension, level, ranges, counts, matrix, index, currentArr
     return index;
 }
 
-function apply(func = (vec)=>new Vec(), matrix = [new Vec()]){
-    for(var i = 0; i < matrix.length; i++){
-        matrix[i]=func(matrix[i]);
+function apply(func = (vec) => new Vec(), matrix = [new Vec()]) {
+    for (var i = 0; i < matrix.length; i++) {
+        matrix[i] = func(matrix[i]);
     }
     return matrix;
 }
 
-// module.exports = {
-//     add,
-//     subtract,
-//     multiply,
-//     divide,
-//     sin,
-//     cos,
-//     validateNumbers,
-//     Vec,
-//     Euler,
-//     RK2
-// }
+module.exports = {
+    add,
+    subtract,
+    multiply,
+    divide,
+    sin,
+    cos,
+    validateNumbers,
+    Vec,
+    Euler,
+    RK2
+}
