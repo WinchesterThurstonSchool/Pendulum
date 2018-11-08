@@ -258,7 +258,7 @@ function apply(func = (vec) => new Vec(), matrix = [new Vec()]) {
     return matrix;
 }
 
-module.exports = {
+export {
     add,
     subtract,
     multiply,
@@ -267,6 +267,9 @@ module.exports = {
     cos,
     validateNumbers,
     Vec,
+    DiffEqn,
     Euler,
-    RK2
+    RK2,
+    getMatrix,
+    apply
 }

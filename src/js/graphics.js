@@ -1,12 +1,15 @@
-import * as THREE from 'three';
+global.THREE = require('three');
+require('three/OrbitControls');
 import * as PIXI from 'pixi.js';
-import {Vec} from './operations.js';
+import {
+    Vec
+} from './operations.js';
 
 var globalScene;
 var canvas;
 var tr = new Transformer;
 
-const Color = {
+const colors = {
     orange: 0xfb6500,
     green: 0x378b59,
     blue: 0x0065fb,
@@ -69,9 +72,9 @@ const fieldStyles = {
     slope: {
         tipHeight: (length) => 0,
         tipRadius: (length) => 0.001,
-        bodyRadius: (length)=>0.001,
+        bodyRadius: (length) => 0.001,
         material: materials.opaque,
-        color: Color.green
+        color: colors.green
     }
 }
 
@@ -86,7 +89,7 @@ function initialize2D(range = 20, scale = 500) {
     function onResize() {
         var height = window.innerHeight,
             width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
-        
+
     }
 
     var app = new PIXI.Application({
@@ -374,14 +377,14 @@ function graphVector(vec = new Vec(), origin = new Vec(), style = {
             tH = style.tipHeight(vlength) * tr.scale,
             tR = style.tipRadius(vlength) * tr.scale,
             bR = style.bodyRadius(vlength) * tr.scale;
-        var reducedVec = vec.multiply((vlength-tH/tr.scale)/vlength,new Vec());
+        var reducedVec = vec.multiply((vlength - tH / tr.scale) / vlength, new Vec());
         var p0 = tr.toP(origin.x, origin.y),
             p1 = tr.toP(origin.x + reducedVec.x, origin.y + reducedVec.y);
         var norm = new Vec(p1[0] - p0[0], p1[1] - p0[1]).cross(new Vec(0, 0, 1)).normalize().multiply(tR),
             p2 = [p1[0] + norm.x, p1[1] + norm.y],
-            p3 = [p1[0]- norm.x, p1[1] - norm.y],
-            p4 = tr.toP(origin.x+vec.x, origin.y+vec.y);
-        body.lineStyle(bR*2, style.color, 1);
+            p3 = [p1[0] - norm.x, p1[1] - norm.y],
+            p4 = tr.toP(origin.x + vec.x, origin.y + vec.y);
+        body.lineStyle(bR * 2, style.color, 1);
         body.moveTo(p0[0], p0[1]);
         body.lineTo(p1[0], p1[1]);
         globalScene.addChild(body);
@@ -403,12 +406,14 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
         graphVector(func(origins[i]), origins[i], style);
 }
 
-function graphSlopeField(func = (x,y)=>0, count = 21, style = fieldStyles.slope){
+function graphSlopeField(func = (x, y) => 0, count = 21, style = fieldStyles.slope) {
     var vecFunc = (vec = new Vec()) => {
         var slope = func(vec.x, vec.y);
-        return (Number.isFinite(slope))?new Vec(1,slope).normalize().multiply((tr.range)/(count-1)): new Vec(0,1);
+        return (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) : new Vec(0, 1);
     }
-    var matrix = getMatrix(2, [[-tr.range/2,tr.range/2]], [count]);
+    var matrix = getMatrix(2, [
+        [-tr.range / 2, tr.range / 2]
+    ], [count]);
     graphVectorField(vecFunc, matrix, style);
 }
 
@@ -444,7 +449,7 @@ class Arrow3D extends THREE.Group {
             bR = style.bodyRadius(vlength) * tr.scale;
         this.magnitude = vec.magnitude();
         var glength = vlength * tr.scale;
-        if(tH!=0){
+        if (tH != 0) {
             var headGeometry = new THREE.ConeGeometry(tR, tH, 20, 3);
             headGeometry.translate(0, glength - tH / 2, 0);
             var headMesh = new THREE.Mesh(headGeometry, style.material);
@@ -466,3 +471,17 @@ class Arrow3D extends THREE.Group {
         this.translateOnAxis(transformedOrgin, 1);
     }
 }
+
+export {
+    colors,
+    materials,
+    fieldStyles,
+    initialize2D,
+    initialize3D,
+    graphCartesian,
+    graphParametricCurve,
+    graphParametricSurface,
+    graphVector,
+    graphVectorField,
+    graphSlopeField
+};

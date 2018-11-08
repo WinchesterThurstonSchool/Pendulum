@@ -1,5 +1,6 @@
-b = new Array(10);
-b[11] = 5;
-((...a)=>{
-    console.log(a.length);
-})(1)
+try {
+    console.log(require.resolve("webpack"));
+} catch (e) {
+    console.error("Webpack is not found");
+    process.exit(e.code);
+}
