@@ -18,7 +18,7 @@ body {
 
 #root {
     --blue: #3abdff;
-    --blueShadow: #006ea5;
+    --blueShadow: #007fbe;
     --yellow: #fbff00;
     --gray: #f3f3f3;
     --grayShadow: #535353;
@@ -53,6 +53,7 @@ body {
 }
 
 #defpanel {
+    align-items: center;
     float: left;
     font-size: 105%;
     min-width: 300px;
@@ -83,4 +84,10 @@ body {
 #zoomInBtn, #zoomOutBtn, #homeBtn {
     float: right;
     margin: 2pt;
+}
+
+.math {
+    display: block;
+    margin-top: 20px;
+    width: 100%;
 }

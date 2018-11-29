@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="./mathquill.js"></script>
+    <link rel="stylesheet" href="./mathquill.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kodchasan">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Muli">
     <title>Cloudnest - Pendulum</title>
@@ -22,6 +24,8 @@
         </div>
         <div id="defpanel">
             <button class="btn btn-block" type="button">New Object</button>
+            <span class="math" id="basic">\sqrt{2}</span>
+            <textarea class="math" id="basic-latex"></textarea>
         </div>
         <div id="graphpanel">
             <div id="zoomPanel">
@@ -29,15 +33,18 @@
                 <br>
                 <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus"></button>
                 <br>
-                <button id="homeBtn" class="btn glyphicon glyphicon-home"></button>
+                <button id="homeBtn" class="btn glyphicon glyphicon-home" ></button>
             </div>
         </div>
     </div>
-    <!-- <script src="../node_modules/three/build/three.min.js"></script>
+    <script>
+        
+        
+    </script>
+    <script src="../node_modules/three/build/three.min.js"></script>
     <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
-    <script src="js/operations.js"></script>
-    <script src="js/graphics.js"></script> -->
+    <script type="module" src="./index.js"></script>
 </body>
 
 </html>

@@ -9,7 +9,8 @@ import {
     graphParametricSurface,
     graphVector,
     graphVectorField,
-    graphSlopeField
+    graphSlopeField,
+    graphNormalSurface
 } from './js/graphics.js';
 
 import {
@@ -21,49 +22,88 @@ import {
     apply
 } from './js/operations.js';
 
-initialize3D(10);
+var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
-// graphParametric((u, v) => {
-//     var s = u * 2 * Math.PI,
-//         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
-//     return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
-//         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
-//         -Math.sin(t) - 3);
-// });
-// var func = (x, y) => Math.sin(x) + Math.cos(y);
-// graphCartesian(func);
-// var matrix = getMatrix(2, [[-5,5]], [11]);
-// var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
-// graphVectorField((vec)=>new Vec(-Math.cos(vec.x), Math.sin(vec.y), 1), near);
-var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
-    (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
-    (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
-    (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
-    (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
-
-];
-var field = fields[0];
-graphVectorField(field, getMatrix(3, [
-    [-5, 5]
-], [11]), fieldStyles.vectorConstant);
-// graphSlopeField((x, y) => x/y);
-var diffEqn = new DiffEqn((t, ys) => field(ys[0]), 1);
-for (var i = -5; i <= 5; i++)
-    for (var j = -5; j <= 5; j++) {
-        var solver = new RK2(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
-        var rkSolution = solver.getSolution(true, [-25, 25]);
-        var holder = new Vec();
-        graphParametricCurve((t) => rkSolution(t * 50 - 25, holder));
+var latex = $('#basic-latex').bind('keydown keypress', function () {
+    var prev = latex.val();
+    setTimeout(function () {
+        var now = latex.val();
+        if (now !== prev) mq.latex(now);
+    });
+});
+var mq = MQ.MathField($('#basic')[0], {
+    autoSubscriptNumerals: true,
+    handlers: {
+        edit: function () {
+            if (!latex.is(':focus')) latex.val(mq.latex());
+        }
     }
+});
+latex.val(mq.latex());
 
-for (var i = -5; i <= 5; i++)
-    for (var j = -5; j <= 5; j++) {
-        var solver = new RK2(diffEqn, 0.01, 0, [new Vec(0, i, j)]);
-        var rkSolution = solver.getSolution(true, [-25, 25]);
-        var holder = new Vec();
-        graphParametricCurve((t) => rkSolution(t * 50 - 25, holder));
-    }
-var holder = new Vec();
+
+$(function () {
+    initialize3D(20);
+    var holder = new Vec();
+    // graphParametricSurface((u, v) => {
+    //     var s = u * 2 * Math.PI,
+    //         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
+    //     return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
+    //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
+    //         -Math.sin(t) - 3);
+    // });
+    graphParametricSurface((u, v, holder) => {
+        var s = v * Math.PI,
+            t = u * 2 * Math.PI,
+            r = 0.5;
+        return holder.set(r * Math.sin(s) * Math.cos(t),
+            r * Math.sin(s) * Math.sin(t),
+            r * Math.cos(s));
+    });
+
+    // var func = (x, y) => x*x*x+y+y*y;
+    // graphCartesian(func);
+    // graphSlopeField((x, y) => Math.sin(x)+Math.cos(y));
+    var diffEqn = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
+    var rk2 = new RK2(diffEqn, 0.1, 0, [new Vec(1), new Vec(0, 1, 0.5)]).getSolution(true, [-50, 50]);
+    graphParametricCurve(t => rk2(100 * (t - 0.5), holder), colors.orange);
+    rk2 = new RK2(diffEqn, 0.1, 0, [new Vec(2), new Vec(0, 0.5, -0.5)]).getSolution(true, [-50, 50]);
+    graphParametricCurve(t => rk2(100 * (t - 0.5), holder), colors.blue);
+
+    // graphCartesian(func);
+    // var matrix = getMatrix(2, [[-5,5]], [11]);
+    // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
+    // graphVectorField((vec)=>new Vec(-Math.cos(vec.x), Math.sin(vec.y), 1), near);
+    var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
+        (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
+        (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
+        (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
+        (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
+
+    ];
+    var field = fields[4];
+})
+// // graphVectorField(field, getMatrix(3, [
+// //     [-5, 5]
+// // // ], [11]), fieldStyles.vectorConstant);
+// var diffEqn = new DiffEqn((t, ys) => field(ys[0]), 1);
+// for (var i = -5; i <= 5; i++)
+//     for (var j = -5; j <= 5; j++) {
+//         var solver = new RK2(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
+//         var rkSolution = solver.getSolution(true, [-25, 25]);
+//         var holder = new Vec();
+//         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.green);
+//     }
+
+// for (var i = -5; i <= 5; i++)
+//     for (var j = -5; j <= 5; j++) {
+//         var solver = new RK2(diffEqn, 0.01, 0, [new Vec(0, i, j)]);
+//         var rkSolution = solver.getSolution(true, [-25, 25]);
+//         var holder = new Vec();
+//         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.red);
+//     }
+
+// var holder = new Vec();
 // graphCartesian((x)=>rkSolution(x,holder).x);
 // var diffEqn = new DiffEqn((t, ys) => new Vec(3 * Math.exp(5 * t) + 12 * ys[0].x + 4 * ys[1].x), 2);
 // for(var i = -5; i <= 5; i+=0.5){

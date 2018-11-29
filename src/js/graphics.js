@@ -1,8 +1,11 @@
-global.THREE = require('three');
-require('three/OrbitControls');
-import * as PIXI from 'pixi.js';
+
+//   global.THREE = require('three');
+//   require('three/OrbitControls');
+//   import * as PIXI from 'pixi.js';
+
 import {
-    Vec
+    Vec,
+    getMatrix
 } from './operations.js';
 
 var globalScene;
@@ -41,12 +44,14 @@ const materials = {
 }
 
 const fieldStyles = {
-    vector: {
-        tipHeight: (length) => length * 0.2,
-        tipRadius: (length) => (length < 10) ? length * 0.05 : 0.5,
-        bodyRadius: (length) => (length < 10) ? length * 0.01 : 0.01,
-        material: materials.opaque,
-        color: 0xfed400
+    vector: function (color = 0xfed400) {
+        return {
+            tipHeight: (length) => length * 0.2,
+            tipRadius: (length) => (length < 10) ? length * 0.05 : 0.5,
+            bodyRadius: (length) => (length < 10) ? length * 0.01 : 0.01,
+            material: materials.opaque,
+            color: color
+        }
     },
     vectorBold: {
         tipHeight: (length) => length * 0.2,
@@ -64,15 +69,15 @@ const fieldStyles = {
     },
     vectorConstant: {
         tipHeight: (length) => length * 0.2,
-        tipRadius: (length) => 0.005,
-        bodyRadius: (length) => 0.001,
+        tipRadius: () => 0.005,
+        bodyRadius: () => 0.001,
         material: materials.opaque,
         color: 0xfed400
     },
     slope: {
-        tipHeight: (length) => 0,
-        tipRadius: (length) => 0.001,
-        bodyRadius: (length) => 0.001,
+        tipHeight: () => 0,
+        tipRadius: () => 0.001,
+        bodyRadius: () => 0.001,
         material: materials.opaque,
         color: colors.green
     }
@@ -274,7 +279,7 @@ function parametricCurve3D(func = (t => new Vec(0, 0, 0)), {
 }) {
 
     //Geometry definition
-    var size = 200;
+    var size = 1000;
     var geometry = new THREE.Geometry();
     var vertices = geometry.vertices;
     for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
@@ -287,15 +292,16 @@ function parametricCurve3D(func = (t => new Vec(0, 0, 0)), {
     scene.add(curve);
 }
 
-function parametricSurface(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), {
+function parametricSurface(func = ((u = 0, v = 0, holder = new Vec()) => holder), {
     scene,
     color = 0xffffff
 }) {
     //Geometry definition
     var size = 200;
-    var vecFunc = (u = 0, v = 0, target) => {
-        var vec = func(u, v).multiply(tr.scale / tr.range);
-        return target.set(vec.x, vec.y, vec.z);
+    var holder = new Vec();
+    var vecFunc = (u = 0, v = 0, target = new THREE.Vector3()) => {
+        var vec = func(u, v, holder).multiply(tr.scale / tr.range);
+        target.set(vec.x, vec.y, vec.z);
     }
     var geometry = new THREE.ParametricGeometry(vecFunc, size, size);
     geometry.mergeVertices();
@@ -328,7 +334,7 @@ function graphCartesian(func = ((x = 0, y = 0) => 0), color = 0xfb6500) {
     }
 }
 
-function graphParametricSurface(func = ((u = 0, v = 0) => new Vec(0, 0, 0)), color = 0x0065fb) {
+function graphParametricSurface(func = ((u = 0, v = 0, holder = new Vec()) => holder), color = 0x0065fb) {
     if (globalScene instanceof THREE.Scene) {
         parametricSurface(func, {
             scene: globalScene,
@@ -358,13 +364,7 @@ function graphParametricCurve(func = ((u = 0) => new Vec(0, 0, 0)), color = 0x00
     }
 }
 
-function graphVector(vec = new Vec(), origin = new Vec(), style = {
-    tipHeight: (length) => length * 0.2,
-    tipRadius: (length) => (length < 10) ? length * 0.05 : 1,
-    bodyRadius: (length) => (length < 10) ? length * 0.025 : 0.25,
-    material: materials.opaue,
-    color: 0xfed400
-}) {
+function graphVector(vec = new Vec(), origin = new Vec(), style = fieldStyles.vector()) {
     if (globalScene instanceof THREE.Scene) {
         var arrow = new Arrow3D(vec, origin, style);
         arrow.renderOrder = 0;
@@ -401,7 +401,7 @@ function graphVector(vec = new Vec(), origin = new Vec(), style = {
     }
 }
 
-function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], style = fieldStyles.vector) {
+function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], style = fieldStyles.vector()) {
     for (var i = 0; i < origins.length; i++)
         graphVector(func(origins[i]), origins[i], style);
 }
@@ -409,12 +409,17 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
 function graphSlopeField(func = (x, y) => 0, count = 21, style = fieldStyles.slope) {
     var vecFunc = (vec = new Vec()) => {
         var slope = func(vec.x, vec.y);
-        return (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) : new Vec(0, 1);
+        return (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) : 
+            (slope > 0) ? new Vec(0, (tr.range) / (count - 1)): new Vec(0, -(tr.range) / (count - 1));
     }
     var matrix = getMatrix(2, [
         [-tr.range / 2, tr.range / 2]
     ], [count]);
     graphVectorField(vecFunc, matrix, style);
+}
+
+function graphNormalSurface(normal = new Vec(0,0,1), offset = normal, color = colors.orange){
+    graphCartesian((x,y)=>offset.z-(normal.x*(x-offset.x)+normal.y*(y-offset.y))/normal.z, color);
 }
 
 function Transformer(range = 10, scale = 4) {
@@ -434,15 +439,10 @@ function Transformer(range = 10, scale = 4) {
 
 
 class Arrow3D extends THREE.Group {
-    constructor(vec = new Vec(0, 1), origin = new Vec(1), style = {
-        tipHeight: (length) => length * 0.2,
-        tipRadius: (length) => length * 0.1,
-        bodyRadius: (length) => length * 0.025,
-        material: materials.opaque,
-        color: 0x7890ab
-    }) {
+    constructor(vec = new Vec(0, 1), origin = new Vec(1), style = fieldStyles.vector()) {
         super();
-        style.material.color = new THREE.Color(style.color);
+        style.material.color
+         = new THREE.Color(style.color);
         var vlength = vec.magnitude() / tr.range,
             tH = style.tipHeight(vlength) * tr.scale,
             tR = style.tipRadius(vlength) * tr.scale,
@@ -452,12 +452,12 @@ class Arrow3D extends THREE.Group {
         if (tH != 0) {
             var headGeometry = new THREE.ConeGeometry(tR, tH, 20, 3);
             headGeometry.translate(0, glength - tH / 2, 0);
-            var headMesh = new THREE.Mesh(headGeometry, style.material);
+            var headMesh = new THREE.Mesh(headGeometry, style.material.clone());
             this.add(headMesh);
         }
         var cylGeometry = new THREE.CylinderGeometry(bR, bR, glength - tH, 20, 3);
         cylGeometry.translate(0, glength / 2 - tH / 2, 0);
-        var cylMesh = new THREE.Mesh(cylGeometry, style.material);
+        var cylMesh = new THREE.Mesh(cylGeometry, style.material.clone());
         this.add(cylMesh);
         var dir = vec.THREE().normalize();
         var dirAvg = new THREE.Vector3(0, 1, 0).add(dir).normalize();
@@ -483,5 +483,6 @@ export {
     graphParametricSurface,
     graphVector,
     graphVectorField,
-    graphSlopeField
+    graphSlopeField,
+    graphNormalSurface
 };

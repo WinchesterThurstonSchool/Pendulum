@@ -38,7 +38,7 @@ class Vec {
             holder.set(this.x * c, this.y * c, this.z * c);
             return holder;
         }
-        this.vdot = (b = new Vec()) => {
+        this.dot = (b = new Vec()) => {
             return this.x * b.x + this.y * b.y + this.z * b.z;
         }
         this.cross = (b = new Vec(), holder = new Vec()) => {
@@ -49,7 +49,7 @@ class Vec {
         this.clone = () => new Vec(this.x, this.y, this.z);
         this.THREE = () => new THREE.Vector3().set(this.x, this.y, this.z);
         this.toLatex = () => "<" + this.x + ", " + this.y + ", " + this.z + ">";
-        this.normalize = () => this.multiply(1 / this.magnitude());
+        this.normalize = (holder = this) => this.multiply(1 / this.magnitude(), holder);
     }
     get x() {
         return (this.components[0]) ? this.components[0] : 0;
@@ -72,10 +72,9 @@ class Vec {
 }
 
 const DiffEqn = class {
-    constructor(eqn = (t = 0, ...n) => new Vec(), order = 1) {
+    constructor(eqn = (t = 0, n=[new Vec()]) => new Vec(), order = 1) {
         this.order = order;
         this.ydirs = [new Vec()];
-        this.hdir = new Vec();
         this.eqn = eqn;
     }
     get y() {
@@ -102,9 +101,9 @@ class Euler {
             this.diffEqn.ydirs[i].add(this.diffEqn.ydirs[i + 1].multiply(dt, new Vec()));
         }
         this.t += dt;
-        this.diffEqn.hdir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
         // console.log(this.diffEqn.hdir);
-        this.diffEqn.ydirs[this.diffEqn.ydirs.length - 1].add(this.diffEqn.hdir.multiply(dt));
+        this.diffEqn.ydirs[this.diffEqn.ydirs.length - 1].add(dir.multiply(dt));
     }
     y(t, target = new Vec()) {
         let lY, rY;
@@ -202,23 +201,29 @@ class RK2 extends Euler {
     constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
         super(diffEqn, dt, startTime, inits);
     }
-    step(dt = this.dt) {
-        var k0 = this.states;
-        super.step(dt);
-        var k1 = this.states;
-        var lastDerivative = this.diffEqn.eqn(k0.t, k0.dirs).add(this.diffEqn.eqn(k1.t, k1.dirs)).multiply(0.5);
-        this.states = k0;
+    step0(dt = this.dt) {
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
         var dirs = this.diffEqn.ydirs;
         var holder = new Vec();
         var lev = this.diffEqn.order;
         for (var i = 0; i < lev - 2; i++) {
             dirs[i].add(dirs[i + 1].multiply(dt, holder)).
-            add(dirs[i + 2].multiply(dt * dt / 2, holder));
+            add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
         }
-        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder)).add(lastDerivative.multiply(dt * dt / 2, holder));
-        if (lev - 1 >= 0) dirs[lev - 1].add(lastDerivative.multiply(dt, holder));
-        this.diffEqn.hdir = lastDerivative;
+        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder))
+            .add(dir.multiply(dt * dt * 0.5, holder));
+        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
         this.t += dt;
+        return holder.set(dir.x, dir.y, dir.z);
+    }
+    step(dt = this.dt) {
+        var dirs = this.diffEqn.ydirs;
+        var lev = this.diffEqn.order;
+        var dir1;
+        if (lev - 1 >= 0) dir1 = dirs[lev - 1].clone();
+        var dir2 = this.step0(dt);
+        var rk2 = dir2.add(this.diffEqn.eqn(this.t, this.diffEqn.ydirs)).multiply(0.5);
+        if (lev - 1 >= 0) dirs[lev - 1] = dir1.add(rk2.multiply(dt));
     }
 }
 
@@ -271,5 +276,5 @@ export {
     Euler,
     RK2,
     getMatrix,
-    apply
+    apply,
 }

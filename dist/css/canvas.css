@@ -86,3 +86,8 @@ body {
     float: right;
     margin: 2pt;
 }
+
+.math {
+    margin: 5px;
+    padding: 10px;
+}
