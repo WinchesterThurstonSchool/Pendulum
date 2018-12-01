@@ -14,6 +14,7 @@ var width = 0,
 var camera;
 var tr = new Transformer;
 var graphers = [];
+var renderAll;
 
 const colors = {
     orange: 0xfb6500,
@@ -93,15 +94,18 @@ function initialize2D(range = 20, scale = 500) {
     var panel = document.getElementById("graphpanel");
     if (canvas)
         panel.removeChild(canvas);
-
+    renderAll = ()=>requestAnimationFrame(() => {
+        for (var i in graphers)
+            graphers[i]();
+        app.render();
+    });
     function onResize() {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
         app.renderer.resize(width, height);
         app.renderer.view.style.width = width + 'px';
         app.renderer.view.style.height = height + 'px';
-        for (var i in graphers)
-            graphers[i]();
+        renderAll();
     }
     var app = new PIXI.Application({
         width: panel.offsetWidth, // default: 800
@@ -121,6 +125,7 @@ function initialize2D(range = 20, scale = 500) {
     // add render view to DOM
     panel.appendChild(app.view);
     canvas = app.view;
+    new DragControl(tr, canvas, app);
     globalScene = app.stage;
     return app.stage;
 }
@@ -194,7 +199,9 @@ function resetScene() {
         camera.lookAt(0, 0, 0);
     }
     if (globalScene instanceof PIXI.Container) {
-
+        tr.range = 20;
+        tr.scale = 500;
+        renderAll();
     }
 }
 
@@ -455,6 +462,7 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
                 field.endFill();
             }
         }
+        grapher();
         globalScene.addChild(field);
         graphers.push(grapher);
     }
@@ -493,6 +501,14 @@ function Transformer(range = 10, scale = 4) {
     }
 }
 
+function DragControl(tr  = new Transformer, canvas=document.body){
+    this.transformer = tr;
+    this.canvas = canvas;
+    canvas.addEventListener('wheel', (e)=>{
+        tr.scale*=Math.max(1+e.deltaY*0.001,0.001);
+        renderAll();
+    })
+}
 
 class Arrow3D extends THREE.Group {
     constructor(vec = new Vec(0, 1), origin = new Vec(1), style = fieldStyles.vector()) {

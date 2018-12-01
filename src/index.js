@@ -47,15 +47,15 @@ latex.val(mq.latex());
 
 
 $(function () {
-    initialize3D(20);
+    initialize2D(20);
     var holder = new Vec();
-    // graphParametricSurface((u, v) => {
-    //     var s = u * 2 * Math.PI,
-    //         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
-    //     return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
-    //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
-    //         -Math.sin(t) - 3);
-    // });
+    graphParametricSurface((u, v) => {
+        var s = u * 2 * Math.PI,
+            t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
+        return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
+            3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
+            -Math.sin(t) - 3);
+    });
     // graphParametricSurface((u, v) => {
     //     var s = v * Math.PI,
     //         t = u * 2 * Math.PI,
@@ -72,7 +72,7 @@ $(function () {
     var sol1 = new RK2(diffEqn, 0.1, 0, [new Vec(1), new Vec(0, 1, 0.5)]).getSolution(true, [-50, 50]);
     graphParametricCurve(t => sol1(100 * (t - 0.5), holder), colors.orange);
     graphParametricCurve(t => new Vec(t*t,t,-t*t*t), colors.blue);
-    graphCartesian((x,y)=>Math.cos(y));
+    graphCartesian((x,y)=>Math.sin(x));
 
 
     // graphCartesian(func);
