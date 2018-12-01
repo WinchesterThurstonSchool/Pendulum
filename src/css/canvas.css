@@ -13,7 +13,6 @@ html {
 body {
     height: 100%;
     margin: 0;
-    overflow: hidden;
 }
 
 #root {
@@ -23,11 +22,15 @@ body {
     --gray: #f3f3f3;
     --grayShadow: #535353;
     height: 100%;
-    background: aliceblue;
+    display: grid;
+    grid-template-columns: fit-content(20%) 1fr;
+    grid-template-rows: 50px 1fr;
 }
 
 #navbar{
-    width: 100%;
+    grid-column: 1 / span 2;
+    justify-self: stretch;
+    align-self: stretch;
     align-items: center;
     justify-content: center;
     background: #293f50;
@@ -49,16 +52,19 @@ body {
 }
 
 #graphpanel{
-    float: right;
+    grid-column: 2 / span 1;
+    grid-row: 2/span 1;
+    align-self: stretch;
+    justify-self: stretch;
+    overflow: hidden;
+    background: aliceblue;
 }
 
 #defpanel {
+    grid-column: 1 / span 1;
+    grid-row: 2/span 1;
     align-items: center;
-    float: left;
-    font-size: 105%;
     min-width: 300px;
-    width: 20%;
-    height: 100%;
     padding: 15px;
     margin: 0px;
     border-right: 5px solid var(--grayShadow);

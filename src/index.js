@@ -10,7 +10,8 @@ import {
     graphVector,
     graphVectorField,
     graphSlopeField,
-    graphNormalSurface
+    graphNormalSurface,
+    resetScene
 } from './js/graphics.js';
 
 import {
@@ -19,8 +20,11 @@ import {
     Euler,
     RK2,
     getMatrix,
-    apply
+    apply,
+    sin
 } from './js/operations.js';
+
+window.resetScene = resetScene;
 
 var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
@@ -52,23 +56,24 @@ $(function () {
     //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
     //         -Math.sin(t) - 3);
     // });
-    graphParametricSurface((u, v, holder) => {
-        var s = v * Math.PI,
-            t = u * 2 * Math.PI,
-            r = 0.5;
-        return holder.set(r * Math.sin(s) * Math.cos(t),
-            r * Math.sin(s) * Math.sin(t),
-            r * Math.cos(s));
-    });
+    // graphParametricSurface((u, v) => {
+    //     var s = v * Math.PI,
+    //         t = u * 2 * Math.PI,
+    //         r = 0.5;
+    //     return holder.set(r * Math.sin(s) * Math.cos(t),
+    //         r * Math.sin(s) * Math.sin(t),
+    //         r * Math.cos(s));
+    // });
 
     // var func = (x, y) => x*x*x+y+y*y;
     // graphCartesian(func);
     // graphSlopeField((x, y) => Math.sin(x)+Math.cos(y));
     var diffEqn = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
-    var rk2 = new RK2(diffEqn, 0.1, 0, [new Vec(1), new Vec(0, 1, 0.5)]).getSolution(true, [-50, 50]);
-    graphParametricCurve(t => rk2(100 * (t - 0.5), holder), colors.orange);
-    rk2 = new RK2(diffEqn, 0.1, 0, [new Vec(2), new Vec(0, 0.5, -0.5)]).getSolution(true, [-50, 50]);
-    graphParametricCurve(t => rk2(100 * (t - 0.5), holder), colors.blue);
+    var sol1 = new RK2(diffEqn, 0.1, 0, [new Vec(1), new Vec(0, 1, 0.5)]).getSolution(true, [-50, 50]);
+    graphParametricCurve(t => sol1(100 * (t - 0.5), holder), colors.orange);
+    graphParametricCurve(t => new Vec(t*t,t,-t*t*t), colors.blue);
+    graphCartesian((x,y)=>Math.cos(y));
+
 
     // graphCartesian(func);
     // var matrix = getMatrix(2, [[-5,5]], [11]);
@@ -81,7 +86,11 @@ $(function () {
         (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
 
     ];
-    var field = fields[4];
+
+    var field = fields[1];
+    graphVectorField(field, getMatrix(2, [
+        [-5, 5]
+    ], [11]), fieldStyles.vectorConstant);
 })
 // // graphVectorField(field, getMatrix(3, [
 // //     [-5, 5]

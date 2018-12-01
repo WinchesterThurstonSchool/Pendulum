@@ -1,4 +1,3 @@
-
 //   global.THREE = require('three');
 //   require('three/OrbitControls');
 //   import * as PIXI from 'pixi.js';
@@ -10,7 +9,11 @@ import {
 
 var globalScene;
 var canvas;
+var width = 0,
+    height = 0;
+var camera;
 var tr = new Transformer;
+var graphers = [];
 
 const colors = {
     orange: 0xfb6500,
@@ -92,20 +95,23 @@ function initialize2D(range = 20, scale = 500) {
         panel.removeChild(canvas);
 
     function onResize() {
-        var height = window.innerHeight,
-            width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
-
+        height = panel.offsetHeight;
+        width = panel.offsetWidth;
+        app.renderer.resize(width, height);
+        app.renderer.view.style.width = width + 'px';
+        app.renderer.view.style.height = height + 'px';
+        for (var i in graphers)
+            graphers[i]();
     }
-
     var app = new PIXI.Application({
-        width: (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300, // default: 800
-        height: window.innerHeight, // default: 600
+        width: panel.offsetWidth, // default: 800
+        height: panel.offsetHeight, // default: 600
         antialias: true, // default: false
         transparent: true, // default: false
         resolution: 1 // default: 1
     });
-    var height = window.innerHeight,
-        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+    height = panel.offsetHeight;
+    width = panel.offsetWidth;
     var ratio = width / height;
     //Set renderer size
     app.renderer.autoResize = true;
@@ -128,23 +134,24 @@ function initialize3D(range = 20, scale = 4) {
         panel.removeChild(canvas);
 
     function onResize() {
-        var height = window.innerHeight,
-            width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+        height = panel.offsetHeight;
+        width = panel.offsetWidth;
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
     }
-    var height = window.innerHeight,
-        width = (window.innerWidth * 0.2 > 300) ? window.innerWidth * 0.8 : window.innerWidth - 300;
+    height = panel.offsetHeight;
+    width = panel.offsetWidth;
     //Define scene and camera
     var scene = new THREE.Scene();
     globalScene = scene;
     var axesHelper = new THREE.AxesHelper(5);
     scene.add(axesHelper);
     var aspect = width / height;
-    var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
     camera.position.y = -5;
+    camera.lookAt(0, 0, 0);
     camera.up.set(0, 0, 1);
     var renderer = new THREE.WebGLRenderer({
         alpha: true,
@@ -160,10 +167,10 @@ function initialize3D(range = 20, scale = 4) {
     panel.appendChild(renderer.domElement);
     canvas = renderer.domElement;
     var light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.set(0, 5, 0);
+    light.position.set(0, 0, 5);
     scene.add(light);
     light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.set(0, -5, 0);
+    light.position.set(0, 0, -5);
     scene.add(light);
     light = new THREE.AmbientLight(0xffffff, 0.5);
     light.position.set(0, -5, 0);
@@ -175,9 +182,20 @@ function initialize3D(range = 20, scale = 4) {
         renderer.render(scene, camera);
         // arrow.applyQuaternion(new THREE.Quaternion(0, Math.sin(0.1),0, Math.cos(0.1)));
     };
-
     render();
     return scene;
+}
+
+function resetScene() {
+    if (globalScene instanceof THREE.Scene) {
+        camera.position.x = 0;
+        camera.position.y = -5;
+        camera.position.z = 0;
+        camera.lookAt(0, 0, 0);
+    }
+    if (globalScene instanceof PIXI.Container) {
+
+    }
 }
 
 function graph2D(func = (x => 0), {
@@ -186,21 +204,22 @@ function graph2D(func = (x => 0), {
 }) {
     //Geometry definition
     var size = 200;
-    var vertices = new Array();
-    for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
-        var cod = tr.map(i);
-        vertices.push(tr.toP(cod[0], func(cod[0])));
-    };
-
     var graphics = new PIXI.Graphics();
-
-    graphics.lineStyle(2, color, 0.8);
-    // draw a shape
-    graphics.moveTo(vertices[0][0], vertices[0][1]);
-    for (var i = 1; i <= size; i++) {
-        graphics.lineTo(vertices[i][0], vertices[i][1]);
-    }
+    var grapher = () => {
+        graphics.clear();
+        graphics.lineStyle(2, color, 0.8);
+        var cod = tr.map(i / size);
+        var pos = tr.toP(cod[0], func(cod[0]));
+        graphics.moveTo(pos[0], pos[1]);
+        for (var i = 1; i <= size; i++) {
+            cod = tr.map(i / size);
+            pos = tr.toP(cod[0], func(cod[0]));
+            graphics.lineTo(pos[0], pos[1]);
+        }
+    };
+    grapher();
     stage.addChild(graphics);
+    graphers.push(grapher);
 }
 
 function graph3D(func = ((x = 0, y = 0) => 0), {
@@ -253,23 +272,24 @@ function parametricCurve2D(func = (t => new Vec(0, 0, 0)), {
     stage,
     color = 0x569078
 }) {
-
-    //Geometry definition
-    var size = 200;
-    var vertices = new Array();
-    for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
-        var vec = func(i);
-        vertices.push(tr.toP(vec.x, vec.y));
-    };
-
     var graphics = new PIXI.Graphics();
-
-    graphics.lineStyle(2, color, 0.8);
-    // draw a shape
-    graphics.moveTo(vertices[0][0], vertices[0][1]);
-    for (var i = 1; i <= size; i++) {
-        graphics.lineTo(vertices[i][0], vertices[i][1]);
-    }
+    var graphCurve = () => {
+        //Geometry definition
+        var size = 200;
+        graphics.clear();
+        graphics.lineStyle(2, color, 0.8);
+        var vec = func(0);
+        var pixel = tr.toP(vec.x, vec.y);
+        // draw a shape
+        graphics.moveTo(pixel[0], pixel[1]);
+        for (var i = 1; i <= size; i++) {
+            vec = func(i / size);
+            pixel = tr.toP(vec.x, vec.y);
+            graphics.lineTo(pixel[0], pixel[1]);
+        }
+    };
+    graphCurve();
+    graphers.push(graphCurve);
     stage.addChild(graphics);
 }
 
@@ -292,15 +312,14 @@ function parametricCurve3D(func = (t => new Vec(0, 0, 0)), {
     scene.add(curve);
 }
 
-function parametricSurface(func = ((u = 0, v = 0, holder = new Vec()) => holder), {
+function parametricSurface(func = ((u = 0, v = 0) => holder), {
     scene,
     color = 0xffffff
 }) {
     //Geometry definition
     var size = 200;
-    var holder = new Vec();
     var vecFunc = (u = 0, v = 0, target = new THREE.Vector3()) => {
-        var vec = func(u, v, holder).multiply(tr.scale / tr.range);
+        var vec = func(u, v).multiply(tr.scale / tr.range);
         target.set(vec.x, vec.y, vec.z);
     }
     var geometry = new THREE.ParametricGeometry(vecFunc, size, size);
@@ -402,15 +421,50 @@ function graphVector(vec = new Vec(), origin = new Vec(), style = fieldStyles.ve
 }
 
 function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], style = fieldStyles.vector()) {
-    for (var i = 0; i < origins.length; i++)
-        graphVector(func(origins[i]), origins[i], style);
+    if (globalScene instanceof THREE.Scene)
+        for (var i = 0; i < origins.length; i++)
+            graphVector(func(origins[i]), origins[i], style);
+    if (globalScene instanceof PIXI.Container){
+        var field = new PIXI.Graphics();
+        var grapher = ()=>{
+            field.clear();
+            for (var i = 0; i < origins.length; i++) {
+                var vec = func(origins[i]);
+                var origin = origins[i];
+                var vlength = vec.magnitude() / tr.range,
+                    tH = style.tipHeight(vlength) * tr.scale,
+                    tR = style.tipRadius(vlength) * tr.scale,
+                    bR = style.bodyRadius(vlength) * tr.scale;
+                var reducedVec = vec.multiply((vlength - tH / tr.scale) / vlength, new Vec());
+                var p0 = tr.toP(origin.x, origin.y),
+                    p1 = tr.toP(origin.x + reducedVec.x, origin.y + reducedVec.y);
+                var norm = new Vec(p1[0] - p0[0], p1[1] - p0[1]).cross(new Vec(0, 0, 1)).normalize().multiply(tR),
+                    p2 = [p1[0] + norm.x, p1[1] + norm.y],
+                    p3 = [p1[0] - norm.x, p1[1] - norm.y],
+                    p4 = tr.toP(origin.x + vec.x, origin.y + vec.y);
+                field.lineStyle(bR * 2, style.color, 1);
+                field.moveTo(p0[0], p0[1]);
+                field.lineTo(p1[0], p1[1]);
+
+                field.beginFill(style.color);
+                field.drawPolygon([
+                    p2[0], p2[1],
+                    p3[0], p3[1],
+                    p4[0], p4[1],
+                ]);
+                field.endFill();
+            }
+        }
+        globalScene.addChild(field);
+        graphers.push(grapher);
+    }
 }
 
 function graphSlopeField(func = (x, y) => 0, count = 21, style = fieldStyles.slope) {
     var vecFunc = (vec = new Vec()) => {
         var slope = func(vec.x, vec.y);
-        return (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) : 
-            (slope > 0) ? new Vec(0, (tr.range) / (count - 1)): new Vec(0, -(tr.range) / (count - 1));
+        return (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) :
+            (slope > 0) ? new Vec(0, (tr.range) / (count - 1)) : new Vec(0, -(tr.range) / (count - 1));
     }
     var matrix = getMatrix(2, [
         [-tr.range / 2, tr.range / 2]
@@ -418,8 +472,8 @@ function graphSlopeField(func = (x, y) => 0, count = 21, style = fieldStyles.slo
     graphVectorField(vecFunc, matrix, style);
 }
 
-function graphNormalSurface(normal = new Vec(0,0,1), offset = normal, color = colors.orange){
-    graphCartesian((x,y)=>offset.z-(normal.x*(x-offset.x)+normal.y*(y-offset.y))/normal.z, color);
+function graphNormalSurface(normal = new Vec(0, 0, 1), offset = normal, color = colors.orange) {
+    graphCartesian((x, y) => offset.z - (normal.x * (x - offset.x) + normal.y * (y - offset.y)) / normal.z, color);
 }
 
 function Transformer(range = 10, scale = 4) {
@@ -433,7 +487,9 @@ function Transformer(range = 10, scale = 4) {
         return new Array(this.range * a - this.range / 2, this.range * b - this.range / 2);
     }
     this.toP = function (a, b = 0) {
-        return new Array(a / this.range * this.scale + window.innerWidth * 0.8 / 2, -b / this.range * this.scale + window.innerHeight / 2);
+        return [a / this.range * this.scale + width / 2,
+            -b / this.range * this.scale + height / 2
+        ];
     }
 }
 
@@ -441,8 +497,7 @@ function Transformer(range = 10, scale = 4) {
 class Arrow3D extends THREE.Group {
     constructor(vec = new Vec(0, 1), origin = new Vec(1), style = fieldStyles.vector()) {
         super();
-        style.material.color
-         = new THREE.Color(style.color);
+        style.material.color = new THREE.Color(style.color);
         var vlength = vec.magnitude() / tr.range,
             tH = style.tipHeight(vlength) * tr.scale,
             tR = style.tipRadius(vlength) * tr.scale,
@@ -484,5 +539,6 @@ export {
     graphVector,
     graphVectorField,
     graphSlopeField,
-    graphNormalSurface
+    graphNormalSurface,
+    resetScene
 };
