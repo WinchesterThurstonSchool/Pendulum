@@ -21,7 +21,7 @@ import {
     RK2,
     getMatrix,
     apply,
-    sin
+    sin,
 } from './js/operations.js';
 
 window.resetScene = resetScene;
@@ -49,13 +49,13 @@ latex.val(mq.latex());
 $(function () {
     initialize2D(20);
     var holder = new Vec();
-    graphParametricSurface((u, v) => {
-        var s = u * 2 * Math.PI,
-            t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
-        return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
-            3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
-            -Math.sin(t) - 3);
-    });
+    // graphParametricSurface((u, v) => {
+    //     var s = u * 2 * Math.PI,
+    //         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
+    //     return new Vec(Math.cos(s) * 3 + Math.cos(s) * Math.cos(t),
+    //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
+    //         -Math.sin(t) - 3);
+    // });
     // graphParametricSurface((u, v) => {
     //     var s = v * Math.PI,
     //         t = u * 2 * Math.PI,
@@ -68,13 +68,14 @@ $(function () {
     // var func = (x, y) => x*x*x+y+y*y;
     // graphCartesian(func);
     // graphSlopeField((x, y) => Math.sin(x)+Math.cos(y));
-    var diffEqn = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
-    var sol1 = new RK2(diffEqn, 0.1, 0, [new Vec(1), new Vec(0, 1, 0.5)]).getSolution(true, [-50, 50]);
-    graphParametricCurve(t => sol1(100 * (t - 0.5), holder), colors.orange);
-    graphParametricCurve(t => new Vec(t*t,t,-t*t*t), colors.blue);
-    graphCartesian((x,y)=>Math.sin(x));
-
-
+    var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
+    var sol1 = new RK2(orbit, 0.1, 0, [new Vec(1, 0, 0), new Vec(0, 1)]).getSolution(true, [-50, 50]);
+    graphParametricCurve((t) => sol1(t * 50, holder), colors.blue);
+    // graphSlopeField((x, y) => x / y);
+    var exp = new DiffEqn((t, n) => n[1],3);
+    var sol3 = new RK2(exp, 0.01, 0, [new Vec(1, 0, 0), new Vec(1, 0), new Vec(1), new Vec(1)]).getSolution(true, [-50, 50]);
+    graphCartesian((x) => sol3(x, holder).x, colors.blue);
+    graphCartesian((x) => Math.exp(x) - sol3(x, holder).x, (colors.blue+colors.red)/2);
     // graphCartesian(func);
     // var matrix = getMatrix(2, [[-5,5]], [11]);
     // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
@@ -88,9 +89,9 @@ $(function () {
     ];
 
     var field = fields[1];
-    graphVectorField(field, getMatrix(2, [
-        [-5, 5]
-    ], [11]), fieldStyles.vectorConstant);
+    // graphVectorField(field, getMatrix(2, [
+    //     [-5, 5]
+    // ], [11]), fieldStyles.vectorConstant);
 })
 // // graphVectorField(field, getMatrix(3, [
 // //     [-5, 5]

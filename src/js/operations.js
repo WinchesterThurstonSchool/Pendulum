@@ -46,7 +46,7 @@ class Vec {
             return holder;
         }
         this.magnitude = () => Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-        this.clone = () => new Vec(this.x, this.y, this.z);
+        this.clone = (holder = new Vec()) => holder.set(this.x, this.y, this.z);
         this.THREE = () => new THREE.Vector3().set(this.x, this.y, this.z);
         this.toLatex = () => "<" + this.x + ", " + this.y + ", " + this.z + ">";
         this.normalize = (holder = this) => this.multiply(1 / this.magnitude(), holder);
@@ -93,6 +93,7 @@ class Euler {
         while (inits.length < diffEqn.order) inits.push(new Vec());
         this.diffEqn.ydirs = inits;
         this.que = 0;
+        this.holder = new Vec();
     }
     step(dt = this.dt) {
         // console.log(this.diffEqn.hdir);
@@ -101,9 +102,9 @@ class Euler {
             this.diffEqn.ydirs[i].add(this.diffEqn.ydirs[i + 1].multiply(dt, new Vec()));
         }
         this.t += dt;
-        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
         // console.log(this.diffEqn.hdir);
-        this.diffEqn.ydirs[this.diffEqn.ydirs.length - 1].add(dir.multiply(dt));
+        if (this.diffEqn.order - 1 >=0)this.diffEqn.ydirs[this.diffEqn.order - 1].add(dir.multiply(dt));
     }
     y(t, target = new Vec()) {
         let lY, rY;
@@ -184,11 +185,13 @@ class Euler {
     get states() {
         var states = {
             t: this.t,
-            dirs: []
+            dirs: [],
+            hdir: 0
         };
         for (var i = 0; i < this.diffEqn.ydirs.length; i++) {
             states.dirs.push(this.diffEqn.ydirs[i].clone());
         }
+        states.hdir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone();
         return states;
     }
     set states(v) {
@@ -202,11 +205,11 @@ class RK2 extends Euler {
         super(diffEqn, dt, startTime, inits);
     }
     step0(dt = this.dt) {
-        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
         var dirs = this.diffEqn.ydirs;
         var holder = new Vec();
         var lev = this.diffEqn.order;
-        for (var i = 0; i < lev - 2; i++) {
+         for (var i = 0; i < lev - 2; i++) {
             dirs[i].add(dirs[i + 1].multiply(dt, holder)).
             add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
         }
@@ -217,13 +220,15 @@ class RK2 extends Euler {
         return holder.set(dir.x, dir.y, dir.z);
     }
     step(dt = this.dt) {
-        var dirs = this.diffEqn.ydirs;
+        var s1 = this.states;
+        this.step0(dt);
+        var s2 = this.states;
         var lev = this.diffEqn.order;
-        var dir1;
-        if (lev - 1 >= 0) dir1 = dirs[lev - 1].clone();
-        var dir2 = this.step0(dt);
-        var rk2 = dir2.add(this.diffEqn.eqn(this.t, this.diffEqn.ydirs)).multiply(0.5);
-        if (lev - 1 >= 0) dirs[lev - 1] = dir1.add(rk2.multiply(dt));
+        for(var i = 0; i < lev -1; i++){
+            this.diffEqn.ydirs[i]=s1.dirs[i].add(s1.dirs[i+1].add(s2.dirs[i+1],this.holder).multiply(0.5*dt));
+        }
+        var rk2 = s1.hdir.add(s2.hdir).multiply(0.5);
+        if (lev - 1 >= 0)this.diffEqn.ydirs[lev-1] = s1.dirs[lev-1].add(rk2.multiply(dt));
     }
 }
 

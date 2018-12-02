@@ -94,11 +94,12 @@ function initialize2D(range = 20, scale = 500) {
     var panel = document.getElementById("graphpanel");
     if (canvas)
         panel.removeChild(canvas);
-    renderAll = ()=>requestAnimationFrame(() => {
+    renderAll = () => requestAnimationFrame(() => {
         for (var i in graphers)
             graphers[i]();
         app.render();
     });
+
     function onResize() {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
@@ -201,6 +202,8 @@ function resetScene() {
     if (globalScene instanceof PIXI.Container) {
         tr.range = 20;
         tr.scale = 500;
+        tr.offsetX = 0;
+        tr.offsetY = 0;
         renderAll();
     }
 }
@@ -215,7 +218,7 @@ function graph2D(func = (x => 0), {
     var grapher = () => {
         graphics.clear();
         graphics.lineStyle(2, color, 0.8);
-        var cod = tr.map(i / size);
+        var cod = tr.map(0 / size);
         var pos = tr.toP(cod[0], func(cod[0]));
         graphics.moveTo(pos[0], pos[1]);
         for (var i = 1; i <= size; i++) {
@@ -431,9 +434,9 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
     if (globalScene instanceof THREE.Scene)
         for (var i = 0; i < origins.length; i++)
             graphVector(func(origins[i]), origins[i], style);
-    if (globalScene instanceof PIXI.Container){
+    if (globalScene instanceof PIXI.Container) {
         var field = new PIXI.Graphics();
-        var grapher = ()=>{
+        var grapher = () => {
             field.clear();
             for (var i = 0; i < origins.length; i++) {
                 var vec = func(origins[i]);
@@ -487,6 +490,8 @@ function graphNormalSurface(normal = new Vec(0, 0, 1), offset = normal, color = 
 function Transformer(range = 10, scale = 4) {
     this.range = range;
     this.scale = scale;
+    this.offsetX = 0;
+    this.offsetY = 0;
     this.rescale = function (a, b = 0) {
         return new Array(this.scale * a - this.scale / 2, this.scale * b - this.scale / 2);
     }
@@ -495,18 +500,39 @@ function Transformer(range = 10, scale = 4) {
         return new Array(this.range * a - this.range / 2, this.range * b - this.range / 2);
     }
     this.toP = function (a, b = 0) {
-        return [a / this.range * this.scale + width / 2,
-            -b / this.range * this.scale + height / 2
+        return [a / this.range * this.scale + width / 2 + this.offsetX,
+            -b / this.range * this.scale + height / 2 + this.offsetY
         ];
     }
 }
 
-function DragControl(tr  = new Transformer, canvas=document.body){
+function DragControl(tr = new Transformer, canvas = document.body) {
     this.transformer = tr;
     this.canvas = canvas;
-    canvas.addEventListener('wheel', (e)=>{
-        tr.scale*=Math.max(1+e.deltaY*0.001,0.001);
+    canvas.addEventListener('wheel', (e) => {
+        tr.scale *= Math.max(1 + e.deltaY * 0.001, 0.001);
         renderAll();
+    })
+    var X, Y;
+    canvas.addEventListener('mousemove', (e) => {
+        if(mousedown){
+            var newX = e.clientX,
+                newY = e.clientY;
+            tr.offsetX += newX - X;
+            tr.offsetY += newY - Y;
+            X = newX;
+            Y = newY;
+            renderAll();
+        }
+    });
+    var mousedown = false;
+    canvas.addEventListener('mousedown', (e) => {
+        X = e.clientX;
+        Y = e.clientY;
+        mousedown = true;
+    });
+    window.addEventListener('mouseup', (e)=>{
+        mousedown = false;
     })
 }
 

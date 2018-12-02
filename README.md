@@ -11,3 +11,100 @@ But one may still ask why Pendulum is more advantageous over other products. Som
 ![alt text](https://github.com/WinchesterThurstonSchool/Pendulum/blob/master/assets/Euler(y'%3Dy%2Bx).png)
 ### RK2 (Midpoint) Nth-order
 ![alt text](https://github.com/WinchesterThurstonSchool/Pendulum/blob/master/assets/RK2(y''%3Dy'-y).png)
+
+There are three versions of RK2 that have been implemented.
+
+``` javascript
+class RK21 extends Euler {
+    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
+        super(diffEqn, dt, startTime, inits);
+    }
+    step0(dt = this.dt) {
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
+        var dirs = this.diffEqn.ydirs;
+        var holder = new Vec();
+        var lev = this.diffEqn.order;
+        for (var i = 0; i < lev - 2; i++) {
+            dirs[i].add(dirs[i + 1].multiply(dt, holder)).
+            add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
+        }
+        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder))
+            .add(dir.multiply(dt * dt * 0.5, holder));
+        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
+        this.t += dt;
+        return holder.set(dir.x, dir.y, dir.z);
+    }
+    step(dt = this.dt) {
+        var dirs = this.diffEqn.ydirs;
+        var lev = this.diffEqn.order;
+        var dir1;
+        if (lev - 1 >= 0) dir1 = dirs[lev - 1].clone();
+        var dir2 = this.step0(dt);
+        var rk2 = dir2.add(this.diffEqn.eqn(this.t, this.diffEqn.ydirs)).multiply(0.5);
+        if (lev - 1 >= 0) dirs[lev - 1] = dir1.add(rk2.multiply(dt));
+    }
+}
+
+class RK22 extends Euler {
+    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
+        super(diffEqn, dt, startTime, inits);
+    }
+    step0(dt = this.dt) {
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
+        var dirs = this.diffEqn.ydirs;
+        var holder = new Vec();
+        var lev = this.diffEqn.order;
+         for (var i = 0; i < lev - 2; i++) {
+            dirs[i].add(dirs[i + 1].multiply(dt, holder)).
+            add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
+        }
+        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder))
+            .add(dir.multiply(dt * dt * 0.5, holder));
+        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
+        this.t += dt;
+        return holder.set(dir.x, dir.y, dir.z);
+    }
+    step(dt = this.dt) {
+        var s1 = this.states;
+        this.step0(dt);
+        var s2 = this.states;
+        var lev = this.diffEqn.order;
+        for(var i = 0; i < lev -1; i++){
+            this.diffEqn.ydirs[i]=s1.dirs[i].add(s1.dirs[i+1].add(s2.dirs[i+1],this.holder).multiply(0.5*dt));
+        }
+        var rk2 = s1.hdir.add(this.diffEqn.eqn(s2.t, s2.dirs)).multiply(0.5);
+        if (lev - 1 >= 0)this.diffEqn.ydirs[lev-1] = s1.dirs[lev-1].add(rk2.multiply(dt));
+    }
+}
+
+class RK23 extends Euler {
+    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
+        super(diffEqn, dt, startTime, inits);
+    }
+    step0(dt = this.dt) {
+        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
+        var dirs = this.diffEqn.ydirs;
+        var holder = new Vec();
+        var lev = this.diffEqn.order;
+        for (var i = 0; i < lev - 1; i++) {
+            dirs[i].add(dirs[i + 1].multiply(dt, holder));
+        }
+        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
+        this.t += dt;
+        return holder.set(dir.x, dir.y, dir.z);
+    }
+    step(dt = this.dt) {
+        var s1 = this.states;
+        this.step0(dt);
+        var s2 = this.states;
+        var lev = this.diffEqn.order;
+        var rk2 = s2.hdir.add(s1.hdir).multiply(0.5);
+        if (lev - 1 >= 0) this.diffEqn.ydirs[lev - 1] = s1.dirs[lev - 1].add(rk2.multiply(dt), s2.dirs[lev-1]);
+        for (var i = lev - 2; i >= 0; i--) 
+            this.diffEqn.ydirs[i] = 
+                s1.dirs[i].add(s1.dirs[i + 1].add(s2.dirs[i + 1], this.holder).multiply(0.5 * dt), s2.dirs[i]);      
+    }
+}
+```
+
+RK21 propagates the results down with second order taylor approximation, and applies runge-kutta 2 to compute the last derivative term. RK22 records the initial state as k1, propagates down with second order taylor approximation to obtain the k2 term, and computes each term with second order runge-kutta. RK23 propagates k1.5 with Euler's method, and propagates upward using Runge-Kutta, and defining a k2 for each term. Among them, RK22 has the most accurate result and consistent behavior and was thus put into use.
