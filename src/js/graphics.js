@@ -155,7 +155,7 @@ function initialize3D(range = 20, scale = 4) {
     var axesHelper = new THREE.AxesHelper(5);
     scene.add(axesHelper);
     var aspect = width / height;
-    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, aspect, 0.01, 1000);
     camera.position.y = -5;
     camera.lookAt(0, 0, 0);
     camera.up.set(0, 0, 1);

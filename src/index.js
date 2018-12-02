@@ -19,6 +19,7 @@ import {
     DiffEqn,
     Euler,
     RK2,
+    RK4,
     getMatrix,
     apply,
     sin,
@@ -68,14 +69,18 @@ $(function () {
     // var func = (x, y) => x*x*x+y+y*y;
     // graphCartesian(func);
     // graphSlopeField((x, y) => Math.sin(x)+Math.cos(y));
-    var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
-    var sol1 = new RK2(orbit, 0.1, 0, [new Vec(1, 0, 0), new Vec(0, 1)]).getSolution(true, [-50, 50]);
-    graphParametricCurve((t) => sol1(t * 50, holder), colors.blue);
-    // graphSlopeField((x, y) => x / y);
-    var exp = new DiffEqn((t, n) => n[1],3);
-    var sol3 = new RK2(exp, 0.01, 0, [new Vec(1, 0, 0), new Vec(1, 0), new Vec(1), new Vec(1)]).getSolution(true, [-50, 50]);
-    graphCartesian((x) => sol3(x, holder).x, colors.blue);
-    graphCartesian((x) => Math.exp(x) - sol3(x, holder).x, (colors.blue+colors.red)/2);
+    for(var i = -10; i<10; i++){
+        var zp1 = new Vec(0, 0, 1);
+        var initc = [new Vec(i, 0, 0), new Vec(0, 0.2, 0)];
+        var dt = 0.01;
+        var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
+        var sol1 = new RK2(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
+        graphParametricCurve((t) => sol1(t * 100, holder), colors.blue);
+        var sol2 = new RK4(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
+        graphParametricCurve((t) => sol2(-t *  100, holder).add(zp1), colors.red);
+        var sol3 = new Euler(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
+        graphParametricCurve((t) => sol3(t *  100, holder).subtract(zp1), colors.orange);
+    }
     // graphCartesian(func);
     // var matrix = getMatrix(2, [[-5,5]], [11]);
     // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);

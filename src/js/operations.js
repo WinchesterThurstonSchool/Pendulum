@@ -72,10 +72,10 @@ class Vec {
 }
 
 const DiffEqn = class {
-    constructor(eqn = (t = 0, n=[new Vec()]) => new Vec(), order = 1) {
+    constructor(eqn = (t = 0, n = [new Vec()]) => new Vec(), order = 1) {
         this.order = order;
         this.ydirs = [new Vec()];
-        this.eqn = eqn;
+        this.eqn = (t = 0, n = this.ydirs) => eqn(t, n);
     }
     get y() {
         if (this.order == 0) {
@@ -90,8 +90,10 @@ class Euler {
         this.t = startTime;
         this.dt = dt;
         this.diffEqn = diffEqn;
-        while (inits.length < diffEqn.order) inits.push(new Vec());
-        this.diffEqn.ydirs = inits;
+        
+        while (diffEqn.ydirs.length < diffEqn.order) diffEqn.ydirs.push(new Vec());
+        for(var i in inits)
+            inits[i].clone(diffEqn.ydirs[i]);
         this.que = 0;
         this.holder = new Vec();
     }
@@ -104,7 +106,7 @@ class Euler {
         this.t += dt;
         var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
         // console.log(this.diffEqn.hdir);
-        if (this.diffEqn.order - 1 >=0)this.diffEqn.ydirs[this.diffEqn.order - 1].add(dir.multiply(dt));
+        if (this.diffEqn.order - 1 >= 0) this.diffEqn.ydirs[this.diffEqn.order - 1].add(dir.multiply(dt));
     }
     y(t, target = new Vec()) {
         let lY, rY;
@@ -188,7 +190,7 @@ class Euler {
             dirs: [],
             hdir: 0
         };
-        for (var i = 0; i < this.diffEqn.ydirs.length; i++) {
+        for (var i = 0; i < this.diffEqn.order; i++) {
             states.dirs.push(this.diffEqn.ydirs[i].clone());
         }
         states.hdir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone();
@@ -196,7 +198,9 @@ class Euler {
     }
     set states(v) {
         this.t = v.t;
-        this.diffEqn.ydirs = v.dirs;
+        for (var i = 0; i < this.diffEqn.order; i++) {
+            v.dirs[i].clone(this.diffEqn.ydirs[i]);
+        }
     }
 }
 
@@ -209,7 +213,7 @@ class RK2 extends Euler {
         var dirs = this.diffEqn.ydirs;
         var holder = new Vec();
         var lev = this.diffEqn.order;
-         for (var i = 0; i < lev - 2; i++) {
+        for (var i = 0; i < lev - 2; i++) {
             dirs[i].add(dirs[i + 1].multiply(dt, holder)).
             add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
         }
@@ -224,11 +228,83 @@ class RK2 extends Euler {
         this.step0(dt);
         var s2 = this.states;
         var lev = this.diffEqn.order;
-        for(var i = 0; i < lev -1; i++){
-            this.diffEqn.ydirs[i]=s1.dirs[i].add(s1.dirs[i+1].add(s2.dirs[i+1],this.holder).multiply(0.5*dt));
+        for (var i = 0; i < lev - 1; i++) {
+            this.diffEqn.ydirs[i] = s1.dirs[i].add(s1.dirs[i + 1].add(s2.dirs[i + 1], this.holder).multiply(0.5 * dt));
         }
         var rk2 = s1.hdir.add(s2.hdir).multiply(0.5);
-        if (lev - 1 >= 0)this.diffEqn.ydirs[lev-1] = s1.dirs[lev-1].add(rk2.multiply(dt));
+        if (lev - 1 >= 0) this.diffEqn.ydirs[lev - 1] = s1.dirs[lev - 1].add(rk2.multiply(dt));
+    }
+}
+
+class RK4 extends Euler {
+    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
+        super(diffEqn, dt, startTime, inits);
+        this.s1 = this.s2 = this.s3 = this.s4 = undefined;
+    }
+    k1(dt = this.dt) {
+        return this.states;
+    }
+    k2(dt = this.dt) {
+        for (var i = 0; i < this.diffEqn.order - 1; i++)
+            this.diffEqn.ydirs[i].add(
+                this.diffEqn.ydirs[i + 1].multiply(dt / 2, this.holder)
+            );
+        if (this.diffEqn.order - 1 >= 0)
+            this.diffEqn.ydirs[this.diffEqn.order - 1].add(
+                this.s1.hdir.multiply(dt / 2, this.holder)
+            );
+        this.t+=dt / 2;
+        return this.states;
+    }
+    k3(dt = this.dt) {
+        this.states = this.s1;
+        for (var i = 0; i < this.diffEqn.order - 1; i++)
+            this.diffEqn.ydirs[i].add(
+                this.s2.dirs[i + 1].multiply(dt / 2, this.holder)
+            );
+        if (this.diffEqn.order - 1 >= 0)
+            this.diffEqn.ydirs[this.diffEqn.order - 1].add(
+                this.s2.hdir.multiply(dt / 2, this.holder)
+            );
+        this.t+=dt / 2;
+        return this.states;
+    }
+    k4(dt = this.dt) {
+        this.states = this.s1;
+        for (var i = 0; i < this.diffEqn.order - 1; i++)
+            this.diffEqn.ydirs[i].add(
+                this.s3.dirs[i + 1].multiply(dt, this.holder)
+            );
+        if (this.diffEqn.order - 1 >= 0)
+            this.diffEqn.ydirs[this.diffEqn.order - 1].add(
+                this.s3.hdir.multiply(dt, this.holder)
+            );
+        this.t+=dt;
+        return this.states;
+    }
+    step(dt = this.dt) {
+        this.s1 = this.k1();
+        this.s2 = this.k2();
+        this.s3 = this.k3();
+        this.s4 = this.k4();
+        this.states = this.s1;
+        for (var i = 0; i < this.diffEqn.order - 1; i++)
+            this.diffEqn.ydirs[i].add(
+                this.s1.dirs[i + 1].multiply(dt).add
+                (this.s2.dirs[i + 1].multiply(dt * 2)).add
+                (this.s3.dirs[i + 1].multiply(dt * 2)).add
+                (this.s4.dirs[i + 1].multiply(dt)).multiply
+                (1/6));
+        var order = this.diffEqn.order;
+        if (order - 1 >= 0){
+            this.diffEqn.ydirs[order - 1].add(
+                this.s1.hdir.multiply(dt).add
+                (this.s2.hdir.multiply(dt * 2)).add
+                (this.s3.hdir.multiply(dt * 2)).add
+                (this.s4.hdir.multiply(dt)).multiply
+                (1/6));
+        }
+        this.t+=dt;
     }
 }
 
@@ -280,6 +356,7 @@ export {
     DiffEqn,
     Euler,
     RK2,
+    RK4,
     getMatrix,
     apply,
 }
