@@ -188,16 +188,19 @@ function initialize3D(range = 20, scale = 4) {
     light.position.set(0, -5, 0);
     scene.add(light);
     //Render
+    var needUpdate = false;
     var render = function () {
         requestAnimationFrame(render);
+        if(needUpdate){
+            for (var i in graphers)
+                graphers[i]();
+            needUpdate = false;
+        } 
         renderer.render(scene, camera);
         // arrow.applyQuaternion(new THREE.Quaternion(0, Math.sin(0.1),0, Math.cos(0.1)));
     };
 
-    renderAll = () => requestAnimationFrame(() => {
-        for (var i in graphers)
-            graphers[i]();
-    });
+    renderAll = () => needUpdate = true;
 
     render();
     return scene;

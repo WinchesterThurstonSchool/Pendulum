@@ -84,17 +84,16 @@ $(function () {
     // var matrix = getMatrix(2, [[-5,5]], [11]);
     // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
     // graphVectorField((vec)=>new Vec(-Math.cos(vec.x), Math.sin(vec.y), 1), near);
-    var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
-        (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
-        (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
-        (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
-        (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
+    // var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
+    //     (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
+    //     (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
+    //     (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
+    //     (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
+    // ];
 
-    ];
-
-    var field = (x,y)=>Math.sqrt(x*x-y*y);
-    // graphCartesian((x) => Math.exp(x));
-    var diffEqn = new DiffEqn((t, ys) => holder.set(field(t,ys[0].x)));
+    // var field = (x,y)=>Math.sqrt(x*x-y*y);
+    graphCartesian((x,y) => x*x-y*y);
+    // var diffEqn = new DiffEqn((t, ys) => holder.set(field(t,ys[0].x)));
     // for (let i = -5; i <= 5; i++) {
     //     let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, 0, 0)]);
     //     let cache = solver.getSolution(true, [-25, 25]);
