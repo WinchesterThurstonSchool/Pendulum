@@ -46,10 +46,9 @@ var mq = MQ.MathField($('#basic')[0], {
 });
 latex.val(mq.latex());
 
-
 $(function () {
-    initialize2D(20);
-    var holder = new Vec();
+    initialize3D(20);
+    // var holder = new Vec();
     // graphParametricSurface((u, v) => {
     //     var s = u * 2 * Math.PI,
     //         t = v * 2 * Math.PI - Math.PI - Math.PI / 2 - Math.PI / 4 + Math.PI / 8;
@@ -66,22 +65,22 @@ $(function () {
     //         r * Math.cos(s));
     // });
 
-    // var func = (x, y) => x*x*x+y+y*y;
-    // graphCartesian(func);
-    // graphSlopeField((x, y) => Math.sin(x)+Math.cos(y));
-    for(var i = -10; i<10; i++){
-        var zp1 = new Vec(0, 0, 1);
-        var initc = [new Vec(i, 0, 0), new Vec(0, 0.2, 0)];
-        var dt = 0.01;
-        var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / n[0].dot(n[0])), 2);
-        var sol1 = new RK2(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
-        graphParametricCurve((t) => sol1(t * 100, holder), colors.blue);
-        var sol2 = new RK4(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
-        graphParametricCurve((t) => sol2(-t *  100, holder).add(zp1), colors.red);
-        var sol3 = new Euler(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
-        graphParametricCurve((t) => sol3(t *  100, holder).subtract(zp1), colors.orange);
-    }
-    // graphCartesian(func);
+    // graphSlopeField((x, y) => Math.sin(x)*Math.sin(y), 21, true);
+    // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / Math.exp(n[0].dot(n[0]))), 2);
+    // // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 /n[0].dot(n[0])), 2);
+    // // var zp1 = new Vec(0, 0, 1);
+    // for (var i = 1; i <= 1; i++) {
+    //     var initc = [new Vec(Math.random(), Math.random(), Math.random()).normalize(), new Vec(Math.random())];
+    //     console.log("y(0)="+initc[0].toString());
+    //     console.log("y'(0)=" + initc[1].toString());
+    //     var dt = 0.01;
+    //     // var sol1 = new RK2(orbit, dt, 0, initc).getSolution(true, [-100, 100]);
+    //     // graphParametricCurve((t) => sol1(t * 200 - 100, holder), colors.blue);
+    //     var sol2 = new RK4(orbit, dt/4, 0, initc).getSolution(true, [-200, 200]);
+    //     graphParametricCurve((t) => sol2(t * 400 - 200, holder), colors.red);
+    //     // var sol3 = new Euler(orbit, dt/4, 0, initc).getSolution(true, [-100, 100]);
+    //     // graphParametricCurve((t) => sol3(t * 200 - 100, holder).subtract(zp1), colors.orange);
+    // }
     // var matrix = getMatrix(2, [[-5,5]], [11]);
     // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
     // graphVectorField((vec)=>new Vec(-Math.cos(vec.x), Math.sin(vec.y), 1), near);
@@ -93,30 +92,39 @@ $(function () {
 
     ];
 
-    var field = fields[1];
+    var field = (x,y)=>Math.sqrt(x*x-y*y);
+    // graphCartesian((x) => Math.exp(x));
+    var diffEqn = new DiffEqn((t, ys) => holder.set(field(t,ys[0].x)));
+    // for (let i = -5; i <= 5; i++) {
+    //     let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, 0, 0)]);
+    //     let cache = solver.getSolution(true, [-25, 25]);
+    //     // console.log(solution);
+    //     graphCartesian((x) => cache(x, holder).x, colors.blue);
+    // };
+    // for (var i = -5; i <= 5; i++)
+    //     for (var j = -5; j <= 5; j++) {
+    //         var solver = new RK2(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
+    //         var rkSolution = solver.getSolution(true, [-25, 25]);
+    //         var holder = new Vec();
+    //         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.green);
+    //     }
+
+    // for (var i = -5; i <= 5; i++)
+    //     for (var j = -5; j <= 5; j++) {
+    //         var solver = new RK4(diffEqn, 0.01, 0, [new Vec(0, i, j)]);
+    //         var rkSolution = solver.getSolution(true, [-25, 25]);
+    //         var holder = new Vec();
+    //         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.red);
+    //     }
     // graphVectorField(field, getMatrix(2, [
     //     [-5, 5]
     // ], [11]), fieldStyles.vectorConstant);
-})
+});
+
 // // graphVectorField(field, getMatrix(3, [
 // //     [-5, 5]
 // // // ], [11]), fieldStyles.vectorConstant);
-// var diffEqn = new DiffEqn((t, ys) => field(ys[0]), 1);
-// for (var i = -5; i <= 5; i++)
-//     for (var j = -5; j <= 5; j++) {
-//         var solver = new RK2(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
-//         var rkSolution = solver.getSolution(true, [-25, 25]);
-//         var holder = new Vec();
-//         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.green);
-//     }
 
-// for (var i = -5; i <= 5; i++)
-//     for (var j = -5; j <= 5; j++) {
-//         var solver = new RK2(diffEqn, 0.01, 0, [new Vec(0, i, j)]);
-//         var rkSolution = solver.getSolution(true, [-25, 25]);
-//         var holder = new Vec();
-//         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.red);
-//     }
 
 // var holder = new Vec();
 // graphCartesian((x)=>rkSolution(x,holder).x);

@@ -24,7 +24,13 @@
         </div>
         <div id="defpanel">
             <button class="btn btn-block" type="button">New Object</button>
-            <span class="math" id="basic">\sqrt{2}</span>
+            <span class="math" id="basic">
+                <!-- \text{DE}=\left\{\vec{y}''=\frac{\vec{y}}{\left(\vec{y}\cdot\vec{y}\right)^{\frac{3}{2}}},\
+            y\left(0\right)=\left\{\left[i-5,\ 0,\ 0\right]\ :\ i\in\left[10\right]\cup\left\{0\right\}\right\},\ y'\
+            \left(0\right)=\ \left[0,\ 0.5,\ 0\right]\right\},\ \left\{K_4\left(DE\right).y\left(t\right),\
+            K_2\left(DE\right).y\left(t\right),\ E\left(DE\right).y\left(t\right)\right\}_{t\in[0,100]} -->
+            \vec{y}''=-\frac{\vec{y}}{\left|\vec{y}\right|e^{\vec{y}^2}}
+            </span>
             <textarea class="math" id="basic-latex"></textarea>
         </div>
         <div id="graphpanel">
