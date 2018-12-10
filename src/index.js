@@ -11,7 +11,9 @@ import {
     graphVectorField,
     graphSlopeField,
     graphNormalSurface,
-    resetScene
+    resetScene,
+    zoomIn,
+    zoomOut
 } from './js/graphics.js';
 
 import {
@@ -26,6 +28,8 @@ import {
 } from './js/operations.js';
 
 window.resetScene = resetScene;
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
 
 var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
@@ -47,7 +51,7 @@ var mq = MQ.MathField($('#basic')[0], {
 latex.val(mq.latex());
 
 $(function () {
-    initialize3D(20);
+    initialize2D(20);
     // var holder = new Vec();
     // graphParametricSurface((u, v) => {
     //     var s = u * 2 * Math.PI,
@@ -64,8 +68,8 @@ $(function () {
     //         r * Math.sin(s) * Math.sin(t),
     //         r * Math.cos(s));
     // });
-
-    // graphSlopeField((x, y) => Math.sin(x)*Math.sin(y), 21, true);
+    graphCartesian((x) => Math.sin(x));
+    graphSlopeField((x, y) => Math.sqrt(1-y*y), 51);
     // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / Math.exp(n[0].dot(n[0]))), 2);
     // // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 /n[0].dot(n[0])), 2);
     // // var zp1 = new Vec(0, 0, 1);
@@ -92,7 +96,6 @@ $(function () {
     // ];
 
     // var field = (x,y)=>Math.sqrt(x*x-y*y);
-    graphCartesian((x,y) => x*x-y*y);
     // var diffEqn = new DiffEqn((t, ys) => holder.set(field(t,ys[0].x)));
     // for (let i = -5; i <= 5; i++) {
     //     let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, 0, 0)]);

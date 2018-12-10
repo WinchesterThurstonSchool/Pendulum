@@ -17,10 +17,12 @@ var camera;
 var tr = new Transformer;
 var graphers = [];
 var renderAll;
+const dynamicLoading = true;
 
 const colors = {
     orange: 0xfb6500,
     green: 0x378b59,
+    steelBlue: 0x4377bf,
     blue: 0x0065fb,
     red: 0xd82c5d,
     lightgray: 0xf3f3f3,
@@ -80,7 +82,7 @@ const fieldStyles = {
         material: materials.opaque,
         color: 0xfed400
     },
-    slope: function(color = colors.green){
+    slope: function (color = colors.green) {
         return {
             tipHeight: () => 0,
             tipRadius: () => 0.001,
@@ -91,10 +93,9 @@ const fieldStyles = {
     }
 }
 
-function initialize2D(range = 20, scale = 500) {
+function initialize2D(range = 20) {
     //Define resize listener
     window.addEventListener("resize", onResize);
-    tr = new Transformer(range, scale);
     var panel = document.getElementById("graphpanel");
     if (canvas)
         panel.removeChild(canvas);
@@ -108,6 +109,7 @@ function initialize2D(range = 20, scale = 500) {
     function onResize() {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
+        tr.scale = Math.max(height, width);
         app.renderer.resize(width, height);
         app.renderer.view.style.width = width + 'px';
         app.renderer.view.style.height = height + 'px';
@@ -123,6 +125,7 @@ function initialize2D(range = 20, scale = 500) {
     height = panel.offsetHeight;
     width = panel.offsetWidth;
     var ratio = width / height;
+    tr = new Transformer(range, Math.max(height, width));
     //Set renderer size
     app.renderer.autoResize = true;
     // app.renderer.resolution = window.devicePixelRatio;
@@ -144,6 +147,7 @@ function initialize3D(range = 20, scale = 4) {
     if (canvas)
         panel.removeChild(canvas);
     graphers.length = 0;
+
     function onResize() {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
@@ -191,11 +195,11 @@ function initialize3D(range = 20, scale = 4) {
     var needUpdate = false;
     var render = function () {
         requestAnimationFrame(render);
-        if(needUpdate){
+        if (needUpdate) {
             for (var i in graphers)
                 graphers[i]();
             needUpdate = false;
-        } 
+        }
         renderer.render(scene, camera);
         // arrow.applyQuaternion(new THREE.Quaternion(0, Math.sin(0.1),0, Math.cos(0.1)));
     };
@@ -212,15 +216,39 @@ function resetScene() {
         camera.position.y = -5;
         camera.position.z = 0;
         camera.lookAt(0, 0, 0);
+        tr.range = 20;
+        tr.offsetX = 0;
+        tr.offsetY = 0;
+        tr.translatex = 0;
+        tr.translatey = 0;
     }
     if (globalScene instanceof PIXI.Container) {
         tr.range = 20;
-        tr.scale = 500;
         tr.offsetX = 0;
         tr.offsetY = 0;
+        tr.translatex = 0;
+        tr.translatey = 0;
         renderAll();
     }
 }
+
+const zoomIn = (()=>{
+    var evt = document.createEvent('MouseEvents');
+    evt.initEvent('wheel', true, true);
+    evt.deltaY = -300;
+    return function(){
+        canvas.dispatchEvent(evt);
+    }
+})();
+
+const zoomOut= (()=>{
+    var evt = document.createEvent('MouseEvents');
+    evt.initEvent('wheel', true, true);
+    evt.deltaY = 300;
+    return function () {
+        canvas.dispatchEvent(evt);
+    }
+})();
 
 function graph2D(func = (x => 0), {
     stage,
@@ -286,7 +314,7 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
     });
     //  materialFront.depthTest=false;
     var surface = new THREE.Mesh(geometry, materialFront);
-    var updateSurface = ()=>{
+    var updateSurface = () => {
         var k = 0;
         for (var i = 0; i < 1; i += 1.0 / size) {
             for (var j = 0; j < 1; j += 1 / size) {
@@ -500,11 +528,11 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
 function graphSlopeField(func = (x, y) => 0, count = 21, graphSolution = false, style = fieldStyles.slope()) {
     var vecFunc = (vec = new Vec()) => {
         var slope = func(vec.x, vec.y);
-        return (Number.isNaN(slope))? new Vec():(Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) :
+        return (Number.isNaN(slope)) ? new Vec() : (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) :
             (slope > 0) ? new Vec(0, (tr.range) / (count - 1)) : new Vec(0, -(tr.range) / (count - 1));
     }
     var matrix = getMatrix(2, [
-        [-1, 1]
+        [0, 1]
     ], [count]);
 
     if (globalScene instanceof THREE.Scene) {
@@ -516,10 +544,10 @@ function graphSlopeField(func = (x, y) => 0, count = 21, graphSolution = false, 
             var holder = new Vec();
             var diffEqn = new DiffEqn((t, ys) => vecFunc(holder.set(ys[0].x, ys[0].y)));
             for (let i = -tr.range / 4; i <= tr.range / 4; i += tr.range / 6)
-                for (let j = -tr.range/4; j <= tr.range/4; j+=tr.range/6) {
+                for (let j = -tr.range / 4; j <= tr.range / 4; j += tr.range / 6) {
                     let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
                     let cache = solver.getSolution(true, [-50, 50]);
-                    graphParametricCurve((t) => cache(t*100-50, holder), 0xffffff-style.color);
+                    graphParametricCurve((t) => cache(t * 100 - 50, holder), 0xffffff - style.color);
                 };
         }
     }
@@ -530,17 +558,21 @@ function slopeField2D(func = (x, y) => new Vec(), matrix = [new Vec(0)], style =
     var grapher = () => {
         field.clear();
         var origin = new Vec();
+        var reduced = new Vec();
+        var tar = new Array(2);
+        var k = new Vec(0,0,1);
+        var p0 = new Array(2), p1 = new Array(2);
         for (var i = 0; i < matrix.length; i++) {
-            matrix[i].multiply(-tr.range / 2, origin);
-            var vec = func(origin);
+            tr.map(matrix[i].x, matrix[i].y, tar);
+            var vec = func(origin.set(tar[0], tar[1]));
             var vlength = vec.magnitude() / tr.range,
                 tH = style.tipHeight(vlength) * tr.scale,
                 tR = style.tipRadius(vlength) * 500,
                 bR = style.bodyRadius(vlength) * 500;
-            var reducedVec = vec.multiply((vlength - tH / tr.scale) / vlength, new Vec());
-            var p0 = tr.toP(origin.x - reducedVec.x / 2, origin.y - reducedVec.y / 2),
-                p1 = tr.toP(origin.x + reducedVec.x / 2, origin.y + reducedVec.y / 2);
-            var norm = new Vec(p1[0] - p0[0], p1[1] - p0[1]).cross(new Vec(0, 0, 1)).normalize().multiply(tR),
+            var reducedVec = vec.multiply((vlength - tH / tr.scale) / vlength, reduced);
+            tr.toP(origin.x - reducedVec.x / 2, origin.y - reducedVec.y / 2, p0),
+            tr.toP(origin.x + reducedVec.x / 2, origin.y + reducedVec.y / 2, p1);
+            var norm = reduced.set(p1[0] - p0[0], p1[1] - p0[1]).cross(k).normalize().multiply(tR),
                 p2 = [p1[0] + norm.x, p1[1] + norm.y],
                 p3 = [p1[0] - norm.x, p1[1] - norm.y],
                 p4 = tr.toP(origin.x + vec.x / 2, origin.y + vec.y / 2);
@@ -575,19 +607,27 @@ function Transformer(range = 10, scale = 4) {
     this.scale = scale;
     this.offsetX = 0;
     this.offsetY = 0;
-    this.translateX = 0;
-    this.translateY = 0;
+    this.translatex = 0;
+    this.translatey = 0;
     this.rescale = function (a, b = 0) {
         return new Array(this.scale * a - this.scale / 2, this.scale * b - this.scale / 2);
     }
 
-    this.map = function (a, b = 0) {
-        return new Array(this.range * a - this.range / 2, this.range * b - this.range / 2);
+    this.map = function (a, b = 0, target = new Array(2)) {
+        target[0] = this.range * a - this.range / 2 - this.translatex;
+        target[1] = this.range * b - this.range / 2 - this.translatey;
+        return target;
     }
-    this.toP = function (a, b = 0) {
-        return [(a+this.translateX) / this.range * this.scale + width / 2 + this.offsetX,
-            -(b+this.translateY) / this.range * this.scale + height / 2 + this.offsetY
-        ];
+    this.toP = function (a, b = 0, target = new Array(2)) {
+        target[0] = (a + this.translatex) / this.range * this.scale + width / 2 + this.offsetX;
+        target[1] = -(b + this.translatey) / this.range * this.scale + height / 2 + this.offsetY;
+        return target;
+    }
+    this.tox = function (X = 0) {
+        return (X - this.offsetX - width / 2) / this.scale * this.range - this.translatex;
+    }
+    this.toy = function (Y = 0) {
+        return -(Y - this.offsetY - height / 2) / this.scale * this.range - this.translatey;
     }
 }
 
@@ -595,7 +635,11 @@ function DragControl(tr = new Transformer, canvas = document.body) {
     this.transformer = tr;
     this.canvas = canvas;
     canvas.addEventListener('wheel', (e) => {
-        tr.range *= Math.max(1 + e.deltaY * 0.001, 0.001);
+        if (dynamicLoading) {
+            tr.range *= Math.max(1 + e.deltaY * 0.001, 0.001);
+        } else {
+            tr.scale *= Math.max(1 + e.deltaY * 0.001, 0.001);
+        }
         renderAll();
     })
     var X, Y;
@@ -603,8 +647,18 @@ function DragControl(tr = new Transformer, canvas = document.body) {
         if (mousedown) {
             var newX = e.clientX,
                 newY = e.clientY;
-            tr.offsetX += newX - X;
-            tr.offsetY += newY - Y;
+            if (dynamicLoading) {
+                var newx = tr.tox(newX),
+                    newy = tr.toy(newY);
+                var x = tr.tox(X),
+                    y = tr.toy(Y);
+                tr.translatex += newx - x;
+                tr.translatey += newy - y;
+
+            } else {
+                tr.offsetX += newX - X;
+                tr.offsetY += newY - Y;
+            }
             X = newX;
             Y = newY;
             renderAll();
@@ -625,13 +679,15 @@ function OrbitalControlUpdater(tr = new Transformer, canvas = document.body) {
     this.transformer = tr;
     this.canvas = canvas;
     var dist = camera.position.length();
-    var ratio = tr.range/dist;
-    var scale = tr.scale/dist;
+    var ratio = tr.range / dist;
+    var scale = tr.scale / dist;
     canvas.addEventListener('wheel', (e) => {
-        var newDist = camera.position.length();
-        tr.range = newDist*ratio;
-        tr.scale = newDist*scale;
-        renderAll();
+        if (dynamicLoading) {
+            var newDist = camera.position.length();
+            tr.range = newDist * ratio;
+            tr.scale = newDist * scale;
+            renderAll();
+        }
     })
 }
 
@@ -681,5 +737,7 @@ export {
     graphVectorField,
     graphSlopeField,
     graphNormalSurface,
-    resetScene
+    resetScene,
+    zoomIn,
+    zoomOut
 };
