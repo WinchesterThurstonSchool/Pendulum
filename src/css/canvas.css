@@ -15,43 +15,50 @@ body {
     margin: 0;
 }
 
+.btn:focus {
+    outline: none;
+}
+
 #root {
     --blue: #3abdff;
     --blueShadow: #007fbe;
+    --mainHighlight: #293f50;
     --yellow: #fbff00;
     --gray: #f3f3f3;
     --grayShadow: #535353;
+    --active: rgb(255, 115, 0, 0.99);
+    --active-faded: rgb(255, 140, 0);
     height: 100%;
     display: grid;
     grid-template-columns: fit-content(20%) 1fr;
     grid-template-rows: 50px 1fr;
 }
 
-#navbar{
+#navbar {
     grid-column: 1 / span 2;
     justify-self: stretch;
     align-self: stretch;
     align-items: center;
     justify-content: center;
-    background: #293f50;
+    background: var(--mainHighlight);
     color: white;
     font: 500 22px/50px "Kodchasan",
-    "Courier",
-    "Open Sans",
-    "Helvetica Neue",
-    Helvetica,
-    Arial,
-    sans-serif;
+        "Courier",
+        "Open Sans",
+        "Helvetica Neue",
+        Helvetica,
+        Arial,
+        sans-serif;
 }
 
-#logo{
-    margin: 8px;
-    margin-left: 20px;
-    height: 1.5em;
+#logo {
+    margin: 0;
+    padding: 8px;
+    width: 50px;
     float: left;
 }
 
-#graphpanel{
+#graphpanel {
     grid-column: 2 / span 1;
     grid-row: 2/span 1;
     align-self: stretch;
@@ -64,25 +71,56 @@ body {
     grid-column: 1 / span 1;
     grid-row: 2/span 1;
     overflow-y: auto;
-    align-items: center;
+    align-items: flex-start;
     min-width: 300px;
     width: fit-content;
-    padding: 15px;
+    padding: 0px;
     margin: 0px;
-    border-right: 5px solid var(--grayShadow);
+    border-right: 2px solid var(--grayShadow);
     /* background: #5199eb86; */
+    background: white;
+    display: grid;
+    grid-template-columns: fit-content(50px) 1fr;
+}
+
+#sidebar {
+    grid-column: 1 / span 1;
+    align-self: stretch;
+    width: fit-content;
+    min-width: 50px;
+    background: var(--mainHighlight);
+    padding: 0px;
+    transition: 0.5s;
+    display: grid;
+    grid-template-rows: 1fr 80px;
+}
+
+#settingsWrapper {
+    grid-row: 2 / span 1;
+    padding: 5px;
+    transition: 0.3s;
+    width: 100%;
+    display: flex;
+}
+
+#settingsWrapper:hover {
     background: white;
 }
 
-#settings {
-    height: 1.5em;
-    float: right;
-    float: right;
-    margin: 8px;
-    margin-right: 20px;
+#defSettings {
+    width: 100%;
+    color: white;
+    align-self: flex-end;
+    margin-bottom: 20px;
+    background: var(--mainHighlight);
 }
 
-#zoomPanel{
+#mathpanel {
+    grid-column: 2 / span 1;
+}
+
+
+#zoomPanel {
     position: fixed;
     top: 70px;
     right: 25px;
@@ -90,18 +128,99 @@ body {
     user-select: none;
 }
 
-#zoomInBtn, #zoomOutBtn, #homeBtn {
-    float: right;
+#zoomInBtn,
+#zoomOutBtn,
+#homeBtn {
     margin: 2pt;
     user-select: none;
 }
 
+#graphicsSettings {
+    margin: 2pt;
+    margin-top: 8pt;
+    user-select: none;
+}
+
+#basic {
+    padding: 20px;
+    border: none;
+    box-shadow: none;
+}
+
 ::selection {
-    background: rgba(255, 136, 0, 0.836);
+    background: var(--active);
+    opacity: 0;
+    color: white;
 }
 
 .math {
     display: block;
     margin-top: 20px;
     width: 100%;
+}
+
+
+.object-property-container {
+    grid-column: 1 / span 1;
+}
+
+.object-property {
+    text-align: center;
+    height: 50px;
+    background: white;
+    line-height: 50px;
+    vertical-align: middle;
+    font-size: 9pt;
+    font-family: DejaVu Sans Mono, monospace;
+    font-weight: 200;
+    position: relative;
+}
+
+
+.object-property .object-property-name{
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    border: 0px;
+    box-shadow: none;
+}
+
+.object-property-state{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 15px;
+    height: 100%;
+}
+
+.object-list > * {
+    background: var(--mainHighlight);
+    color: white;
+    transition: 0.3s;
+}
+
+.object-list .mq-cursor{
+     border-left: 1px solid white;
+}
+
+.object-list > *:hover {
+    background: white;
+    color: black;
+}
+
+.object-list> * :hover .mq-cursor{
+    border-left: 1px solid black;
+}
+
+.active{
+    background: var(--active);
+}
+
+.active:hover{
+    background: var(--active-faded);
+    color: white;
+}
+
+.active:hover .mq-cursor {
+    border-left: 1px solid white;
 }

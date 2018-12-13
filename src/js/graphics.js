@@ -525,7 +525,7 @@ function graphVectorField(func = (vec) => new Vec(), origins = [new Vec()], styl
     }
 }
 
-function graphSlopeField(func = (x, y) => 0, count = 21, graphSolution = false, style = fieldStyles.slope()) {
+function graphSlopeField(func = (x, y) => 0, count = 51, graphSolution = false, style = fieldStyles.slope()) {
     var vecFunc = (vec = new Vec()) => {
         var slope = func(vec.x, vec.y);
         return (Number.isNaN(slope)) ? new Vec() : (Number.isFinite(slope)) ? new Vec(1, slope).normalize().multiply((tr.range) / (count - 1)) :

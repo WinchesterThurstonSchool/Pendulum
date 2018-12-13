@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./js/jquery-3.3.1.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="./mathquill.js"></script>
     <link rel="stylesheet" href="./mathquill.css">
@@ -23,15 +23,42 @@
             <!-- <input id="settings" type="image" src="../assets/settingsIcon.png"> -->
         </div>
         <div id="defpanel">
-            <button class="btn btn-block" type="button">New Object</button>
-            <span class="math" id="basic">
-                <!-- \text{DE}=\left\{\vec{y}''=\frac{\vec{y}}{\left(\vec{y}\cdot\vec{y}\right)^{\frac{3}{2}}},\
-            y\left(0\right)=\left\{\left[i-5,\ 0,\ 0\right]\ :\ i\in\left[10\right]\cup\left\{0\right\}\right\},\ y'\
-            \left(0\right)=\ \left[0,\ 0.5,\ 0\right]\right\},\ \left\{K_4\left(DE\right).y\left(t\right),\
-            K_2\left(DE\right).y\left(t\right),\ E\left(DE\right).y\left(t\right)\right\}_{t\in[0,100]} -->
-            \vec{y}''=-\frac{\vec{y}}{\left|\vec{y}\right|e^{\vec{y}^2}}
-            </span>
-            <textarea class="math" id="basic-latex"></textarea>
+            <div id="sidebar" class="objectbar">
+                <div class="object-list object-property-container">
+                    <div class="object-property">
+                        <div class="object-property-name">
+                            a
+                        </div>
+                        <div class="object-property-state">
+                            :
+                        </div>
+                    </div>
+                    <div class="object-property">
+                        <div class="object-property-name">
+                            b
+                        </div>
+                        <div class="object-property-state">
+                            {
+                        </div>
+                    </div>
+                    <div class="object-property active">
+                        <div class="object-property-name">
+                            f
+                        </div>
+                        <div class="object-property-state">
+                            
+                        </div>
+                    </div>
+                </div>
+                <div id="settingsWrapper">
+                    <button id="defSettings" class="btn glyphicon  glyphicon-th-list"></button>
+                </div>
+            </div>
+            <div id="mathpanel">
+                <span class="math" id="basic">
+                </span>
+                <textarea class="math" id="basic-latex"></textarea>
+            </div>
         </div>
         <div id="graphpanel">
             <div id="zoomPanel">
@@ -40,6 +67,8 @@
                 <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus" onclick="zoomOut()"></button>
                 <br>
                 <button id="homeBtn" class="btn glyphicon glyphicon-home" onclick="resetScene()"></button>
+                <br>
+                <button id="graphicsSettings" class="btn glyphicon glyphicon-cog"></button>
             </div>
         </div>
     </div>
@@ -48,7 +77,7 @@
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
     <script type="module" src="./index.js"></script>
     <script>
-        
+
     </script>
 </body>
 

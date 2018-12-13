@@ -27,31 +27,17 @@ import {
     sin,
 } from './js/operations.js';
 
+import {} from './js/ui.js';
+
 window.resetScene = resetScene;
 window.zoomIn = zoomIn;
 window.zoomOut = zoomOut;
 
-var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
-
-var latex = $('#basic-latex').bind('keydown keypress', function () {
-    var prev = latex.val();
-    setTimeout(function () {
-        var now = latex.val();
-        if (now !== prev) mq.latex(now);
-    });
-});
-var mq = MQ.MathField($('#basic')[0], {
-    autoSubscriptNumerals: true,
-    handlers: {
-        edit: function () {
-            if (!latex.is(':focus')) latex.val(mq.latex());
-        }
-    }
-});
-latex.val(mq.latex());
-
 $(function () {
     initialize2D(20);
+    // graphCartesian((x,y)=>2*Math.sin(x)+Math.sin(y));
+    // graphSlopeField((x,y)=>Math.sqrt(4-y*y),51, true);
+    // graphSlopeField((x,y)=>(x-y)/(2+Math.cos(y)), 51, true, fieldStyles.slope(colors.red));
     // var holder = new Vec();
     // graphParametricSurface((u, v) => {
     //     var s = u * 2 * Math.PI,
@@ -68,8 +54,6 @@ $(function () {
     //         r * Math.sin(s) * Math.sin(t),
     //         r * Math.cos(s));
     // });
-    graphCartesian((x) => Math.sin(x));
-    graphSlopeField((x, y) => Math.sqrt(1-y*y), 51);
     // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / Math.exp(n[0].dot(n[0]))), 2);
     // // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 /n[0].dot(n[0])), 2);
     // // var zp1 = new Vec(0, 0, 1);
@@ -88,14 +72,14 @@ $(function () {
     // var matrix = getMatrix(2, [[-5,5]], [11]);
     // var near = apply((vec) => new Vec(vec.x, vec.y, func(vec.x, vec.y)),matrix);
     // graphVectorField((vec)=>new Vec(-Math.cos(vec.x), Math.sin(vec.y), 1), near);
-    // var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
-    //     (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
-    //     (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
-    //     (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
-    //     (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
-    // ];
+    var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
+        (vec) => new Vec(vec.x, vec.y, vec.z).normalize(), (vec) => new Vec(1),
+        (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
+        (vec) => new Vec(-vec.y * vec.z, vec.z * vec.x, -vec.x * vec.y).normalize(),
+        (vec) => new Vec(vec.x * (vec.y + vec.z), vec.y * (vec.x + vec.z), vec.z * (vec.y + vec.x)).normalize(),
+    ];
 
-    // var field = (x,y)=>Math.sqrt(x*x-y*y);
+    var field = fields[3];
     // var diffEqn = new DiffEqn((t, ys) => holder.set(field(t,ys[0].x)));
     // for (let i = -5; i <= 5; i++) {
     //     let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, 0, 0)]);
