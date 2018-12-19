@@ -102,12 +102,10 @@ class Euler {
     step(dt = this.dt) {
         // console.log(this.diffEqn.hdir);
         for (var i = 0; i < this.diffEqn.order - 1; i++) {
-            // console.log(this.diffEqn.ydirs);
             this.diffEqn.ydirs[i].add(this.diffEqn.ydirs[i + 1].multiply(dt, new Vec()));
         }
         this.t += dt;
         var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
-        // console.log(this.diffEqn.hdir);
         if (this.diffEqn.order - 1 >= 0) this.diffEqn.ydirs[this.diffEqn.order - 1].add(dir.multiply(dt));
     }
     y(t, target = new Vec()) {
@@ -162,6 +160,7 @@ class Euler {
                 solutions.push(cacheN[i]);
                 timeStamps.push(stampN[i]);
             }
+
             for (var i = 0; i < cacheP.length; i++) {
                 solutions.push(cacheP[i]);
                 timeStamps.push(stampP[i]);

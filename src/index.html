@@ -20,12 +20,62 @@
         <div id="navbar" align="center">
             <img id="logo" src="../assets/Cloudnest Matallic-small.png" alt="logo">
             Pendulum
-            <!-- <input id="settings" type="image" src="../assets/settingsIcon.png"> -->
         </div>
         <div id="defpanel">
-            <div id="sidebar" class="objectbar">
-                <div class="object-list object-property-container">
-                    <div class="object-property">
+            <!-- <div id="base-properties">
+                <div class="property" varname="a">
+                    <div class="name-container base">
+                        <div class="name">
+                            a
+                        </div>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                    <div class="expression-container">
+                        <span class="expression">
+
+                        </span>
+                    </div>
+                </div>
+                <div class="property" varname="b">
+                    <div class="name-container base">
+                        <div class="name">
+                            b
+                        </div>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                    <div class="expression-container">
+                        <span class="expression">
+                    
+                        </span>
+                    </div>
+                </div>
+                <div class="property empty" varname="">
+                    <div class="name-container base">
+                        <span class="name">
+                            c
+                        </span>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                    <div class="expression-container">
+                        <span class="expression">
+                
+                        </span>
+                    </div>
+                </div>
+                <div class="property"></div>
+            </div>
+            <div id="settingsWrapper">
+                <button id="defSettings" class="btn glyphicon  glyphicon-th-list"></button>
+            </div> -->
+            <div id="sidebar">
+                <div id="object-bar" class="object-list object-property-container">
+                    <div class="object-property" varname="a">
                         <div class="object-property-name">
                             a
                         </div>
@@ -33,7 +83,7 @@
                             :
                         </div>
                     </div>
-                    <div class="object-property">
+                    <div class="object-property" varname="b">
                         <div class="object-property-name">
                             b
                         </div>
@@ -41,12 +91,20 @@
                             {
                         </div>
                     </div>
-                    <div class="object-property active">
-                        <div class="object-property-name">
+                    <div class="object-property active" varname="f">
+                        <div id="var-f" class="object-property-name">
                             f
                         </div>
                         <div class="object-property-state">
                             
+                        </div>
+                    </div>
+                    <div class="object-property">
+                        <div class="object-property-name" varname="d">
+                            d
+                        </div>
+                        <div class="object-property-state">
+                            :
                         </div>
                     </div>
                 </div>
@@ -55,9 +113,26 @@
                 </div>
             </div>
             <div id="mathpanel">
-                <span class="math" id="basic">
-                </span>
-                <textarea class="math" id="basic-latex"></textarea>
+                <div class="expression-container" varname="a">
+                    <span class="expression">
+
+                    </span>
+                </div>
+                <div class="expression-container" varname="b">
+                    <span class="expression">
+                        
+                    </span>
+                </div>
+                <div class="expression-container" varname="f">
+                    <span class="expression">
+                        
+                    </span>
+                </div>
+                <div class="expression-container" varname="d">
+                    <span class="expression">
+                
+                    </span>
+                </div>
             </div>
         </div>
         <div id="graphpanel">

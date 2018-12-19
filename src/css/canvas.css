@@ -25,7 +25,7 @@ body {
     --mainHighlight: #293f50;
     --yellow: #fbff00;
     --gray: #f3f3f3;
-    --grayShadow: #535353;
+    --grayShadow: #a1a1a1;
     --active: rgb(255, 115, 0, 0.99);
     --active-faded: rgb(255, 140, 0);
     height: 100%;
@@ -65,6 +65,7 @@ body {
     justify-self: stretch;
     overflow: hidden;
     background: aliceblue;
+    box-shadow: 3px 0px 5px 0px var(--grayShadow) inset;
 }
 
 #defpanel {
@@ -76,27 +77,15 @@ body {
     width: fit-content;
     padding: 0px;
     margin: 0px;
-    border-right: 2px solid var(--grayShadow);
     /* background: #5199eb86; */
     background: white;
-    display: grid;
-    grid-template-columns: fit-content(50px) 1fr;
-}
-
-#sidebar {
-    grid-column: 1 / span 1;
-    align-self: stretch;
-    width: fit-content;
-    min-width: 50px;
-    background: var(--mainHighlight);
-    padding: 0px;
-    transition: 0.5s;
-    display: grid;
-    grid-template-rows: 1fr 80px;
+    position: relative;
 }
 
 #settingsWrapper {
-    grid-row: 2 / span 1;
+    position: absolute;
+    bottom: 80px;
+    left: 0px;
     padding: 5px;
     transition: 0.3s;
     width: 100%;
@@ -110,13 +99,9 @@ body {
 #defSettings {
     width: 100%;
     color: white;
-    align-self: flex-end;
+    align-self: center;
     margin-bottom: 20px;
     background: var(--mainHighlight);
-}
-
-#mathpanel {
-    grid-column: 2 / span 1;
 }
 
 
@@ -153,20 +138,30 @@ body {
     color: white;
 }
 
-.math {
-    display: block;
-    margin-top: 20px;
+#base-properties {
+    position: absolute;
+    top: 0px;
+    left: 0px;
     width: 100%;
+    height: fit-content;
+    overflow-x:visible;
+    overflow-y: auto;
+}
+.property {
+    width: 100%;
+    min-height: 50px;
+    height:fit-content;
+    display: grid;
+    grid-template-columns: fit-content(50px) 1fr;
 }
 
-
-.object-property-container {
+.name-container {
     grid-column: 1 / span 1;
-}
-
-.object-property {
     text-align: center;
-    height: 50px;
+    min-height: 50px;
+    height: stretch;
+    min-width: 50px;
+    width: fit-content;
     background: white;
     line-height: 50px;
     vertical-align: middle;
@@ -174,18 +169,33 @@ body {
     font-family: DejaVu Sans Mono, monospace;
     font-weight: 200;
     position: relative;
+    overflow: hidden;
+    transition: 0.3s;
 }
 
-
-.object-property .object-property-name{
+.name-container .name {
     width: 100%;
+    height: 100%;
     padding-left: 15px;
     padding-right: 15px;
     border: 0px;
     box-shadow: none;
 }
 
-.object-property-state{
+.empty>.name-container{
+    background: white;
+    color: black;
+    border-width: 0px 1px 1px 0px;
+    border-color: var(--grayShadow);
+    border-style: solid;
+}
+
+.name-container.function>.name {
+    text-align: right;
+    padding-right: 0px;
+}
+
+.type {
     position: absolute;
     top: 0px;
     right: 0px;
@@ -193,34 +203,59 @@ body {
     height: 100%;
 }
 
-.object-list > * {
+.base {
     background: var(--mainHighlight);
     color: white;
-    transition: 0.3s;
 }
 
-.object-list .mq-cursor{
-     border-left: 1px solid white;
+.base .mq-cursor {
+    border-left: 1px solid white;
 }
 
-.object-list > *:hover {
+.base:hover {
     background: white;
     color: black;
 }
 
-.object-list> * :hover .mq-cursor{
+.base:hover .mq-cursor {
     border-left: 1px solid black;
 }
 
-.active{
+.active {
     background: var(--active);
 }
 
-.active:hover{
+.active:hover {
     background: var(--active-faded);
     color: white;
 }
 
 .active:hover .mq-cursor {
     border-left: 1px solid white;
+}
+
+.expression-container {
+    grid-column: 2 / span 1;
+    margin: 0px;
+    width: 100%;
+    height: stretch;
+    min-height: 50px;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+    border-color: var(--grayShadow);
+    display: flex;
+}
+
+.expression-container:focus-within {
+    border-width: 2px 2px 2px 2px;
+    border-color: lightskyblue;
+}
+
+.expression-container .expression {
+    width: 100%;
+    height: fit-content;
+    padding: 3pt;
+    border: none;
+    box-shadow: none;
+    align-self: center;
 }

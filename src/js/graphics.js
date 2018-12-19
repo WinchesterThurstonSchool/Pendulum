@@ -280,7 +280,7 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
     color = 0xffffff
 }) {
     //Geometry definition
-    var size = 200;
+    var size = 100;
     var geometry = new THREE.Geometry();
     for (var i = 0; i < 1; i += 1.0 / size) {
         for (var j = 0; j < 1; j += 1 / size) {
