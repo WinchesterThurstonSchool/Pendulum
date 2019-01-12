@@ -34,7 +34,7 @@ window.zoomIn = zoomIn;
 window.zoomOut = zoomOut;
 
 $(function () {
-    initialize2D(20);
+    initialize3D(20);
     // graphSlopeField((x,y)=>Math.sqrt(4-y*y),51, true);
     // graphSlopeField((x,y)=>(x-y)/(2+Math.cos(y)), 51, true, fieldStyles.slope(colors.red));
     var holder = new Vec();
@@ -45,14 +45,14 @@ $(function () {
     //         3 * Math.sin(s) + Math.sin(s) * Math.cos(t),
     //         -Math.sin(t) - 3);
     // });
-    // graphParametricSurface((u, v) => {
-    //     var s = v * Math.PI,
-    //         t = u * 2 * Math.PI,
-    //         r = 0.5;
-    //     return holder.set(r * Math.sin(s) * Math.cos(t),
-    //         r * Math.sin(s) * Math.sin(t),
-    //         r * Math.cos(s));
-    // });
+    graphParametricSurface((u, v) => {
+        var s = v * Math.PI,
+            t = u * 2 * Math.PI,
+            r = 0.5;
+        return holder.set(r * Math.sin(s) * Math.cos(t),
+            r * Math.sin(s) * Math.sin(t),
+            r * Math.cos(s));
+    });
     // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 / Math.exp(n[0].dot(n[0]))), 2);
     // // var orbit = new DiffEqn((t, n) => n[0].normalize(holder).multiply(-1 /n[0].dot(n[0])), 2);
     // // var zp1 = new Vec(0, 0, 1);

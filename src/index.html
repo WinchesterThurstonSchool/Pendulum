@@ -75,35 +75,35 @@
             </div> -->
             <div id="sidebar">
                 <div id="object-bar" class="object-list object-property-container">
-                    <div class="object-property" varname="a">
-                        <div class="object-property-name">
+                    <div class="name-container" varname="a"> 
+                        <div class="name">
                             a
                         </div>
-                        <div class="object-property-state">
+                        <div class="type">
                             :
                         </div>
                     </div>
-                    <div class="object-property" varname="b">
-                        <div class="object-property-name">
+                    <div class="name-container" varname="b">
+                        <div class="name">
                             b
                         </div>
-                        <div class="object-property-state">
+                        <div class="type">
                             {
                         </div>
                     </div>
-                    <div class="object-property active" varname="f">
-                        <div id="var-f" class="object-property-name">
+                    <div class="name-container active" varname="f">
+                        <div class="name">
                             f
                         </div>
-                        <div class="object-property-state">
+                        <div class="type">
                             
                         </div>
                     </div>
-                    <div class="object-property">
-                        <div class="object-property-name" varname="d">
+                    <div class="name-container" varname="d">
+                        <div class="name">
                             d
                         </div>
-                        <div class="object-property-state">
+                        <div class="type">
                             :
                         </div>
                     </div>
@@ -115,17 +115,18 @@
             <div id="mathpanel">
                 <div class="expression-container" varname="a">
                     <span class="expression">
-
+                        \int _0^1\int _0^{1-p_1}...\int _0^{1-\sum _{i=1}^{n-2}p_i}\sum _{i=1}^{n-1}p_i\cdot dp_{n-1}...\ dp_2dp_1
                     </span>
                 </div>
                 <div class="expression-container" varname="b">
                     <span class="expression">
-                        
+                        \vec{f}\left(u,v\right)=\left\langle r\sin \left(\pi u\right)\cos \left(2\pi v\right),\ r\sin \left(2\pi u\right)\sin
+                        \left(\pi v\right),\ r\cos \left(\pi u\right)\right\rangle
                     </span>
                 </div>
                 <div class="expression-container" varname="f">
                     <span class="expression">
-                        
+                        \sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{x}}}}}}}}}}}}}}
                     </span>
                 </div>
                 <div class="expression-container" varname="d">
@@ -150,9 +151,8 @@
     <script src="../node_modules/three/build/three.min.js"></script>
     <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="../node_modules/pixi.js/dist/pixi.min.js"></script>
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./main.js"></script>
     <script>
-
     </script>
 </body>
 

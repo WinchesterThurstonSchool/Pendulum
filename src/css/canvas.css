@@ -25,7 +25,7 @@ body {
     --mainHighlight: #293f50;
     --yellow: #fbff00;
     --gray: #f3f3f3;
-    --grayShadow: #a1a1a1;
+    --grayShadow: #afafaf;
     --active: rgb(255, 115, 0, 0.99);
     --active-faded: rgb(255, 140, 0);
     height: 100%;
@@ -65,7 +65,7 @@ body {
     justify-self: stretch;
     overflow: hidden;
     background: aliceblue;
-    box-shadow: 3px 0px 5px 0px var(--grayShadow) inset;
+    grid-template-columns: fit-content(300px) 1fr;
 }
 
 #defpanel {
@@ -75,33 +75,54 @@ body {
     align-items: flex-start;
     min-width: 300px;
     width: fit-content;
+    width: -moz-fit-content;
     padding: 0px;
     margin: 0px;
+    border-right: 2px solid var(--grayShadow);
     /* background: #5199eb86; */
     background: white;
-    position: relative;
+    display: grid;
+    grid-template-columns: fit-content(50px) 1fr;
+}
+
+#sidebar {
+    grid-column: 1 / span 1;
+    align-self: stretch;
+    width: fit-content;
+    width: -moz-fit-content;
+    min-width: 50px;
+    background: var(--mainHighlight);
+    padding: 0px;
+    transition: 0.5s;
+    display: grid;
+    grid-template-rows: 1fr 80px;
 }
 
 #settingsWrapper {
     position: absolute;
-    bottom: 80px;
     left: 0px;
+    bottom: 0px;
     padding: 5px;
     transition: 0.3s;
-    width: 100%;
+    width: 50px;
+    height: 75px;
+    align-content: center;
+    justify-content: center;
     display: flex;
 }
 
-#settingsWrapper:hover {
-    background: white;
-}
-
 #defSettings {
+    transition: 200ms;
+    height: fit-content;
+    height: -moz-fit-content;
     width: 100%;
     color: white;
-    align-self: center;
-    margin-bottom: 20px;
     background: var(--mainHighlight);
+}
+
+#defSettings:hover {
+    color: var(--mainHighlight);
+    background: white;
 }
 
 
@@ -138,30 +159,22 @@ body {
     color: white;
 }
 
-#base-properties {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+.math {
+    display: block;
+    margin-top: 20px;
     width: 100%;
-    height: fit-content;
-    overflow-x:visible;
-    overflow-y: auto;
 }
-.property {
-    width: 100%;
-    min-height: 50px;
-    height:fit-content;
-    display: grid;
-    grid-template-columns: fit-content(50px) 1fr;
+
+
+.object-property-container {
+    grid-column: 1 / span 1;
 }
 
 .name-container {
-    grid-column: 1 / span 1;
     text-align: center;
+    height: fit-content;
+    height: -moz-fit-content;
     min-height: 50px;
-    height: stretch;
-    min-width: 50px;
-    width: fit-content;
     background: white;
     line-height: 50px;
     vertical-align: middle;
@@ -169,30 +182,15 @@ body {
     font-family: DejaVu Sans Mono, monospace;
     font-weight: 200;
     position: relative;
-    overflow: hidden;
-    transition: 0.3s;
 }
+
 
 .name-container .name {
     width: 100%;
-    height: 100%;
     padding-left: 15px;
     padding-right: 15px;
     border: 0px;
     box-shadow: none;
-}
-
-.empty>.name-container{
-    background: white;
-    color: black;
-    border-width: 0px 1px 1px 0px;
-    border-color: var(--grayShadow);
-    border-style: solid;
-}
-
-.name-container.function>.name {
-    text-align: right;
-    padding-right: 0px;
 }
 
 .type {
@@ -203,21 +201,22 @@ body {
     height: 100%;
 }
 
-.base {
+#object-bar>* {
     background: var(--mainHighlight);
     color: white;
+    transition: 0.3s;
 }
 
-.base .mq-cursor {
+#object-bar .mq-cursor {
     border-left: 1px solid white;
 }
 
-.base:hover {
+#object-bar>*:hover {
     background: white;
     color: black;
 }
 
-.base:hover .mq-cursor {
+#object-bar>* :hover .mq-cursor {
     border-left: 1px solid black;
 }
 
@@ -240,7 +239,7 @@ body {
     width: 100%;
     height: stretch;
     min-height: 50px;
-    border-width: 0px 0px 1px 0px;
+    border-width: 1px 0px 0px 0px;
     border-style: solid;
     border-color: var(--grayShadow);
     display: flex;
@@ -251,9 +250,14 @@ body {
     border-color: lightskyblue;
 }
 
+.expression-container:focus-within+.expression-container{
+    border-width: 0px 0px 0px 0px;
+}
+
 .expression-container .expression {
     width: 100%;
     height: fit-content;
+    height: -moz-fit-content;
     padding: 3pt;
     border: none;
     box-shadow: none;
