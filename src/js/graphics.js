@@ -7,7 +7,7 @@ import {
     getMatrix,
     DiffEqn,
     RK4
-} from './operations.js';
+} from './operators.js';
 
 var globalScene;
 var canvas;
@@ -232,16 +232,16 @@ function resetScene() {
     }
 }
 
-const zoomIn = (()=>{
+const zoomIn = (() => {
     var evt = document.createEvent('MouseEvents');
     evt.initEvent('wheel', true, true);
     evt.deltaY = -300;
-    return function(){
+    return function () {
         canvas.dispatchEvent(evt);
     }
 })();
 
-const zoomOut= (()=>{
+const zoomOut = (() => {
     var evt = document.createEvent('MouseEvents');
     evt.initEvent('wheel', true, true);
     evt.deltaY = 300;
@@ -536,20 +536,20 @@ function graphSlopeField(func = (x, y) => 0, count = 51, graphSolution = false, 
     ], [count]);
 
     if (globalScene instanceof THREE.Scene) {
-        slopeField3D();
+        slopeField3D(vecFunc, matrix, style);
     }
     if (globalScene instanceof PIXI.Container) {
         slopeField2D(vecFunc, matrix, style);
-        if (graphSolution) {
-            var holder = new Vec();
-            var diffEqn = new DiffEqn((t, ys) => vecFunc(holder.set(ys[0].x, ys[0].y)));
-            for (let i = -tr.range / 4; i <= tr.range / 4; i += tr.range / 6)
-                for (let j = -tr.range / 4; j <= tr.range / 4; j += tr.range / 6) {
-                    let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
-                    let cache = solver.getSolution(true, [-50, 50]);
-                    graphParametricCurve((t) => cache(t * 100 - 50, holder), 0xffffff - style.color);
-                };
-        }
+    }
+    if (graphSolution) {
+        var holder = new Vec();
+        var diffEqn = new DiffEqn((t, ys) => vecFunc(holder.set(ys[0].x, ys[0].y)));
+        for (let i = -tr.range / 4; i <= tr.range / 4; i += tr.range / 6)
+            for (let j = -tr.range / 4; j <= tr.range / 4; j += tr.range / 6) {
+                let solver = new RK4(diffEqn, 0.01, 0, [new Vec(i, j, 0)]);
+                let cache = solver.getSolution(true, [-50, 50]);
+                graphParametricCurve((t) => cache(t * 100 - 50, holder), 0xffffff - style.color);
+            };
     }
 }
 
@@ -560,8 +560,9 @@ function slopeField2D(func = (x, y) => new Vec(), matrix = [new Vec(0)], style =
         var origin = new Vec();
         var reduced = new Vec();
         var tar = new Array(2);
-        var k = new Vec(0,0,1);
-        var p0 = new Array(2), p1 = new Array(2);
+        var k = new Vec(0, 0, 1);
+        var p0 = new Array(2),
+            p1 = new Array(2);
         for (var i = 0; i < matrix.length; i++) {
             tr.map(matrix[i].x, matrix[i].y, tar);
             var vec = func(origin.set(tar[0], tar[1]));
@@ -571,7 +572,7 @@ function slopeField2D(func = (x, y) => new Vec(), matrix = [new Vec(0)], style =
                 bR = style.bodyRadius(vlength) * 500;
             var reducedVec = vec.multiply((vlength - tH / tr.scale) / vlength, reduced);
             tr.toP(origin.x - reducedVec.x / 2, origin.y - reducedVec.y / 2, p0),
-            tr.toP(origin.x + reducedVec.x / 2, origin.y + reducedVec.y / 2, p1);
+                tr.toP(origin.x + reducedVec.x / 2, origin.y + reducedVec.y / 2, p1);
             var norm = reduced.set(p1[0] - p0[0], p1[1] - p0[1]).cross(k).normalize().multiply(tR),
                 p2 = [p1[0] + norm.x, p1[1] + norm.y],
                 p3 = [p1[0] - norm.x, p1[1] - norm.y],
@@ -594,8 +595,40 @@ function slopeField2D(func = (x, y) => new Vec(), matrix = [new Vec(0)], style =
     graphers.push(grapher);
 }
 
-function slopeField3D(func = (x, y) => 0, style = fieldStyles.slope()) {
-
+function slopeField3D(func = (x, y) => new Vec(), matrix = [new Vec(0)], style = fieldStyles.slope()) {
+    var geometry = new THREE.Geometry;
+    var origin = new Vec();
+    var reduced = new Vec();
+    var tar = new Array(2);
+    var p0 = new Array(2),
+        p1 = new Array(2);
+    var vertices = geometry.vertices;
+    for (var i = 0; i < matrix.length; i++) {
+        tr.map(matrix[i].x, matrix[i].y, tar);
+        var vec = func(origin.set(tar[0], tar[1]));
+        vec.multiply(1 / tr.range, reduced);
+        tr.rescale(matrix[i].x - reduced.x / 2, matrix[i].y - reduced.y / 2, p0);
+        tr.rescale(matrix[i].x + reduced.x / 2, matrix[i].y + reduced.y / 2, p1);
+        vertices.push(new THREE.Vector3(p0[0], p0[1], 0));
+        vertices.push(new THREE.Vector3(p1[0], p1[1], 0));
+    }
+    var update = () => {
+        for (var i = 0; i < matrix.length; i++) {
+            tr.map(matrix[i].x, matrix[i].y, tar);
+            var vec = func(origin.set(tar[0], tar[1]));
+            vec.multiply(1 / tr.range, reduced);
+            tr.rescale(matrix[i].x - reduced.x / 2, matrix[i].y - reduced.y / 2, p0);
+            tr.rescale(matrix[i].x + reduced.x / 2, matrix[i].y + reduced.y / 2, p1);
+            vertices[i * 2].set(p0[0], p0[1], 0);
+            vertices[i * 2 + 1].set(p1[0], p1[1], 0);
+            geometry.verticesNeedUpdate = true;
+        }
+    }
+    var lineMaterial = materials.line.clone();
+    lineMaterial.color = new THREE.Color(style.color);
+    var field = new THREE.LineSegments(geometry, lineMaterial);
+    globalScene.add(field);
+    graphers.push(update);
 }
 
 function graphNormalSurface(normal = new Vec(0, 0, 1), offset = normal, color = colors.orange) {
@@ -609,8 +642,10 @@ function Transformer(range = 10, scale = 4) {
     this.offsetY = 0;
     this.translatex = 0;
     this.translatey = 0;
-    this.rescale = function (a, b = 0) {
-        return new Array(this.scale * a - this.scale / 2, this.scale * b - this.scale / 2);
+    this.rescale = function (a, b = 0, target = new Array(2)) {
+        target[0] = this.scale * a - this.scale / 2;
+        target[1] = this.scale * b - this.scale / 2;
+        return target;
     }
 
     this.map = function (a, b = 0, target = new Array(2)) {

@@ -22,7 +22,7 @@ body {
 #root {
     --blue: #3abdff;
     --blueShadow: #007fbe;
-    --mainHighlight: #293f50;
+    --mainHighlight: #0a4e9c;
     --yellow: #fbff00;
     --gray: #f3f3f3;
     --grayShadow: #afafaf;
@@ -220,16 +220,16 @@ body {
     border-left: 1px solid black;
 }
 
-.active {
+#object-bar > .active {
     background: var(--active);
 }
 
-.active:hover {
+#object-bar>.active:hover {
     background: var(--active-faded);
     color: white;
 }
 
-.active:hover .mq-cursor {
+#object-bar>.active:hover .mq-cursor {
     border-left: 1px solid white;
 }
 

@@ -22,60 +22,9 @@
             Pendulum
         </div>
         <div id="defpanel">
-            <!-- <div id="base-properties">
-                <div class="property" varname="a">
-                    <div class="name-container base">
-                        <div class="name">
-                            a
-                        </div>
-                        <div class="type">
-                            :
-                        </div>
-                    </div>
-                    <div class="expression-container">
-                        <span class="expression">
-
-                        </span>
-                    </div>
-                </div>
-                <div class="property" varname="b">
-                    <div class="name-container base">
-                        <div class="name">
-                            b
-                        </div>
-                        <div class="type">
-                            :
-                        </div>
-                    </div>
-                    <div class="expression-container">
-                        <span class="expression">
-                    
-                        </span>
-                    </div>
-                </div>
-                <div class="property empty" varname="">
-                    <div class="name-container base">
-                        <span class="name">
-                            c
-                        </span>
-                        <div class="type">
-                            :
-                        </div>
-                    </div>
-                    <div class="expression-container">
-                        <span class="expression">
-                
-                        </span>
-                    </div>
-                </div>
-                <div class="property"></div>
-            </div>
-            <div id="settingsWrapper">
-                <button id="defSettings" class="btn glyphicon  glyphicon-th-list"></button>
-            </div> -->
             <div id="sidebar">
                 <div id="object-bar" class="object-list object-property-container">
-                    <div class="name-container" varname="a"> 
+                    <div class="name-container active" varname="a">
                         <div class="name">
                             a
                         </div>
@@ -91,20 +40,29 @@
                             {
                         </div>
                     </div>
-                    <div class="name-container active" varname="f">
+                    <div class="name-container" varname="f">
                         <div class="name">
                             f
                         </div>
                         <div class="type">
-                            
+                            :
                         </div>
                     </div>
-                    <div class="name-container" varname="d">
+                    <div class="name-container active" varname="d">
                         <div class="name">
                             d
                         </div>
                         <div class="type">
                             :
+                        </div>
+                        
+                    </div>
+                    <div class="name-container" varname="h">
+                        <div class="name">
+                            \vec{h}
+                        </div>
+                        <div class="type">
+                            
                         </div>
                     </div>
                 </div>
@@ -115,23 +73,29 @@
             <div id="mathpanel">
                 <div class="expression-container" varname="a">
                     <span class="expression">
-                        \int _0^1\int _0^{1-p_1}...\int _0^{1-\sum _{i=1}^{n-2}p_i}\sum _{i=1}^{n-1}p_i\cdot dp_{n-1}...\ dp_2dp_1
+                        z=\cos \left(x\right)+\sin \left(y\right)
                     </span>
                 </div>
                 <div class="expression-container" varname="b">
                     <span class="expression">
-                        \vec{f}\left(u,v\right)=\left\langle r\sin \left(\pi u\right)\cos \left(2\pi v\right),\ r\sin \left(2\pi u\right)\sin
-                        \left(\pi v\right),\ r\cos \left(\pi u\right)\right\rangle
-                    </span>
+                        \frac{d}{dt}\vec{v}\left(t\right)=\left\langle -yz,\ zx,\ -xy\right\rangle </span>
                 </div>
                 <div class="expression-container" varname="f">
                     <span class="expression">
-                        \sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{\sqrt{x}}}}}}}}}}}}}}
+                        \left\langle x,y,z\right\rangle =\left\langle 3\cos \left(s\right)+\cos \left(s\right)\sin
+                        \left(t\right),\ 3\cos
+                        \left(s\right)+\sin \left(t\right)\cos \left(t\right),\ -\sin \left(t\right)-3\right\rangle
                     </span>
                 </div>
                 <div class="expression-container" varname="d">
                     <span class="expression">
-                
+                        \left\langle x,y,z\right\rangle =\left\langle 10-s^2+t,\ s\sin \left(t\right),\ t\cos
+                        \left(s\right)\right\rangle
+                    </span>
+                </div>
+                <div class="expression-container" varname="h">
+                    <span class="expression">
+                    \left(x,y,z\right)=\frac{\left\langle -y,\ -z,\ x\right\rangle }{\sqrt{x^2+y^2+z^2}}
                     </span>
                 </div>
             </div>

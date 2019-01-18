@@ -1,12 +1,13 @@
 import "./jquery-3.3.1.js";
+import {types} from "./environment.js"
 
 var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 var  objectBar = $('#object-bar')[0];
-var types = {
-    ":":"Variable",
-    "":"Function",
-    "{":"Object"
-};
+
+var core;
+
+var setCore = (mainCore)=>core=mainCore;
+
 var nameControls={};
 var expControls={};
 
@@ -104,3 +105,5 @@ for (let varName in nameControls){
     nc.updateSize();
     ec.updateSize();
 }
+
+export{nameControls, expControls, setCore}
