@@ -7,17 +7,7 @@ var types = {
 };
 
 function Environment(core){
-    class Operation {
-        constructor(operator= ()=>0, a, b){
-            this.operator = operator;
-            this.a = a;
-            this.b = b;
-        }
-        compute(){
-            return this.operator((this.a instanceof Operation)?this.a.compute:this.a,
-                (this.b instanceof Operation) ? this.b.compute: this.b);
-        }
-    }
+    
     class Variable {
         constructor() {
             this.isVisualized = false;

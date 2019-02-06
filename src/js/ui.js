@@ -87,7 +87,7 @@ $('.expression').each(function () {
     ec.expContainer = this.parentElement;
     ec.varName = ec.expContainer.getAttribute('varname');
     expControls[ec.varName] = ec;
-    MQ.MathField(this, {
+    var field = MQ.MathField(this, {
         autoSubscriptNumerals: true,
         handlers: {
             edit: () => {

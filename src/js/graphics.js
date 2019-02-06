@@ -289,7 +289,7 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
             var Z = func(cod[0], cod[1]) / tr.range * tr.scale;
             geometry.vertices.push(new THREE.Vector3(pos[0], pos[1], Z));
         }
-    };
+    }
 
     for (var i = 0; i < size - 1; i += 1) {
         for (var j = 0; j < size - 1; j += 1) {
