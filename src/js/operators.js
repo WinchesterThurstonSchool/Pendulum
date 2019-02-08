@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 const add = (x, y) => (+x) + (+y);
 const subtract = (x, y) => (+x) - (+y);
 const multiply = (x, y) => (+x) * (+y);
@@ -135,12 +137,12 @@ class Euler {
         if (bounded) {
             var posD = Math.ceil((domain[1] - this.t) / this.dt);
             var negD = Math.floor((this.t - domain[0]) / this.dt);
-            var cacheP = new Array();
-            var stampP = new Array();
-            var cacheN = new Array();
-            var stampN = new Array();
-            var solutions = new Array();
-            var timeStamps = new Array();
+            var cacheP = [];
+            var stampP = [];
+            var cacheN = [];
+            var stampN = [];
+            var solutions = [];
+            var timeStamps = [];
             var ogState = this.getStates(5);
             for (var i = 0; i < posD; i++) {
                 this.reversing = false;

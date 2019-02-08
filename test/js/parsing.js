@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 //This js tests algorithms for input parsing, 
 //which is separated into preparse and parse
@@ -68,7 +69,7 @@ const commands = {
             }
         }
     }
-}
+};
 /**
  * Number recognition rule:
  * Digits with at most one decimal point
@@ -87,7 +88,7 @@ function preParse(str = ""){
     var seq = [];
     var cache = '';
     for (let i = 0; i < str.length; i++) {
-        console.log(i)
+        console.log(i);
         let c = str.charAt(i);
         let charcode = c.charCodeAt(0);
         let tempChache = cache+c;
@@ -100,23 +101,7 @@ function preParse(str = ""){
         if (!isNaN(c)) type = 1;
         else 
             if (acode <= charcode && charcode <= zcode) type = 2;
-            else type = 3
-        switch(state){
-            case 0: 
-                cache += c;
-                state = type;
-                break;
-            case 1: 
-                if(isNaN(tempChache)){
-                    seq.push(Number(cache));
-                    i-=1;
-                    cache='';
-                    break;
-                }
-                else cache = tempChache
-                break;
-            default: break;
-        }  
+            else type = 3;
     }
     seq.push(cache);
     return seq;

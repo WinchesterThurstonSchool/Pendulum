@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 //   global.THREE = require('three');
 //   require('three/OrbitControls');
 //   import * as PIXI from 'pixi.js';
@@ -14,7 +16,7 @@ var canvas;
 var width = 0,
     height = 0;
 var camera;
-var tr = new Transformer;
+var tr = new Transformer();
 var graphers = [];
 var renderAll;
 const dynamicLoading = true;

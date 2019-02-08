@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 import "./jquery-3.3.1.js";
 import {types} from "./environment.js"
 
@@ -28,7 +30,7 @@ class NameControl {
          expContainer.style.height = height + 'px';
     }
 
-    loadExpControl(ec = new ExpControl) {
+    loadExpControl(ec) {
         this.expControl = ec;
     }
 }
