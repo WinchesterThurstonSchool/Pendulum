@@ -1,12 +1,17 @@
 /*jshint esversion: 6 */
 
-const add = (x, y) => (+x) + (+y);
-const subtract = (x, y) => (+x) - (+y);
-const multiply = (x, y) => (+x) * (+y);
-const divide = (x, y) => (+x) / (+y);
-const sin = (x) => Math.sin(+x);
-const cos = (x) => Math.cos(+x);
-const validateNumbers = (x, y) => !(isNaN(x) || isNaN(y));
+//Set Functions
+const add = (a, b) => a + b;
+const sub = (a, b) => a - b;
+const negate = (a) => -a;
+const mul = (a, b) => a * b;
+const div = (a, b) => a / b;
+const pow = (a,b) => Math.pow(a,b);
+const ln = (a,b) => Math.log(a,b);
+const sin = (a) => Math.sin(a);
+const cos = (a) => Math.cos(a);
+const assign = (a, b) => a.setValue(b);
+const sqrt = (a) => Math.sqrt(a);
 
 /**
  * Mathematical construct of vector
@@ -111,20 +116,20 @@ class Euler {
         if (this.diffEqn.order - 1 >= 0) this.diffEqn.ydirs[this.diffEqn.order - 1].add(dir.multiply(dt));
     }
     y(t, target = new Vec()) {
-        let lY, rY;
+        let lY, rY, domain;
         if (t > this.t) {
             while (this.t < t) {
                 lY = this.diffEqn.y;
                 this.step(this.dt);
             }
-            var domain = [this.t - this.dt, this.t];
+            domain = [this.t - this.dt, this.t];
             rY = this.diffEqn.y;
         } else {
             while (t < this.t) {
                 rY = this.diffEqn.y;
                 this.step(-this.dt);
             }
-            var domain = [this.t, this.t + this.dt];
+            domain = [this.t, this.t + this.dt];
             lY = this.diffEqn.y;
         }
         return target.set(
@@ -353,12 +358,16 @@ function apply(func = (vec) => new Vec(), matrix = [new Vec()]) {
 
 export {
     add,
-    subtract,
-    multiply,
-    divide,
+    sub,
+    negate,
+    mul,
+    div,
     sin,
     cos,
-    validateNumbers,
+    pow,
+    sqrt,
+    ln,
+    assign,
     Vec,
     DiffEqn,
     Euler,
@@ -366,4 +375,4 @@ export {
     RK4,
     getMatrix,
     apply,
-}
+};

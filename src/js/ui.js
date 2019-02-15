@@ -1,7 +1,8 @@
 /*jshint esversion: 6 */
 
 import "./jquery-3.3.1.js";
-import {types} from "./environment.js"
+import {types} from "./environment.js";
+import {Parser, tokensToString} from "./parser.js";
 
 var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 var  objectBar = $('#object-bar')[0];
@@ -10,6 +11,7 @@ var core;
 
 var setCore = (mainCore)=>core=mainCore;
 
+var names = [];
 var nameControls={};
 var expControls={};
 
@@ -19,7 +21,6 @@ class NameControl {
         this.nameContainer=document.body;
         this.nameField=document.body;
         this.type = types[':'];
-        this.expControl;
     }
 
     updateSize(){
@@ -40,7 +41,6 @@ class ExpControl {
         this.expContainer = document.body;
         this.expField = document.body;
         this.type = types[":"];
-        this.nameControl;
     }
 
     updateSize(){
@@ -51,18 +51,9 @@ class ExpControl {
         this.expContainer.style.height = height + 'px';
     }
 
-    loadNameControl(nc = new NameControl){
+    loadNameControl(nc = new NameControl()){
         this.type = nc.type;
         this.nameControl = nc;
-    }
-}
-
-function initializeObjects(objects = {}) {
-    objectList = objects;
-    for (var key in objectList) {
-        if (objectList.hasOwnProperty(key)) { //to be safe
-            objectNames.push(key);
-        }
     }
 }
 
@@ -71,6 +62,7 @@ $('.name').each(function () {
     nc.nameField = this;
     nc.nameContainer = this.parentElement;
     nc.varName = nc.nameContainer.getAttribute("varname");
+    names.push(nc.varName);
     nc.type = types[nc.nameContainer.lastElementChild.innerText];
     nameControls[nc.varName] = nc;
     MQ.MathField(this, {
@@ -88,12 +80,18 @@ $('.expression').each(function () {
     ec.expField = this;
     ec.expContainer = this.parentElement;
     ec.varName = ec.expContainer.getAttribute('varname');
+    ec.parser = new Parser();
     expControls[ec.varName] = ec;
-    var field = MQ.MathField(this, {
+    ec.mathquill = MQ.MathField(this, {
         autoSubscriptNumerals: true,
         handlers: {
             edit: () => {
                 ec.updateSize();
+                console.log(tokensToString(ec.parser.getRPN(ec.mathquill.latex())));
+            },
+            enter: () =>{
+                ec.mathquill.blur();
+                expControls[names[(names.indexOf(ec.varName)+1)%names.length]].mathquill.focus();
             }
         }
     });
@@ -108,4 +106,4 @@ for (let varName in nameControls){
     ec.updateSize();
 }
 
-export{nameControls, expControls, setCore}
+export{nameControls, expControls, setCore};

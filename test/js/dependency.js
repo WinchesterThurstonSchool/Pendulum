@@ -1,7 +1,7 @@
 expr = (x)=> Math.sin(x);
 
 (function Environment(core) {
-    sinks = []
+    sinks = [];
     class Variable {
         constructor(name, expression) {
             this.name = name;
@@ -18,6 +18,7 @@ expr = (x)=> Math.sin(x);
                 outdatedDependencies:[]
             }
             this.tex="";
+            Variable.toString = () => this.name + ": " + this.val;
         }
         update() {
             this.pulse();
@@ -74,9 +75,7 @@ expr = (x)=> Math.sin(x);
             this.dependencies.push(dependency)
             dependency.proprietors.push(this)
         }
-        toString(){
-            return this.name +": "+this.val;
-        }
+        
     }
 
     var pi = new Variable();

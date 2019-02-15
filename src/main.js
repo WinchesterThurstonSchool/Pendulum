@@ -45,11 +45,10 @@ var core = new (function () {
     U.setCore(this);
     this.initialize2D = initialize2D;
     this.initialize3D = initialize3D;
-    
 })();
 
 $(function () {
-    initialize2D();
+    initialize3D();
     var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
         (vec) => new Vec(-vec.y, -vec.z, vec.x).normalize(), (vec) => new Vec(1),
         (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
@@ -75,7 +74,9 @@ $(function () {
     //         let rkSolution = solver.getSolution(true, [-25, 25]);
     //         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.red);
     //     }
-    graphSlopeField((x,y)=>x+y);
+    // graphSlopeField((x,y)=>x+y);
+    graphCartesian((x,y)=>Math.trunc(x));
+    graphCartesian((x,y)=>Math.sin(x)-Math.sin(y),colors.steelBlue);
 });
 
 /**A Comprehensive list of all the graphics commands:**/

@@ -1,1 +1,1 @@
-console.log('s'==="s");
+console.log('s'===("a"||"s"));
