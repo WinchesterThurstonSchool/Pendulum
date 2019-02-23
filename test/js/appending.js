@@ -1,1 +1,3 @@
-console.log('s'===("a"||"s"));
+
+var pl = [0];
+console.log(!1)

@@ -45,6 +45,24 @@ var core = new (function () {
     U.setCore(this);
     this.initialize2D = initialize2D;
     this.initialize3D = initialize3D;
+    this.graph=function(type, func=()=>0){
+        switch(type){
+            case "cartesian":
+                graphCartesian(func);
+                break;
+            case "parametricSurface":
+                var holder = new Vec();
+                graphParametricSurface((u,v, holder)=>func(u,v,holder));
+                break;
+            default:
+                break;
+        }
+    };
+    this.loadRPNFor=function(name, RPN=undefined){
+        if(E.variables[name]==undefined)
+            E.variables[name]=E.createVar(name, RPN);
+        E.variables[name].loadRPNs(RPN);
+    };
 })();
 
 $(function () {
@@ -75,7 +93,7 @@ $(function () {
     //         graphParametricCurve((t) => rkSolution(t * 50 - 25, holder), colors.red);
     //     }
     // graphSlopeField((x,y)=>x+y);
-    graphCartesian((x,y)=>Math.trunc(x));
+    graphCartesian((x,y)=>x-y*Math.cos(x-y));
     graphCartesian((x,y)=>Math.sin(x)-Math.sin(y),colors.steelBlue);
 });
 

@@ -7,7 +7,7 @@ const negate = (a) => -a;
 const mul = (a, b) => a * b;
 const div = (a, b) => a / b;
 const pow = (a,b) => Math.pow(a,b);
-const ln = (a,b) => Math.log(a,b);
+const ln = (a) => Math.log(a);
 const sin = (a) => Math.sin(a);
 const cos = (a) => Math.cos(a);
 const assign = (a, b) => a.setValue(b);

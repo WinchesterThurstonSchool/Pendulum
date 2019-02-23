@@ -32,7 +32,7 @@ const zcode = 'z'.charCodeAt(0);
 const Acode = 'A'.charCodeAt(0);
 const Zcode = 'Z'.charCodeAt(0);
 /**Command dictionary:
- *  Command specifier: [{string} type, {function} token, {number} precedence, {boolean} is right associative, ({number} argument count if not 2)]
+ *  Command specifier: [{string} type, {function} value, (type==="operator")?{number} precedence:{number} argument count, {boolean} is right associative]
  */
 const commands = {
     '+': [add, 1, false],
@@ -41,34 +41,36 @@ const commands = {
     '/': [div, 2, false],
     '^': [pow, 3, true],
     '\\': {
+        ' ':["structure", " "],
         'c': {
             'd': {
                 'o': {
-                    't': ["function", mul, 2, false]
+                    't': ["operator", mul, 2, false]
                 }
             },
             'o': {
-                's': ["function", cos, 1.5, true, 1]
-            }
+                's': ["function", cos, 1],
+                't': ["function", (x) => 1 / Math.tan(x), 1]
+            },
         },
         'd': {
             'i': {
-                'v': ["function", div, 2, false]
+                'v': ["operator", div, 2, false]
             }
         },
         'f': {
             'r': {
                 'a': {
-                    'c': ["function", div, 2, false]
+                    'c': ["function", div, 2]
                 }
             }
         },
         'l': {
-            'n': ["function", ln, 1.5, false, 1],
+            'n': ["function", ln, 1],
             'e': {
                 'f': {
                     't': {
-                        '(': ["operator", "("]
+                        '(': ["structure", "("]
                     }
                 }
             }
@@ -78,7 +80,7 @@ const commands = {
                 'g': {
                     'h': {
                         't': {
-                            ')': ["operator", ")"]
+                            ')': ["structure", ")"]
                         }
                     }
                 }
@@ -86,15 +88,20 @@ const commands = {
         },
         's': {
             'i': {
-                'n': ["function", sin, 1.5, true, 1]
+                'n': ["function", sin, 1]
             },
             'u': {
                 'm': "sum"
             },
             'q': {
                 'r': {
-                    't': ["function", sqrt, 4, true, 1]
+                    't': ["function", sqrt, 1]
                 }
+            }
+        },
+        't': {
+            'a': {
+                'n': ["function", Math.tan, 1]
             }
         },
     }
@@ -122,10 +129,24 @@ function getCharType(c = 'added char') {
  * @param {String} type 
  */
 function isCompleteType(type = "initial") {
-    return ["variable", "text", "number", "function", "operator"].indexOf(type) != -1;
+    return ["variable", "text", "number", "function", "operator", "structure"].indexOf(type) != -1;
 }
 
 function Parser() {
+    //Parentheses level indicates the current depth of nested parentheses
+    var pl = 0;
+    //Closing parentheses count indicates the number of consecutive clauses expected to be found in the current level
+    /**
+     * ex:5+(2 + 2)
+     *      ^
+     *      |
+     *  The prentheses here generates a closing count of 1, because only one clause is demanded
+     * ex:\frac{a}{b}
+     *         ^
+     *         |
+     *  The prentheses here generates a closing count of 2, because two consecutive clauses is demanded to complete the fraction
+     */
+    var clCounts = [];
     /**
      * @param {[token]} tokens an array of all the tokens that have been so far collected
      * @param {token} lasttoken last token before the current one, undefined if the current token is first
@@ -154,7 +175,7 @@ function Parser() {
         this.numberdotcount = 0;
         //length conveys the number of parameters for a function
         //Default is 0 for none functions and two otherwise
-        this.length = 2;
+        this.length = 0;
         //is right associative determines whether the function is right associative
         this.isRightAssociative = false;
         this.parseAndAdd = function (c = 'added char') {
@@ -173,17 +194,17 @@ function Parser() {
                         case "symbol":
                             switch (c) {
                                 case '+':
-                                    this.type = "function";
+                                    this.type = "operator";
                                     this.precedence = 1;
                                     this.value = isFirst ? (x) => x : add;
                                     return true;
                                 case '-':
-                                    this.type = "function";
+                                    this.type = "operator";
                                     this.precedence = 1;
                                     this.value = isFirst ? negate : sub;
                                     return true;
                                 case '*':
-                                    this.type = "function";
+                                    this.type = "operator";
                                     this.precedence = 2;
                                     this.value = mul;
                                     return true;
@@ -193,28 +214,28 @@ function Parser() {
                                     this.value = div;
                                     return true;
                                 case '{':
-                                    this.type = "operator";
+                                    this.type = "structure";
                                     this.value = "(";
                                     return true;
                                 case '}':
-                                    this.type = "operator";
+                                    this.type = "structure";
                                     this.value = ")";
                                     return true;
                                 case '(':
-                                    this.type = "operator";
+                                    this.type = "structure";
                                     this.value = "(";
                                     return true;
                                 case ')':
-                                    this.type = "operator";
+                                    this.type = "structure";
                                     this.value = ")";
                                     return true;
                                 case '=':
-                                    this.type = "function";
-                                    this.value = assign;
+                                    this.type = "structure";
+                                    this.value = "=";
                                     this.precedence = 0;
                                     return true;
                                 case '^':
-                                    this.type = "function";
+                                    this.type = "operator";
                                     this.value = pow;
                                     this.precedence = 3;
                                     this.isRightAssociative = true;
@@ -226,7 +247,8 @@ function Parser() {
                                 case ' ':
                                     return true;
                                 case ';':
-                                    this.type="operator";
+                                    this.type = "structure";
+                                    this.value = ";";
                                     return false;
                                 default:
                                     break;
@@ -242,7 +264,7 @@ function Parser() {
                     }
                     return false;
                 case ",":
-                    this.type = "operator";
+                    this.type = "structure";
                     return true;
                 case ".":
                     switch (getCharType(c)) {
@@ -316,17 +338,17 @@ function Parser() {
                     if (newscheme != undefined) {
                         if (Array.isArray(newscheme)) {
                             this.value = newscheme[1];
-                            if (newscheme[0] == "function") {
+                            if (newscheme[0] === "operator") {
                                 this.precedence = newscheme[2];
                                 if (newscheme.length > 3) this.isRightAssociative = newscheme[3];
-                                if (newscheme.length > 4) this.length = newscheme[4];
+                                this.length = 2;
+                            } else if (newscheme[0] === "function") {
+                                this.length = newscheme[2];
+                                this.precedence = 1.5;
                             }
                             this.type = "}";
                             this.wrapup = (nextc) => {
-                                if (this.length == 1 && (nextc === "{" || nextc == "(")) {
-                                    this.precedence = 4;
-                                }
-                                this.type = this.type = newscheme[0];
+                                this.type = newscheme[0];
                             };
 
                         } else this.scheme = newscheme;
@@ -348,15 +370,30 @@ function Parser() {
                 return 0;
             } else {
                 if (isCompleteType(this.type)) { // Token completed
-                    if (this.type != "function") this.length = 0;
-                    if (lasttoken != undefined && (this.type === "variable") && (lasttoken.type === "variable" || lasttoken.type === "number" || lasttoken.value === ")")) {
+                    if (lasttoken != undefined && (lasttoken.type === "variable" || lasttoken.type === "number" || lasttoken.value === ")") &&
+                        (this.type === "variable" || this.type === "function" || (this.value === "(" && !(clCounts[pl]!=0)))) {
                         let multiply = new Token(lasttoken);
                         multiply.value = mul;
-                        multiply.type = "function";
+                        multiply.type = "operator";
                         multiply.LaTeX = "";
                         multiply.precedence = 2;
                         tokens.push(multiply);
                     }
+                    if (this.value === "(") {
+                        if (lasttoken != undefined && lasttoken.type === "function") {
+                            lasttoken.precedence = 4;
+                            clCounts[pl++] = lasttoken.length;
+                        } else {
+                            if (!(clCounts[pl++] > 0)) //If the next parentheses level doesn't exhibit an ongoing clause collection
+                                clCounts[pl-1] = 1;
+                        }
+                    }
+                    if(this.value===")"){
+                        pl--; //Reduce the current parentheses level by 1
+                        if((--clCounts[pl]==0)&&(clCounts[pl+1]>0)) //If the current clause is closed with the deeper clause incomplete
+                            clCounts[pl+1]=0;
+                    }
+                    if(this.value===" ")return 4;
                     return 1;
                 } else return 2;
             }
@@ -366,27 +403,36 @@ function Parser() {
     this.tokenize = function (LaTeX = "22+.4+2.3-76+23-23+.5") {
         var tokens = [];
         var token;
+        var lasttoken;
+        function readnext(i) {
+            token = new Token(tokens, lasttoken);
+            var state = token.read(LaTeX.charAt(i));
+            if (state == 3)
+                state = token.read(LaTeX.charAt(i));
+            if (state != 0)
+                throw "Unrecognized symbol at " + i + ": \"" + LaTeX.charAt(i) + "\"";
+        }
         for (let i in LaTeX) {
             if (token == null)
                 token = new Token(tokens);
             switch (token.read(LaTeX.charAt(i))) {
                 case 1:
                     tokens.push(token);
-                    var lasttoken = token;
-                    token = new Token(tokens, lasttoken);
-                    var state = token.read(LaTeX.charAt(i));
-                    if (state == 3)
-                        state = token.read(LaTeX.charAt(i));
-                    if (state != 0)
-                        throw "Unrecognized symbol at " + i + ": \"" + LaTeX.charAt(i) + "\"";
+                    lasttoken = token;
+                    readnext(i);
                     break;
                 case 2:
                     throw "Illegal syntax at " + i + ": \"" + LaTeX.charAt(i) + "\"";
+                case 3:
+                    throw "Incomplete parameter at" + i + ": \"" + LaTeX.charAt(i) + "\"";
+                case 4://Ignore the current character and continue
+                    readnext(i);
+                    break;
                 default:
                     break;
             }
         }
-        if(token!=undefined){
+        if (token != undefined) {
             token.read(";");
             tokens.push(token);
         }
@@ -398,16 +444,24 @@ function Parser() {
     var parseStack = [];
 
     this.tokensToRPN = function (expr = [new Token()]) {
-        var output = [];
+        var output =[];
+        var rpn =[];
+        var functionlength = 0;
         for (let i in expr) {
             let token = expr[i];
             if (token.type === "number" || token.type === "variable")
-                output.push(token);
+                rpn.push(token);
             if (token.type === "function") {
+                functionlength = token.length;
+                parseStack.push(token);
+            }
+            if (token.type === "operator") {
                 let lastoperator;
                 while ((lastoperator = parseStack[parseStack.length - 1]) != undefined &&
                     (lastoperator.precedence > token.precedence || ((lastoperator.precedence == token.precedence) && !lastoperator.isRightAssociative) &&
-                        lastoperator.value != "(")) output.push(parseStack.pop());
+                        lastoperator.value != "(")) {
+                    rpn.push(parseStack.pop());
+                }
                 parseStack.push(token);
             }
             if (token.value === "(")
@@ -415,18 +469,25 @@ function Parser() {
             if (token.value === ")") {
                 let temp;
                 while ((temp = parseStack.pop()).value !== "(")
-                    output.push(temp);
+                    rpn.push(temp);
+            }
+            if (token.value ==="="){
+                while (parseStack.length > 0)
+                    rpn.push(parseStack.pop());
+                output.push(rpn);
+                rpn=[];
             }
         }
         while (parseStack.length > 0)
-            output.push(parseStack.pop());
+            rpn.push(parseStack.pop());
+        output.push(rpn);
         return output;
     };
     var stack = [];
 
-    this.getRPN= function(LaTeX){
+    this.getRPN = function (LaTeX) {
         return this.tokensToRPN(this.tokenize(LaTeX));
-    }
+    };
 
     // console.log(evaluateRPN(parseToRPN(exp)));
 }
@@ -438,4 +499,15 @@ function tokensToString(tokens) {
     return string;
 }
 
-export {Parser, tokensToString};
+function rpnsToString(rpns) {
+    var string = "[";
+    for (let i in rpns)
+        string += tokensToString(rpns[i]) + ((i != rpns.length - 1) ? ", " : "]");
+    return string;
+}
+
+export {
+    Parser,
+    tokensToString,
+    rpnsToString
+};
