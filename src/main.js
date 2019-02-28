@@ -60,7 +60,7 @@ var core = new (function () {
     };
     this.loadRPNFor=function(name, RPN=undefined){
         if(E.variables[name]==undefined)
-            E.variables[name]=E.createVar(name, RPN);
+            E.createVar(name, RPN);
         E.variables[name].loadRPNs(RPN);
     };
 })();

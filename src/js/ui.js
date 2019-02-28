@@ -66,43 +66,17 @@ class ExpControl {
 }
 
 $('.name').each(function () {
-    var nc = new NameControl();
-    nc.nameField = this;
-    nc.nameContainer = this.parentElement;
-    nc.varName = nc.nameContainer.getAttribute("varname");
-    names.push(nc.varName);
-    nc.type = types[nc.nameContainer.lastElementChild.innerText];
-    nameControls[nc.varName] = nc;
-    MQ.MathField(this, {
-        autoSubscriptNumerals: true,
-        handlers: {
-            edit: () => {
-                nc.updateSize();
-            }
-        }
-    });
+    var container = this.parentElement;
+    var name = container.getAttribute('varname');
+    var nc = initiateNameControl(name, container, this);
+    nameControls[name]=nc;
 });
 
 $('.expression').each(function () {
-    var ec = new ExpControl();
-    ec.expField = this;
-    ec.expContainer = this.parentElement;
-    ec.varName = ec.expContainer.getAttribute('varname');
-    ec.parser = new Parser();
-    expControls[ec.varName] = ec;
-    ec.mathquill = MQ.MathField(this, {
-        autoSubscriptNumerals: true,
-        handlers: {
-            edit: () => {
-                ec.updateSize();
-                console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
-            },
-            enter: () => {
-                ec.mathquill.blur();
-                focusLast(ec.varName);
-            }
-        }
-    });
+    var container = this.parentElement;
+    var name = container.getAttribute('varname');
+    var ec = initiateExpControl(name, container, this);
+    expControls[name]=ec
     autoIndex++;
 });
 
@@ -119,46 +93,16 @@ function addNameField(name = undefined) {
     if (name == undefined) name = autoIndex;
     var html = $.parseHTML(`<div class="name-container" varname="${name}"><div class="name">${name}</div><div class="type">:</div></div>`);
     $('#object-bar').append(html);
-    var nc = new NameControl();
-    nc.nameField = html[0].children[0];
-    nc.nameContainer = html[0];
-    nc.varName = nc.nameContainer.getAttribute("varname");
-    names.push(nc.varName);
-    nc.type = types[nc.nameContainer.lastElementChild.innerText];
+    var nc = initiateNameControl(name, html[0], html[0].children[0]);
     nameControls[nc.varName] = nc;
-    MQ.MathField(nc.nameField, {
-        autoSubscriptNumerals: true,
-        handlers: {
-            edit: () => {
-                nc.updateSize();
-            }
-        }
-    });
 }
 
 function addExpField(name = undefined) {
     if (name == undefined) name = autoIndex;
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
     $('#mathpanel').append(html);
-    var ec = new ExpControl();
-    ec.expField = html[0].children[0];
-    ec.expContainer = html[0];
-    ec.varName = ec.expContainer.getAttribute('varname');
-    ec.parser = new Parser();
-    expControls[ec.varName] = ec;
-    ec.mathquill = MQ.MathField(ec.expField, {
-        autoSubscriptNumerals: true,
-        handlers: {
-            edit: () => {
-                ec.updateSize();
-                console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
-            },
-            enter: () => {
-                ec.mathquill.blur();
-                focusNext(ec.varName);
-            }
-        }
-    });
+    var ec = initiateExpControl(name, html[0], html[0].children[0]);
+    expControls[name]=ec;
     autoIndex++;
 }
 
@@ -209,21 +153,8 @@ function insertNameField(previous="",name = undefined){
     var html = $.parseHTML(`<div class="name-container" varname="${name}"><div class="name">${name}</div><div class="type">:</div></div>`);
     var previousContainer = nameControls[previous].nameContainer;
     previousContainer.parentNode.insertBefore(html[0], previousContainer.nextSibling);
-    var nc = new NameControl();
-    nc.nameField = html[0].children[0];
-    nc.nameContainer = html[0];
-    nc.varName = name;
-    names.push(nc.varName);
-    nc.type = types[nc.nameContainer.lastElementChild.innerText];
+    var nc = initiateNameControl(name, html[0], html[0].children[0]);
     nameControls[nc.varName] = nc;
-    MQ.MathField(nc.nameField, {
-        autoSubscriptNumerals: true,
-        handlers: {
-            edit: () => {
-                nc.updateSize();
-            }
-        }
-    });
 }
 
 function insertExpField(previous = "", name = undefined) {
@@ -233,18 +164,44 @@ function insertExpField(previous = "", name = undefined) {
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
     var previousContainer = expControls[previous].expContainer;
     previousContainer.parentNode.insertBefore(html[0], previousContainer.nextSibling);
+    var ec = initiateExpControl(name, html[0],html[0].children[0]);
+    expControls[ec.varName] = ec;
+    autoIndex++;
+    return name;
+}
+
+function initiateNameControl(name, container, field){
+    var nc = new NameControl();
+    nc.nameContainer = container;
+    nc.nameField = field;
+    nc.varName = name;
+    names.push(nc.varName);
+    nc.type = types[nc.nameContainer.lastElementChild.innerText];
+    MQ.MathField(nc.nameField, {
+        autoSubscriptNumerals: true,
+        handlers: {
+            edit: () => {
+                nc.updateSize();
+            }
+        }
+    });
+    return nc;
+}
+
+function initiateExpControl(name,container, field){
     var ec = new ExpControl();
-    ec.expField = html[0].children[0];
-    ec.expContainer = html[0];
+    ec.expContainer = container;
+    ec.expField = field;
     ec.varName = name;
     ec.parser = new Parser();
-    expControls[ec.varName] = ec;
     ec.mathquill = MQ.MathField(ec.expField, {
         autoSubscriptNumerals: true,
         handlers: {
             edit: () => {
                 ec.updateSize();
-                console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
+                // console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
+                var rpns=ec.parser.getRPN(ec.mathquill.latex());
+                core.loadRPNFor(name, rpns)
             },
             enter: () => {
                 ec.mathquill.blur();
@@ -252,8 +209,7 @@ function insertExpField(previous = "", name = undefined) {
             }
         }
     });
-    autoIndex++;
-    return name;
+    return ec;
 }
 
 function insertExpression(previous="",name = undefined){

@@ -20,9 +20,11 @@ function evaluateRPN(expression = []) {
     }
     return stack.pop();
 }
+
 function Environment(core) {
-    var variables = {};
+    this.variables = {};
     var sinks = [];
+    var E =  this;
     class Variable {
         constructor(name, rpns, type="inital") {
             this.name = name;
@@ -74,25 +76,27 @@ function Environment(core) {
             evaluateRPN(this.expression);
         }
         loadRPNs(rpns){
+            this.clearDependency();
             for(let i in rpns){
                 let rpn = rpns[i];
                 for(let j in rpn){
                     let token = rpn[j];
                     if (token.type == "variable"){
                         let defn;
-                        if (!definitions[token.value]) 
-                            defn = definitions[token.value] = new Variable(token.value, [], "independent");
+                        if (!E.variables[token.value]) 
+                            defn = E.variables[token.value] = new Variable(token.value, [], "independent");
                         else 
-                            defn = definitions[token.value];
+                            defn = E.variables[token.value];
                         this.addDependency(defn);
                     } 
                 }
             }
             this.expression = rpns;
             for(let i in this.dependencies){
-                let dependent = dependencies[i];
+                let dependent = this.dependencies[i];
                 if(dependent.type=="independent")this.varcount++;
             }
+            console.log(E);
         }
         computeDependencies() {
             console.log("Computing: " + this);
@@ -115,6 +119,17 @@ function Environment(core) {
             this.dependencies[dependency.name]=dependency;
             dependency.proprietors[this.name]=this;
         }
+        removeDependency(dependency) {
+            delete dependency.proprietors[this.name];
+            delete this.dependencies[dependency.name];
+            if(Object.keys(dependency.proprietors).length==0)
+                delete E.variables[dependency.name];
+        }
+        clearDependency(dependency) {
+            for(let name in this.dependencies){
+                this.removeDependency(this.dependencies[name]);
+            }
+        }
         setValue(newvalue) {
             this.val = newvalue;
             this.update();
@@ -123,7 +138,7 @@ function Environment(core) {
 
     var pi = new Variable("pi");
     this.createVar = function(name, RPN){
-        variables[name]=new Variable(name, RPN, "initial");
+        this.variables[name]=new Variable(name, RPN, "initial");
     };
 }
 

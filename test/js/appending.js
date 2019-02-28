@@ -1,3 +1,3 @@
-
-var pl = [0];
-console.log(!1)
+var o = {};
+o['sd']='sdf';
+delete o['sd'];
