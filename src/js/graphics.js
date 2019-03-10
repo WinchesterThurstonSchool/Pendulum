@@ -19,6 +19,7 @@ var camera;
 var tr = new Transformer();
 var graphers = [];
 var renderAll;
+var onResize;
 const dynamicLoading = true;
 
 const colors = {
@@ -51,7 +52,7 @@ const materials = {
         color: 0x7890ab,
         opacity: 0.8
     })
-}
+};
 
 const fieldStyles = {
     vector: function (color = 0xfed400) {
@@ -93,7 +94,7 @@ const fieldStyles = {
             color: color
         };
     }
-}
+};
 
 function initialize2D(range = 20) {
     //Define resize listener
@@ -108,7 +109,7 @@ function initialize2D(range = 20) {
         app.render();
     });
 
-    function onResize() {
+    onResize = function () {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
         tr.scale = Math.max(height, width);
@@ -150,7 +151,7 @@ function initialize3D(range = 20, scale = 4) {
         panel.removeChild(canvas);
     graphers.length = 0;
 
-    function onResize() {
+    onResize = function () {
         height = panel.offsetHeight;
         width = panel.offsetWidth;
         renderer.setSize(width, height);
@@ -776,5 +777,6 @@ export {
     graphNormalSurface,
     resetScene,
     zoomIn,
-    zoomOut
+    zoomOut,
+    onResize
 };

@@ -15,7 +15,8 @@ import {
     graphNormalSurface,
     resetScene,
     zoomIn,
-    zoomOut
+    zoomOut,
+    onResize
 } from './js/graphics.js';
 
 import {
@@ -63,10 +64,11 @@ var core = new (function () {
             E.createVar(name, RPN);
         E.variables[name].loadRPNs(RPN);
     };
+    this.resizeGraphics = ()=>onResize();
 })();
-
+window.onresize = core.resizeGraphics;
 $(function () {
-    initialize3D();
+    initialize2D();
     var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
         (vec) => new Vec(-vec.y, -vec.z, vec.x).normalize(), (vec) => new Vec(1),
         (vec) => new Vec(vec.y - vec.x, vec.z - vec.y, vec.x - vec.z).normalize(),
@@ -94,7 +96,7 @@ $(function () {
     //     }
     // graphSlopeField((x,y)=>x+y);
     graphCartesian((x,y)=>x-y*Math.cos(x-y));
-    graphCartesian((x,y)=>Math.sin(x)-Math.sin(y),colors.steelBlue);
+    graphCartesian((x,y)=>-Math.sin(x)-Math.sin(y),colors.steelBlue);
 });
 
 /**A Comprehensive list of all the graphics commands:**/

@@ -19,7 +19,7 @@ var setCore = (mainCore) => core = mainCore;
 
 var names = [];
 var nameControls = {};
-var expControls = {};
+var defControls = {};
 
 var autoIndex = 1;
 
@@ -32,31 +32,31 @@ class NameControl {
     }
 
     updateSize() {
-        var expression = this.expControl.expField;
-        var expContainer = this.expControl.expContainer;
-        if (expression.offsetHeight > this.nameField.offsetHeight)
-            this.nameContainer.style.height = expression.offsetHeight + 'px';
-        else expContainer.style.height = this.nameField.offsetHeight + 'px';
+        var definition = this.defControl.defField;
+        var defContainer = this.defControl.defContainer;
+        if (definition.offsetHeight > this.nameField.offsetHeight)
+            this.nameContainer.style.height = definition.offsetHeight + 'px';
+        else defContainer.style.height = this.nameField.offsetHeight + 'px';
     }
 
     loadExpControl(ec) {
-        this.expControl = ec;
+        this.defControl = ec;
     }
 }
 class ExpControl {
     constructor() {
         this.varName = "";
-        this.expContainer = document.body;
-        this.expField = document.body;
+        this.defContainer = document.body;
+        this.defField = document.body;
         this.type = types[":"];
     }
 
     updateSize() {
         var name = this.nameControl.nameField;
         var nameContainer = this.nameControl.nameContainer;
-        if (this.expField.offsetHeight > name.offsetHeight)
-            nameContainer.style.height = this.expField.offsetHeight + 'px';
-        else this.expContainer.style.height = name.offsetHeight + 'px';
+        if (this.defField.offsetHeight > name.offsetHeight)
+            nameContainer.style.height = this.defField.offsetHeight + 'px';
+        else this.defContainer.style.height = name.offsetHeight + 'px';
     }
 
     loadNameControl(nc = new NameControl()) {
@@ -76,13 +76,13 @@ $('.expression').each(function () {
     var container = this.parentElement;
     var name = container.getAttribute('varname');
     var ec = initiateExpControl(name, container, this);
-    expControls[name]=ec
+    defControls[name]=ec;
     autoIndex++;
 });
 
 for (let varName in nameControls) {
     var nc = nameControls[varName];
-    var ec = expControls[varName];
+    var ec = defControls[varName];
     nc.loadExpControl(ec);
     ec.loadNameControl(nc);
     nc.updateSize();
@@ -102,16 +102,16 @@ function addExpField(name = undefined) {
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
     $('#mathpanel').append(html);
     var ec = initiateExpControl(name, html[0], html[0].children[0]);
-    expControls[name]=ec;
+    defControls[name]=ec;
     autoIndex++;
 }
 
 function focusNext(name){
-    expControls[names[(names.indexOf(name) + 1) % names.length]].mathquill.focus();
+    defControls[names[(names.indexOf(name) + 1) % names.length]].mathquill.focus();
 }
 
 function focusLast(name){
-    expControls[names[(names.indexOf(name) + names.length-1) % names.length]].mathquill.focus();
+    defControls[names[(names.indexOf(name) + names.length-1) % names.length]].mathquill.focus();
 }
 
 function removeNameField(name = "") {
@@ -121,26 +121,26 @@ function removeNameField(name = "") {
 }
 
 function removeExpField(name = ""){
-    var ec = expControls[name];
-    var html = ec.expContainer;
+    var ec = defControls[name];
+    var html = ec.defContainer;
     html.parentNode.removeChild(html);
     autoIndex--;
 }
 
-function appendExpression(name = undefined) {
+function appendDefinition(name = undefined) {
     addNameField(name);
     addExpField(name);
-    nameControls[name].loadExpControl(expControls[name]);
-    expControls[name].loadNameControl(nameControls[name]);
+    nameControls[name].loadExpControl(defControls[name]);
+    defControls[name].loadNameControl(nameControls[name]);
 }
 
-function removeExpression(name = ""){
+function removeDefinition(name = ""){
     var index = -1;
     if((index=names.indexOf(name))!=-1){
         removeNameField(name);
         nameControls[name]=undefined;
         removeExpField(name);
-        expControls[name]=undefined;
+        defControls[name]=undefined;
         names.splice(index, 1);
     }
     return index;
@@ -162,10 +162,10 @@ function insertExpField(previous = "", name = undefined) {
     if ((index = names.indexOf(previous)) == -1) return index;
     if (name == undefined) name = index + 2;
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
-    var previousContainer = expControls[previous].expContainer;
+    var previousContainer = defControls[previous].defContainer;
     previousContainer.parentNode.insertBefore(html[0], previousContainer.nextSibling);
     var ec = initiateExpControl(name, html[0],html[0].children[0]);
-    expControls[ec.varName] = ec;
+    defControls[ec.varName] = ec;
     autoIndex++;
     return name;
 }
@@ -182,6 +182,7 @@ function initiateNameControl(name, container, field){
         handlers: {
             edit: () => {
                 nc.updateSize();
+                core.resizeGraphics();
             }
         }
     });
@@ -190,18 +191,19 @@ function initiateNameControl(name, container, field){
 
 function initiateExpControl(name,container, field){
     var ec = new ExpControl();
-    ec.expContainer = container;
-    ec.expField = field;
+    ec.defContainer = container;
+    ec.defField = field;
     ec.varName = name;
     ec.parser = new Parser();
-    ec.mathquill = MQ.MathField(ec.expField, {
+    ec.mathquill = MQ.MathField(ec.defField, {
         autoSubscriptNumerals: true,
         handlers: {
             edit: () => {
                 ec.updateSize();
-                // console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
+                core.resizeGraphics();
+                console.log((rpnsToString(ec.parser.getRPN(ec.mathquill.latex()))));
                 var rpns=ec.parser.getRPN(ec.mathquill.latex());
-                core.loadRPNFor(name, rpns)
+                core.loadRPNFor(name, rpns);
             },
             enter: () => {
                 ec.mathquill.blur();
@@ -212,15 +214,15 @@ function initiateExpControl(name,container, field){
     return ec;
 }
 
-function insertExpression(previous="",name = undefined){
+function insertDefinition(previous="",name = undefined){
     name = insertNameField(previous, name);
     name = insertExpField(previous, name);
-    nameControls[name].loadExpControl(expControls[name]);
-    expControls[name].loadNameControl(nameControls[name]);
+    nameControls[name].loadExpControl(defControls[name]);
+    defControls[name].loadNameControl(nameControls[name]);
 }
 
 export {
     nameControls,
-    expControls,
+    defControls,
     setCore
 };

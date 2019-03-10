@@ -43,6 +43,8 @@ function Environment(core) {
             };
             //Calculates the number of indepedent variables in the expression of this
             this.varcount = 0;
+            //Whether this is a strict definition or a weak one
+            this.isStrict = false;
             Variable.toString = () => this.name + ": " + this.val;
         }
         /**
