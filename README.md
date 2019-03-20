@@ -108,3 +108,5 @@ class RK23 extends Euler {
 ```
 
 RK21 propagates the results down with second order taylor approximation, and applies runge-kutta 2 to compute the last derivative term. RK22 records the initial state as k1, propagates down with second order taylor approximation to obtain the k2 term, and computes each term with second order runge-kutta. RK23 propagates k1.5 with Euler's method, and propagates upward using Runge-Kutta, and defining a k2 for each term. Among them, RK22 has the most accurate result and consistent behavior and was thus put into use.
+
+To enable type checking, see https://code.visualstudio.com/docs/nodejs/working-with-javascript

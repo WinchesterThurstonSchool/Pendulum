@@ -158,7 +158,7 @@ function initialize3D(range = 20, scale = 4) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
-    }
+    };
     height = panel.offsetHeight;
     width = panel.offsetWidth;
     //Define scene and camera
@@ -726,7 +726,7 @@ function OrbitalControlUpdater(tr = new Transformer, canvas = document.body) {
             tr.scale = newDist * scale;
             renderAll();
         }
-    })
+    });
 }
 
 class Arrow3D extends THREE.Group {
@@ -778,5 +778,6 @@ export {
     resetScene,
     zoomIn,
     zoomOut,
-    onResize
+    onResize,
+    renderAll
 };
