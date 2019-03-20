@@ -56,14 +56,17 @@ var core = new(function () {
         this.canvasMode = "3D";
         console.log(this.canvasMode);
     };
+    var colorIndex = 0;
     this.graph = function (type, func = () => 0) {
         var colorNames = [
             "orange",
-            "blue"
+            "blue",
+            "green",
+            "red"
         ];
         switch (type) {
             case "cartesian":
-                graphCartesian(func, colors[colorNames[Math.floor(colorNames.length*Math.random())]]);
+                graphCartesian(func, colors[colorNames[colorIndex++%colorNames.length]]);
                 break;
             case "parametricSurface":
                 var holder = new Vec();
@@ -81,6 +84,7 @@ var core = new(function () {
         if (!this.initializing && this.canvasMode === "3D") {
             renderAll();
         }
+        console.log(E);
     };
     U.loadTags();
     U.loadShelves();
