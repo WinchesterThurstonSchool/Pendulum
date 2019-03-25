@@ -57,7 +57,8 @@ var core = new(function () {
         console.log(this.canvasMode);
     };
     var colorIndex = 0;
-    this.graph = function (type, func = () => 0) {
+    this.graphicsCache = {};
+    this.graph = function (name,type, func = () => 0) {
         var colorNames = [
             "orange",
             "blue",
@@ -67,6 +68,7 @@ var core = new(function () {
         switch (type) {
             case "cartesian":
                 graphCartesian(func, colors[colorNames[colorIndex++%colorNames.length]]);
+                this.graphicsCache[name] = true;
                 break;
             case "parametricSurface":
                 var holder = new Vec();
@@ -76,15 +78,24 @@ var core = new(function () {
                 break;
         }
     };
-    this.initialize3D();
+    this.initialize2D();
     this.resizeGraphics = () => onResize();
-    this.createDefinition = (name) => E.createDefintion(name);
+    this.createDefinition = (name) => {
+        E.createDefintion(name);
+    };
     this.updateDefinition = (name, equation) => {
-        E.loadEquation(name, equation);
-        if (!this.initializing && this.canvasMode === "3D") {
-            renderAll();
+        if (E.definitions[name] != undefined) {
+            E.loadEquation(name, equation);
+            if (!this.initializing && this.canvasMode === "3D") {
+                renderAll();
+            }
+            if (!this.initializing && !this.graphicsCache[name])
+                E.definitions[name].graph();
         }
-        console.log(E);
+    };
+    this.removeDefinition = (name) => {
+        E.removeDefinition(name);
+        delete this.graphicsCache[name];
     };
     U.loadTags();
     U.loadShelves();

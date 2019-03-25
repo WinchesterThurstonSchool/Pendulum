@@ -31,27 +31,27 @@ class Vec {
         this.set = function (...components) {
             this.components = components;
             return this;
-        }
+        };
 
         this.add = (b = new Vec(), holder = this) => {
             holder.set(this.x + b.x, this.y + b.y, this.z + b.z);
             return holder;
-        }
+        };
         this.subtract = (b = new Vec(), holder = new Vec()) => {
             holder.set(this.x - b.x, this.y - b.y, this.z - b.z);
             return holder;
-        }
+        };
         this.multiply = (c = 1, holder = this) => {
             holder.set(this.x * c, this.y * c, this.z * c);
             return holder;
-        }
+        };
         this.dot = (b = new Vec()) => {
             return this.x * b.x + this.y * b.y + this.z * b.z;
-        }
+        };
         this.cross = (b = new Vec(), holder = new Vec()) => {
             holder.set(this.y * b.z - this.z * b.y, this.z * b.x - this.x * b.z, this.x * b.y - this.y * b.x);
             return holder;
-        }
+        };
         this.magnitude = () => Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         this.clone = (holder = new Vec()) => holder.set(this.x, this.y, this.z);
         this.THREE = () => new THREE.Vector3().set(this.x, this.y, this.z);

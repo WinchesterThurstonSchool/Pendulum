@@ -22,17 +22,22 @@ function Environment(core) {
             this.definitionType = "soft";
             this.stack = [];
         }
-        setEquation(equation) {
+        clearDependencies(){
             for (let name in this.variables) {
                 delete this.variables[name].proprietors[this.name];
                 delete this.variables[name];
             }
             if (this.definitionType === "strict") {
-                E.variables[this.name].definitionType="soft";
+                E.variables[this.name].definitionType = "soft";
+                E.variables[this.name].value = undefined;
                 this.requestComputation();
             }
+        }
+        setEquation(equation) {
+            this.clearDependencies();
             this.equation = equation;
             this.definitionType = "soft";
+
             for (let i in equation) {
                 let expression = equation[i];
                 for (let j in expression) {
@@ -70,7 +75,7 @@ function Environment(core) {
             return "cartesian";
         }
         graph() {
-            core.graph(this.graphType, this.getGraphFunc());
+            core.graph(this.name, this.graphType, this.getGraphFunc());
         }
         getIndefiniteCount() {
             var expressionCount = 0;
@@ -123,7 +128,7 @@ function Environment(core) {
         solveDependent() {
             if (this.equation.length == 2 && this.equation[0].length == 1 && this.equation[0][0].value === this.dependentVar || this.equation.length == 1)
                 E.variables[this.dependentVar].value = this.evaluateRPN(this.equation[this.equation.length - 1]);
-            
+            // console.log(E.variables[this.dependentVar].value);
             return E.variables[this.dependentVar].value;
         }
 
@@ -134,9 +139,9 @@ function Environment(core) {
                     this.stack.push(+token.value);
 
                 if (token.type === "variable") {
-                    if (E.variables[token.value].evaluation === "algebraic")
-                        this.stack.push(E.variables[token.value].getAlgebraicValue());
-                    else this.stack.push(E.variables[token.value].getValue());
+                    if (this.variables[token.value].evaluation === "algebraic")
+                        this.stack.push(this.variables[token.value].getAlgebraicValue());
+                    else this.stack.push(this.variables[token.value].getValue());
                 }
 
                 if (token.type === "operator" || (token.type === "function" && token.length == 2)) {
@@ -150,7 +155,9 @@ function Environment(core) {
                 if (token.type === "function" && token.length == 1)
                     this.stack.push(token.value(this.stack.pop()));
             }
-            return this.stack.pop();
+            var re =  this.stack.pop();
+            this.stack.length=0;
+            return re;
         }
     }
     class Variable {
@@ -187,12 +194,18 @@ function Environment(core) {
     this.createDefintion = function (name) {
         this.definitions[name] = new Definition(name);
     };
+    this.removeDefinition = function (name) {
+        this.definitions[name].clearDependencies();
+        delete this.definitions[name];
+    };
     this.loadEquation = function (name, equation) {
         this.definitions[name].setEquation(equation);
     };
     this.graphAll = function () {
         for (var name in this.definitions) {
-            if (this.definitions[name].equation.length != 0) this.definitions[name].graph();
+            if (this.definitions[name].equation.length != 0) {
+                this.definitions[name].graph(); 
+            }
         }
     };
 }

@@ -23,7 +23,29 @@ var names = [];
 var nameControls = {};
 var defControls = {};
 
-var autoIndex = 1;
+/**
+ * Used to record whether certain number slots are filled
+ */
+var indexes = [];
+
+function getIndex(position = 0){
+    if (position >= indexes.length) {
+        indexes[position] = true;
+        return position;
+    }
+    for (var i = position; i < indexes.length; i++) {
+        if (!indexes[i]) {
+            indexes[i] = true;
+            return i;
+        }
+    }
+    indexes.push(true);
+    return i;
+}
+
+function removeIndex(position = 0){
+    indexes[position] = false;
+}
 
 class NameControl {
     constructor() {
@@ -72,6 +94,7 @@ function loadTags(){
         var container = this.parentElement;
         var name = container.getAttribute('varname');
         var nc = initiateNameControl(name, container, this);
+        names.push(name);
         nameControls[name] = nc;
     });
 }
@@ -82,7 +105,6 @@ function loadShelves(){
         var name = container.getAttribute('varname');
         var ec = initiateDefControl(name, container, this);
         defControls[name] = ec;
-        autoIndex++;
     });
 }
 
@@ -97,28 +119,29 @@ function loadReference(){
     }
 }
 
-function addNameField(name = undefined) {
-    if (name == undefined) name = autoIndex;
+function addNameField(name = undefined, autoIndex = 0) {
+    if (name == undefined) name = 1 + autoIndex;
     var html = $.parseHTML(`<div class="name-container" varname="${name}"><div class="name">${name}</div><div class="type">:</div></div>`);
     $('#object-bar').append(html);
     var nc = initiateNameControl(name, html[0], html[0].children[0]);
     nameControls[nc.varName] = nc;
 }
 
-function addExpField(name = undefined) {
-    if (name == undefined) name = autoIndex;
+function addExpField(name = undefined, autoIndex = 0) {
+    if (name == undefined) name = 1 + autoIndex;
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
     $('#mathpanel').append(html);
     var ec = initiateDefControl(name, html[0], html[0].children[0]);
     defControls[name]=ec;
-    autoIndex++;
 }
 
-function focusNext(name){
+function focusNext(name) {
+    defControls[name].mathquill.blur();
     defControls[names[(names.indexOf(name) + 1) % names.length]].mathquill.focus();
 }
 
 function focusLast(name){
+    defControls[name].mathquill.blur();
     defControls[names[(names.indexOf(name) + names.length-1) % names.length]].mathquill.focus();
 }
 
@@ -128,18 +151,18 @@ function removeNameField(name = "") {
     html.parentNode.removeChild(html);
 }
 
-function removeExpField(name = ""){
+function removeDefField(name = ""){
     var ec = defControls[name];
     var html = ec.defContainer;
     html.parentNode.removeChild(html);
-    autoIndex--;
 }
 
 function appendDefinition(name = undefined) {
     addNameField(name);
     addExpField(name);
-    nameControls[name].loadDefControl(defControls[name]);
-    defControls[name].loadNameControl(nameControls[name]);
+    var autoIndex = getIndex(names.length);
+    nameControls[name].loadDefControl(defControls[name], autoIndex);
+    defControls[name].loadNameControl(nameControls[name], autoIndex);
 }
 
 function removeDefinition(name = ""){
@@ -147,17 +170,17 @@ function removeDefinition(name = ""){
     if((index=names.indexOf(name))!=-1){
         removeNameField(name);
         delete nameControls[name];
-        removeExpField(name);
+        removeDefField(name);
         delete defControls[name];
         names.splice(index, 1);
+        core.removeDefinition(name);
+        if (Number.isInteger(+name)) removeIndex(+name-1);
     }
     return index;
 }
 
-function insertNameField(previous="",name = undefined){
-    var index = -1;
-    if((index=names.indexOf(previous))==-1) return index;
-    if (name == undefined) name = index+2;
+function insertNameField(previous="",name = undefined, autoIndex = 0){
+    if (name == undefined) name = 1 + autoIndex;
     var html = $.parseHTML(`<div class="name-container" varname="${name}"><div class="name">${name}</div><div class="type">:</div></div>`);
     var previousContainer = nameControls[previous].nameContainer;
     previousContainer.parentNode.insertBefore(html[0], previousContainer.nextSibling);
@@ -165,17 +188,27 @@ function insertNameField(previous="",name = undefined){
     nameControls[nc.varName] = nc;
 }
 
-function insertExpField(previous = "", name = undefined) {
-    var index = -1;
-    if ((index = names.indexOf(previous)) == -1) return index;
-    if (name == undefined) name = index + 2;
+function insertExpField(previous = "", name = undefined, autoIndex = 0) {
+    if (name == undefined) name = 1 + autoIndex;
     var html = $.parseHTML(`<div class=\"expression-container\" varname=\"${name} \"> <span class = \"expression\"></span> </div>`);
     var previousContainer = defControls[previous].defContainer;
     previousContainer.parentNode.insertBefore(html[0], previousContainer.nextSibling);
     var ec = initiateDefControl(name, html[0],html[0].children[0]);
     defControls[ec.varName] = ec;
-    autoIndex++;
     return name;
+}
+
+function insertDefinition(previous = "", name = undefined) {
+    var index;
+    if ((index = names.indexOf(previous)) != -1){
+        var autoIndex = getIndex(index+1);
+        name = insertNameField(previous, name, autoIndex);
+        name = insertExpField(previous, name, autoIndex);
+        names.splice(names.indexOf(previous) + 1, 0, name);
+        nameControls[name].loadDefControl(defControls[name]);
+        defControls[name].loadNameControl(nameControls[name]);
+    }
+    
 }
 
 function initiateNameControl(name, container, field){
@@ -184,7 +217,6 @@ function initiateNameControl(name, container, field){
     nc.nameField = field;
     nc.varName = name;
     nc.parser = new NameParser();
-    names.push(nc.varName);
     nc.type = types[nc.nameContainer.lastElementChild.innerText];
     nc.mathquill = MQ.MathField(nc.nameField, {
         autoSubscriptNumerals: true,
@@ -216,26 +248,27 @@ function initiateDefControl(name,container, field){
             edit: () => {
                 ec.updateSize();
                 core.resizeGraphics();
-                console.log(((ec.parser.getRPN(ec.mathquill.latex()))));
+                // console.log(((ec.parser.getRPN(ec.mathquill.latex()))));
                 let rpns=ec.parser.getRPN(ec.mathquill.latex());
                 core.updateDefinition(name, rpns);
             },
             enter: () => {
-                ec.mathquill.blur();
+                insertDefinition(ec.varName);
                 focusNext(ec.varName);
-            }
+            },
+            deleteOutOf: (direction)=>{
+                if(direction==MQ.L){
+                    focusLast(name);
+                    removeDefinition(name);
+                }
+            },
+            upOutOf: ()=> focusLast(name),
+            downOutOf: ()=> focusNext(name)
         }
     });
     let rpns = ec.parser.getRPN(ec.mathquill.latex());
     core.updateDefinition(name,rpns);
     return ec;
-}
-
-function insertDefinition(previous="",name = undefined){
-    name = insertNameField(previous, name);
-    name = insertExpField(previous, name);
-    nameControls[name].loadDefControl(defControls[name]);
-    defControls[name].loadNameControl(nameControls[name]);
 }
 
 export {
