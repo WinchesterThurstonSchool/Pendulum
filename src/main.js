@@ -78,7 +78,7 @@ var core = new(function () {
                 break;
         }
     };
-    this.initialize2D();
+    this.initialize3D();
     this.resizeGraphics = () => onResize();
     this.createDefinition = (name) => {
         E.createDefintion(name);
@@ -86,12 +86,14 @@ var core = new(function () {
     this.updateDefinition = (name, equation) => {
         if (E.definitions[name] != undefined) {
             E.loadEquation(name, equation);
-            if (!this.initializing && this.canvasMode === "3D") {
-                renderAll();
+            if (!this.initializing){
+                if (this.canvasMode === "3D") 
+                    renderAll();
+                if (!this.graphicsCache[name])
+                    E.definitions[name].graph();
             }
-            if (!this.initializing && !this.graphicsCache[name])
-                E.definitions[name].graph();
         }
+        console.log(E);
     };
     this.removeDefinition = (name) => {
         E.removeDefinition(name);

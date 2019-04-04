@@ -75,6 +75,7 @@ const commands = {
                 }
             }
         },
+        'p': {'i':["constant", "pi"]},
         'r': {
             'i': {
                 'g': {
@@ -129,7 +130,7 @@ function getCharType(c = 'added char') {
  * @param {String} type 
  */
 function isCompleteType(type = "initial") {
-    return ["variable", "text", "number", "function", "operator", "structure"].indexOf(type) != -1;
+    return ["variable", "text", "number", "function", "constant", "operator", "structure"].indexOf(type) != -1;
 }
 
 function Parser() {
@@ -167,6 +168,7 @@ function Parser() {
          * number
          * function
          * operator
+         * constant
          */
         this.type = "init";
         var isFirst = lastvalue === "(" || lastvalue === "=" || lastvalue === "," || lastvalue === ":";
@@ -307,6 +309,8 @@ function Parser() {
                             this.type = "var_";
                             return true;
                         default:
+                            if(this.value==="e")
+                                this.type = "constant";
                             break;
                     }
                     break;
@@ -371,8 +375,8 @@ function Parser() {
                 return 0;
             } else {
                 if (isCompleteType(this.type)) { // Token completed
-                    if (lasttoken != undefined && (lasttoken.type === "variable" || lasttoken.type === "number" || lasttoken.value === ")") &&
-                        (this.type === "variable" || this.type === "function" || (this.value === "(" && !(clCounts[pl] != 0)))) {
+                    if (lasttoken != undefined && (lasttoken.type === "variable" ||lasttoken.type === "constant" || lasttoken.type === "number" || lasttoken.value === ")") &&
+                        (this.type === "variable" || this.type === "constant" || this.type === "function" || (this.value === "(" && !(clCounts[pl] != 0)))) {
                         let multiply = new Token(lasttoken);
                         multiply.value = mul;
                         multiply.type = "operator";
@@ -451,7 +455,7 @@ function Parser() {
         var functionlength = 0;
         for (let i in expr) {
             let token = expr[i];
-            if (token.type === "number" || token.type === "variable")
+            if (token.type === "number" || token.type === "variable" || token.type === "constant")
                 rpn.push(token);
             if (token.type === "function") {
                 functionlength = token.length;

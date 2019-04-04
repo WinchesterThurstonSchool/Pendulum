@@ -12,6 +12,10 @@ const sin = (a) => Math.sin(a);
 const cos = (a) => Math.cos(a);
 const assign = (a, b) => a.setValue(b);
 const sqrt = (a) => Math.sqrt(a);
+const constants = {
+    'pi': Math.PI,
+    'e' : Math.E
+};
 
 /**
  * Mathematical construct of vector
@@ -375,4 +379,5 @@ export {
     RK4,
     getMatrix,
     apply,
+    constants
 };

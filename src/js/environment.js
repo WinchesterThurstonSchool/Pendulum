@@ -1,12 +1,12 @@
 /*jshint esversion: 6 */
 import * as O from './operators.js';
+import {constants} from './operators.js';
 
 var types = {
     ":": "Variable",
     "": "Function",
     "{": "Object"
 };
-
 
 function Environment(core) {
     this.definitions = {};
@@ -138,7 +138,10 @@ function Environment(core) {
                 if (token.type === "number")
                     this.stack.push(+token.value);
 
-                if (token.type === "variable") {
+                if (token.type === "constant")
+                    this.stack.push(constants[token.value]);
+
+                if (token.type === "variable"&&this.variables[token.value]!=undefined) {
                     if (this.variables[token.value].evaluation === "algebraic")
                         this.stack.push(this.variables[token.value].getAlgebraicValue());
                     else this.stack.push(this.variables[token.value].getValue());
@@ -156,7 +159,7 @@ function Environment(core) {
                     this.stack.push(token.value(this.stack.pop()));
             }
             var re =  this.stack.pop();
-            this.stack.length=0;
+            // this.stack.length=0;
             return re;
         }
     }

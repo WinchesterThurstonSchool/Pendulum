@@ -14,7 +14,6 @@ import {
 
 var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 var objectBar = $('#object-bar')[0];
-
 var core;
 
 var setCore = (mainCore) => core = mainCore;
@@ -248,8 +247,8 @@ function initiateDefControl(name,container, field){
             edit: () => {
                 ec.updateSize();
                 core.resizeGraphics();
-                // console.log(((ec.parser.getRPN(ec.mathquill.latex()))));
-                let rpns=ec.parser.getRPN(ec.mathquill.latex());
+                let rpns = ec.parser.getRPN(ec.mathquill.latex());
+                console.log(rpnsToString(rpns));
                 core.updateDefinition(name, rpns);
             },
             enter: () => {
