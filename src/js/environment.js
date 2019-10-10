@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 import * as O from './operators.js';
-import {constants} from './operators.js';
+import {
+    constants
+} from './operators.js';
 
 var types = {
     ":": "Variable",
@@ -21,8 +23,9 @@ function Environment(core) {
             this.graphType = "none";
             this.definitionType = "soft";
             this.stack = [];
+            this.sumClauseCount=0;
         }
-        clearDependencies(){
+        clearDependencies() {
             for (let name in this.variables) {
                 delete this.variables[name].proprietors[this.name];
                 delete this.variables[name];
@@ -37,33 +40,39 @@ function Environment(core) {
             this.clearDependencies();
             this.equation = equation;
             this.definitionType = "soft";
-
             for (let i in equation) {
                 let expression = equation[i];
-                for (let j in expression) {
-                    let token = expression[j];
-                    if (token.type === "variable") {
-                        if (E.variables[token.value] == undefined)
-                            E.variables[token.value] = new Variable(token.value);
-                        if (token.value === this.name) {
-                            this.definitionType = "strict";
-                            E.variables[token.value].definitionType = "strict";
-                            E.variables[token.value].definition = this;
-                        } else {
-                            this.variables[token.value] = E.variables[token.value];
-                            E.variables[token.value].proprietors[this.name] = this;
-                        }
-                    }
-                }
+                this.findVariables(expression);
             }
             this.graphType = this.getGraphicsType();
             this.getAssociation();
             this.findDependent();
             if (this.definitionType === "strict")
-                if (this.getIndefiniteCount() == 0)
+                if (this. getIndefiniteCount() == 0)
                     E.variables[this.name].evaluation = "numeric";
                 else
                     E.variables[this.name].evaluation = "algebraic";
+        }
+        findVariables(expression) {
+            for (let j in expression) {
+                let token = expression[j];
+                if (token.type === "variable") {
+                    if (E.variables[token.value] == undefined)
+                        E.variables[token.value] = new Variable(token.value);
+                    if (token.value === this.name) {
+                        this.definitionType = "strict";
+                        E.variables[token.value].definitionType = "strict";
+                        E.variables[token.value].definition = this;
+                    } else {
+                        this.variables[token.value] = E.variables[token.value];
+                        E.variables[token.value].proprietors[this.name] = this;
+                    }
+                }
+                if (token.rpnClauses != undefined && token.rpnClauses.length != 0) {
+                    for (let i in token.rpnClauses)
+                        this.findVariables(token.rpnClauses[i]);
+                }
+            }
         }
         requestComputation() {
             if (E.variables[this.dependentVar].evaluation === "algebraic" || !E.variables[this.dependentVar].computed) return;
@@ -75,7 +84,9 @@ function Environment(core) {
             return "cartesian";
         }
         graph() {
-            core.graph(this.name, this.graphType, this.getGraphFunc());
+            let graphFunc = this.getGraphFunc();
+            graphFunc.definition = this;
+            core.graph(this.name, this.graphType, graphFunc);
         }
         getIndefiniteCount() {
             var expressionCount = 0;
@@ -89,7 +100,7 @@ function Environment(core) {
                         variableCount++;
                 }
             }
-            this.indefiniteCount = variableCount + 1 - expressionCount+(this.definitionType=="strict")?1:0;
+            this.indefiniteCount = variableCount + 1 - expressionCount + (this.definitionType == "strict") ? 1 : 0;
             return this.indefiniteCount;
         }
         getAssociation() {
@@ -132,33 +143,78 @@ function Environment(core) {
             return E.variables[this.dependentVar].value;
         }
 
-        evaluateRPN(expression = []) {
-            for (var i in expression) {
+        evaluateRPN(expression = [], i = 0) {
+            for (; i < expression.length; i++) {
                 var token = expression[i];
+                if (i == 1 && token.value === "=")
+                    if (expression[0].type === "variable") {
+                        this.variables[expression[0].value] = this.evaluateRPN(expression, i + 1);
+                        break;
+                    }
                 if (token.type === "number")
                     this.stack.push(+token.value);
 
                 if (token.type === "constant")
                     this.stack.push(constants[token.value]);
 
-                if (token.type === "variable"&&this.variables[token.value]!=undefined) {
+                if (token.type === "variable" && this.variables[token.value] != undefined) {
                     if (this.variables[token.value].evaluation === "algebraic")
                         this.stack.push(this.variables[token.value].getAlgebraicValue());
                     else this.stack.push(this.variables[token.value].getValue());
                 }
 
                 if (token.type === "operator" || (token.type === "function" && token.length == 2)) {
-                    var b = this.stack.pop(),
+                    let b = this.stack.pop(),
                         a = this.stack.pop();
                     if (a != undefined && b != undefined)
                         this.stack.push(token.value(a, b));
-                    // else console.log( "Incomplete expression");
                 }
 
-                if (token.type === "function" && token.length == 1)
-                    this.stack.push(token.value(this.stack.pop()));
+                if (token.type === "function") {
+                    if (token.rpnClauses != undefined) {
+                        let a, b;
+                        switch (token.rpnClauses.length) {
+                            case 1:
+                                a = this.evaluateRPN(token.rpnClauses[0]);
+                                if (a != undefined)
+                                    this.stack.push(token.value(a));
+                            case 2:
+                                // console.log("in fraction evaluation");
+                                a = this.evaluateRPN(token.rpnClauses[0]);
+                                // console.log("numerator: " + a);
+                                b = this.evaluateRPN(token.rpnClauses[1]);
+                                // console.log("denominator: " + b);
+                                if (a != undefined && b != undefined)
+                                    this.stack.push(token.value(a, b));
+                        }
+
+                    } else this.stack.push(token.value(this.stack.pop()));
+                }
+
+                if (token.type === "largeOperator") {
+                    let indexVariable = token.indexVariable;
+                    if (this.variables[indexVariable.value] == undefined )
+                        this.variables[indexVariable.value] = E.variables[indexVariable.value] = new Variable(indexVariable.value);
+                    let condition = this.evaluateRPN(token.rpnClauses[0]);
+                    let upperBound = this.evaluateRPN(token.rpnClauses[1]);
+                    let result;
+                    if(upperBound!=undefined && condition!=undefined){
+                        for (let i = 0;; i++) {
+                            this.variables[indexVariable.value].value = token.computeIndexVariable(i, condition);
+                            this.variables[indexVariable.value].computed = true;
+                            if (result == undefined) {
+                                result = this.evaluateRPN(token.rpnClauses[2]);
+                            } else {
+                                result = token.value(result, this.evaluateRPN(token.rpnClauses[2]));
+                            }
+                            if (this.variables[indexVariable.value].value >= upperBound) break;
+                        }
+                        this.sumClauseCount=token.rpnClauses[2][0].computationCount;
+                    }
+                    this.stack.push(result);
+                }
             }
-            var re =  this.stack.pop();
+            var re = this.stack.pop();
             // this.stack.length=0;
             return re;
         }
@@ -187,10 +243,10 @@ function Environment(core) {
                 return this.value;
             }
         }
-        getAlgebraicValue(){
-            if(this.definitionType ==="soft")
+        getAlgebraicValue() {
+            if (this.definitionType === "soft")
                 return this.value;
-            else 
+            else
                 return this.definition.solveDependent();
         }
     }
@@ -207,7 +263,7 @@ function Environment(core) {
     this.graphAll = function () {
         for (var name in this.definitions) {
             if (this.definitions[name].equation.length != 0) {
-                this.definitions[name].graph(); 
+                this.definitions[name].graph();
             }
         }
     };
