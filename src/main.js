@@ -44,7 +44,7 @@ window.zoomOut = zoomOut;
 var E;
 var core = new(function () {
     this.initializing = true;
-    this.canvasMode = "3D";
+    this.canvasMode = "2D";
     E = new Environment(this);
     U.setCore(this);
     this.initialize2D = () => {
@@ -57,7 +57,7 @@ var core = new(function () {
         console.log(this.canvasMode);
     };
     var colorIndex = 0;
-    this.graphicsCaches = {};
+    this.graphicsCache = {};
     this.graph = function (name,type, func = () => 0) {
         var colorNames = [
             "orange",
@@ -68,7 +68,7 @@ var core = new(function () {
         switch (type) {
             case "cartesian":
                 graphCartesian(func, colors[colorNames[colorIndex++%colorNames.length]]);
-                this.graphicsCaches[name] = true;
+                this.graphicsCache[name] = true;
                 break;
             case "parametricSurface":
                 var holder = new Vec();
@@ -87,8 +87,9 @@ var core = new(function () {
         if (E.definitions[name] != undefined) {
             E.loadEquation(name, equation);
             if (!this.initializing){
-                renderAll();
-                if (!this.graphicsCaches[name])
+                if (this.canvasMode === "3D") 
+                    renderAll();
+                if (!this.graphicsCache[name])
                     E.definitions[name].graph();
             }
         }
@@ -96,7 +97,7 @@ var core = new(function () {
     };
     this.removeDefinition = (name) => {
         E.removeDefinition(name);
-        delete this.graphicsCaches[name];
+        delete this.graphicsCache[name];
     };
     U.loadTags();
     U.loadShelves();
@@ -106,34 +107,8 @@ var core = new(function () {
         throw new Error(error);
     };
     this.initializing = false;
-    var solver = new RK4(new DiffEqn((t,n)=>new Vec(-1+1/Math.pow(n[0].x,3),0,0),2),0.01,0,[new Vec(2,0,0)]);
-    let rkSolution = solver.getSolution(true, [0,30]);
-    let holder = new Vec(0,0,0);
-    let holderb = new Vec(0,0,0);
-    graphParametricCurve((t) => holderb.set(t*10,rkSolution(t*10, holder).x), colors.green);
-    console.log("completed");
 })();
 window.onresize = core.resizeGraphics;
-
-window.switchCanvas = function(){
-    switch(core.canvasMode){
-        case '2D':
-            core.initialize3D();
-            E.graphAll();
-            break;
-        case '3D':
-            core.initialize2D();
-            E.graphAll();
-            break;
-        default:
-            break;
-    }
-};
-// $(function(){
-//     initialize2D();
-//     var holder = new Vec();
-//     graphSlopeField((x,y)=>x+y);
-// });
 // $(function () {
 //     initialize2D();
 //     var fields = [(vec) => new Vec(-vec.y * vec.z, -vec.z * vec.x, -vec.x * vec.y).normalize(),
@@ -212,7 +187,7 @@ window.switchCanvas = function(){
 
 // Lorenz Attractor
 // (function(){
-//     // initialize3D();
+//     initialize3D();
 //     var s=10
 //     var r=30
 //     var b=8/3
@@ -229,4 +204,4 @@ window.switchCanvas = function(){
 //     let solver = new RK4(diffEqn, 0.0001/5*2, 0, [new Vec(10, 10, 10)]);
 //     let rkSolution = solver.getSolution(true, [-25, 25]);
 //     graphParametricCurve((t) => rkSolution(t * 20, holder), colors.green)
-// })();
+// })()

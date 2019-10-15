@@ -18,7 +18,6 @@ var width = 0,
 var camera;
 var tr = new Transformer();
 var graphers = [];
-var graphicsCaches = {};
 var renderAll;
 var onResize;
 const dynamicLoading = true;
@@ -97,13 +96,6 @@ const fieldStyles = {
     }
 };
 
-//Stores all the graphics references for manipulation such as transformation or update request
-function graphicsCache(grapher){
-    this.grapher = grapher;
-    this.needUpdate = true;
-    //this.transform = function(){}
-}
-
 function initialize2D(range = 20) {
     //Define resize listener
     window.addEventListener("resize", onResize);
@@ -111,14 +103,11 @@ function initialize2D(range = 20) {
     if (canvas)
         panel.removeChild(canvas);
     graphers.length = 0;
-    //Render
-    var needUpdate = false;
-    renderAll = function () {
+    renderAll = () => requestAnimationFrame(() => {
         for (var i in graphers)
             graphers[i]();
         app.render();
-        // arrow.applyQuaternion(new THREE.Quaternion(0, Math.sin(0.1),0, Math.cos(0.1)));
-    };
+    });
 
     onResize = function () {
         height = panel.offsetHeight;
@@ -128,8 +117,7 @@ function initialize2D(range = 20) {
         app.renderer.view.style.width = width + 'px';
         app.renderer.view.style.height = height + 'px';
         renderAll();
-    };
-    
+    }
     var app = new PIXI.Application({
         width: panel.offsetWidth, // default: 800
         height: panel.offsetHeight, // default: 600
@@ -137,7 +125,6 @@ function initialize2D(range = 20) {
         transparent: true, // default: false
         resolution: 1 // default: 1
     });
-
     height = panel.offsetHeight;
     width = panel.offsetWidth;
     var ratio = width / height;
@@ -211,13 +198,15 @@ function initialize3D(range = 20, scale = 4) {
     var needUpdate = false;
     var render = function () {
         requestAnimationFrame(render);
-        for (var i in graphers)
-            if(needUpdate)
+        if (needUpdate) {
+            for (var i in graphers)
                 graphers[i]();
-        needUpdate = false;
+            needUpdate = false;
+        }
         renderer.render(scene, camera);
         // arrow.applyQuaternion(new THREE.Quaternion(0, Math.sin(0.1),0, Math.cos(0.1)));
     };
+
     renderAll = () => needUpdate = true;
 
     render();
@@ -283,7 +272,6 @@ function graph2D(func = (x => 0), {
             pos = tr.toP(cod[0], val);
             graphics.lineTo(pos[0], pos[1]);
         }
-        if (func.definition.sumClauseCount != 0) console.log(func.definition.sumClauseCount);
     };
     grapher();
     stage.addChild(graphics);
@@ -295,7 +283,7 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
     color = 0xffffff
 }) {
     //Geometry definition
-    var size = 60;
+    var size = 100;
     var geometry = new THREE.Geometry();
     for (var i = 0; i < 1; i += 1.0 / size) {
         for (var j = 0; j < 1; j += 1 / size) {
@@ -342,7 +330,6 @@ function graph3D(func = ((x = 0, y = 0) => 0), {
         };
         geometry.computeVertexNormals();
         geometry.verticesNeedUpdate = true;
-        if(func.definition.sumClauseCount!=0)console.log(func.definition.sumClauseCount);
     };
     scene.add(surface);
     graphers.push(updateSurface);
@@ -355,7 +342,7 @@ function parametricCurve2D(func = (t => new Vec(0, 0, 0)), {
     var graphics = new PIXI.Graphics();
     var graphCurve = () => {
         //Geometry definition
-        var size = 2000;
+        var size = 500;
         graphics.clear();
         graphics.lineStyle(2, color, 0.8);
         var vec = func(0);
@@ -385,7 +372,7 @@ function parametricCurve3D(func = (t => new Vec(0, 0, 0)), {
     for (var i = 0; i < 1 + 1.0 / size; i += 1.0 / size) {
         var vec = func(i);
         vertices.push(vec.THREE().multiplyScalar(tr.scale / tr.range));
-    }
+    };
     var lineMaterial = materials.line.clone();
     lineMaterial.color = new THREE.Color(color);
     var curve = new THREE.Line(geometry, lineMaterial);
@@ -426,7 +413,7 @@ function graphCartesian(func = ((x = 0, y = 0) => 0), color = 0xfb6500) {
         });
     }
     if (globalScene instanceof PIXI.Container) {
-        graph2D(func, {
+        graph2D(x => func(x, 0), {
             stage: globalScene,
             color: color
         });
@@ -792,6 +779,5 @@ export {
     zoomIn,
     zoomOut,
     onResize,
-    renderAll,
-    graphicsCaches
+    renderAll
 };
