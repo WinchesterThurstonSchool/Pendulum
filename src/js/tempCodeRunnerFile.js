@@ -1,2 +1,1 @@
-
-    console.log(tokensToString(tokenize(expression)));
+console.log(";".indexOf(";}"));
