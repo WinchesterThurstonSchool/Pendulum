@@ -1,0 +1,93 @@
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#root {
+    --blue: #3abdff;
+    --blueShadow: #006ea5;
+    --yellow: #fbff00;
+    --gray: #f3f3f3;
+    --grayShadow: #535353;
+    height: 100%;
+    background: aliceblue;
+}
+
+#navbar {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background: #293f50;
+    color: white;
+    font: 500 22px/50px "Kodchasan",
+        "Courier",
+        "Open Sans",
+        "Helvetica Neue",
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+#logo {
+    margin: 8px;
+    margin-left: 20px;
+    height: 1.5em;
+    float: left;
+}
+
+#graphpanel {
+    float: right;
+}
+
+#defpanel {
+    float: left;
+    font-size: 105%;
+    min-width: 300px;
+    width: 20%;
+    height: 100%;
+    padding: 15px;
+    margin: 0px;
+    border-right: 5px solid var(--grayShadow);
+    /* background: #5199eb86; */
+    background: white;
+}
+
+#settings {
+    height: 1.5em;
+    float: right;
+    float: right;
+    margin: 8px;
+    margin-right: 20px;
+}
+
+#zoomPanel {
+    position: fixed;
+    top: 70px;
+    right: 25px;
+    z-index: 1;
+}
+
+#zoomInBtn,
+#zoomOutBtn,
+#homeBtn {
+    float: right;
+    margin: 2pt;
+}
+
+.math {
+    margin: 5px;
+    padding: 10px;
+}
