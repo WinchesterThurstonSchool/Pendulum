@@ -1,3 +1,3 @@
-require('hash-change').on('change', function (hash) {
-    console.log('Goto page: ' + hash);
-});
+window.jQuery = require('jquery');
+require('../css/canvas.css');
+// document.styleSheets.append("canvas css",css);

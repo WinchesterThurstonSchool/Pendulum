@@ -29,11 +29,10 @@
   "homepage": "https://github.com/YuelongLi/Pendulum#readme",
   "devDependencies": {
     "html-webpack-plugin": "^3.2.0",
-    "mocha": "^6.2.2",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "mocha": "^6.2.2"
   },
   "dependencies": {
+    "browserify-css": "^0.15.0",
     "jquery": "^3.4.1",
     "jshint": "*",
     "mathquill": "^0.10.1-a",
