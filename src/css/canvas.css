@@ -172,7 +172,7 @@ body {
 
 .name-container {
     text-align: center;
-    height: fit-content;
+    height: stretch;
     height: -moz-fit-content;
     min-height: 50px;
     background: white;
@@ -246,7 +246,7 @@ body {
 }
 
 .expression-container:focus-within {
-    border-width: 2px 2px 2px 2px;
+    border-width: 2px 0px 2px 0px;
     border-color: lightskyblue;
 }
 

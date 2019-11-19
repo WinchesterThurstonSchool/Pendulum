@@ -1,4 +1,9 @@
-/*! pendulum 2019-11-18 */
-
-window.jQuery=require("jquery");
+/* jshint esversion: 6 */
+window.$=window.jQuery=require("jquery");
 require("../css/canvas.css");
+var UI = require('./ui.js');
+$(()=>{
+    UI.loadTags(); 
+    UI.loadShelves(); 
+    UI.loadReference();
+});

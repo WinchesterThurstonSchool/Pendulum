@@ -1,3 +1,4 @@
+//Development build
 module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
@@ -13,22 +14,43 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        uglify: {
+        babel: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                sourceMap: true,
+                presets: ['@babel/preset-env']
             },
-            files: {
-                expand: true,
-                src: 'dist/js/*.js',
-                dest: '.'
+            dist: {
+                files: {
+                    'dist/js/<%= pkg.name %>-compatible.js': 'dist/js/<%= pkg.name %>.js'
+                }
             }
         },
         copy: {
             html: {
+                expand: true,
                 src: 'index.html',
                 cwd: 'src',
-                dest: 'dist',
-                expand: true
+                dest: 'dist'
+            },
+            // mathquill: {
+            //     expand: true,
+            //     src: 'mathquill.js',
+            //     cwd: 'node_modules/mathquill/build/',
+            //     dest: 'dist/js'
+            // }
+        },
+        uglify: {
+            options: {
+                banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+                sourceMap:true
+            },
+            files: {
+                expand: true,
+                src: 'dist/js/pendulum-compatible.js',
+                dest: '.',
+                rename:function(dest, src){
+                    return dest+'/'+src.replace(".js",".min.js");
+                }
             }
         }
     });
@@ -36,8 +58,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-browserify');
 
     // Do grunt-related things in here
-     grunt.registerTask('default', ['clean', 'browserify','uglify', 'copy']);
+     grunt.registerTask('default', ['clean', 'browserify', 'copy']);
+     grunt.registerTask('product', ['clean', 'browserify', 'babel', 'copy', 'uglify']);
 };
