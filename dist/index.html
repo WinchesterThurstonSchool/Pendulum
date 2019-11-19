@@ -4,13 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Cloudnest - Pendulum</title>
+    <script src="./js/bundle.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="./mathquill.js"></script>
+            <link rel="stylesheet" href="./mathquill.css"> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kodchasan">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Muli">
-    <title>Cloudnest - Pendulum</title>
-    <link rel="stylesheet" href="css/canvas.css">
+    <!-- <link rel="stylesheet" href="css/canvas.css"> -->
 </head>
 
 <body>
@@ -18,25 +20,69 @@
         <div id="navbar" align="center">
             <img id="logo" src="../assets/Cloudnest Matallic-small.png" alt="logo">
             Pendulum
-            <!-- <input id="settings" type="image" src="../assets/settingsIcon.png"> -->
         </div>
         <div id="defpanel">
-            <button class="btn btn-block" type="button">New Object</button>
+            <div id="sidebar">
+                <div id="object-bar" class="object-list object-property-container">
+                    <div class="name-container active" varname="a">
+                        <div class="name">
+                            a
+                        </div>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                    <div class="name-container active" varname="b">
+                        <div class="name">
+                            b
+                        </div>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                    <div class="name-container active" varname="c">
+                        <div class="name">
+                            c
+                        </div>
+                        <div class="type">
+                            :
+                        </div>
+                    </div>
+                </div>
+                <div id="settingsWrapper">
+                    <button id="defSettings" class="btn glyphicon  glyphicon-th-list"></button>
+                </div>
+            </div>
+            <div id="mathpanel">
+                <div class="expression-container" varname="a">
+                    <span class="expression">
+                        z=x+y
+                    </span>
+                </div>
+                <div class="expression-container" varname="b">
+                    <span class="expression">
+                        z=xy
+                    </span>
+                </div>
+                <div class="expression-container" varname="c">
+                    <span class="expression">
+                        z=-\frac{x^2+y^2}{2}
+                    </span>
+                </div>
+            </div>
         </div>
         <div id="graphpanel">
             <div id="zoomPanel">
-                <button id="zoomInBtn" class="btn glyphicon glyphicon-plus"></button>
+                <button id="zoomInBtn" class="btn glyphicon glyphicon-plus" onclick="zoomIn()"></button>
                 <br>
-                <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus"></button>
+                <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus" onclick="zoomOut()"></button>
                 <br>
-                <button id="homeBtn" class="btn glyphicon glyphicon-home"></button>
+                <button id="homeBtn" class="btn glyphicon glyphicon-home" onclick="resetScene()"></button>
+                <br>
+                <button id="graphicsSettings" class="btn glyphicon glyphicon-cog" onclick="switchCanvas()"></button>
             </div>
         </div>
     </div>
-    <!-- <script src="../node_modules/three/build/three.min.js"></script>
-    <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
-    <script src="../node_modules/pixi.js/dist/pixi.min.js"></script> -->
-    <script type="module" src="./index.js"></script>
-<script type="text/javascript" src="main.js"></script></body>
+</body>
 
 </html>
