@@ -1,112 +1,29 @@
-# Pendulum
-## What is Pendulum?
-A pendulum, is the first object that I found the exact motion of which cannot be obtained through calculus, and was later simulated through a computer program. The ultimate goal for Pendulum is that it will evolve into a space for researchers to conduct any kind of experiments and research, including topics of classical mechanics, electricity, waves, chemistry, and even quantum mechanics, in an collaborative online environment. Its baseline infrastructure will entail a graphing system that allows visualization of different math concepts --- parametric functions, multivariable functions, contours, vector fields, etc., and a system of matrix solvers that produce reliable and fast solutions through numerical methods. Beyond that, the works of users will be saved in a cloud source, and can be shared with the greater community at their will.  The interface will be designed to be accessible and direct. Using language and symbols that are common in math and science, one can easily define geometry, state of motion, internal structures, and any other conceivable properties of an object. 
+# Pendulum Project
+10/14/2019 
 
-## Why Pendulum?
-This project can help students, educators, researchers and even scientists. Its accessible interface will allow students or researchers who have little programming basis to conduct experiments or illustrate concepts, without the constraints of real world budgets. It will also be designed to be expandable, giving users enough freedom to reproduce any theoretical scenarios beyond real world physical laws while keeping a set of conventions that governs the integrity of the virtual space. 
-But one may still ask why Pendulum is more advantageous over other products. Some major competing products include online/offline graphing calculators like Desmos, research softwares like Matlab, and graphical tools like Unity. It may appear that Pendulum would be a union of these softwares, but major differences persist. Unlike Desmos, Pendulum strives to build upon a much more complete and flexible system of mathematics, delivers better graphics in both 2D and 3D, and supports collaboration. Compared to Matlab, Pendulum is much more accessible, using common math languages rendered through LaTeX, and more fun, with interactive and high-quality graphics display. The most obvious difference between Pendulum and Unity is accessibility and collaboration. The product will be similar to Google Docs with the addition of allowing contributions to the libraries from the community. On the technical side, Pendulum is not limited to real world physics. It focuses on the design of algorithms that efficiently computes matrices of equations including but not limited to classical mechanics, waves, and even user-defined systems. 
-
-## Simulation
-### Euler Nth-order
-![alt text](https://github.com/WinchesterThurstonSchool/Pendulum/blob/master/assets/Euler(y'%3Dy%2Bx).png)
-### RK2 (Midpoint) Nth-order
-![alt text](https://github.com/WinchesterThurstonSchool/Pendulum/blob/master/assets/RK2(y''%3Dy'-y).png)
-
-There are three versions of RK2 that have been implemented.
-
-``` javascript
-class RK21 extends Euler {
-    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
-        super(diffEqn, dt, startTime, inits);
-    }
-    step0(dt = this.dt) {
-        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs);
-        var dirs = this.diffEqn.ydirs;
-        var holder = new Vec();
-        var lev = this.diffEqn.order;
-        for (var i = 0; i < lev - 2; i++) {
-            dirs[i].add(dirs[i + 1].multiply(dt, holder)).
-            add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
-        }
-        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder))
-            .add(dir.multiply(dt * dt * 0.5, holder));
-        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
-        this.t += dt;
-        return holder.set(dir.x, dir.y, dir.z);
-    }
-    step(dt = this.dt) {
-        var dirs = this.diffEqn.ydirs;
-        var lev = this.diffEqn.order;
-        var dir1;
-        if (lev - 1 >= 0) dir1 = dirs[lev - 1].clone();
-        var dir2 = this.step0(dt);
-        var rk2 = dir2.add(this.diffEqn.eqn(this.t, this.diffEqn.ydirs)).multiply(0.5);
-        if (lev - 1 >= 0) dirs[lev - 1] = dir1.add(rk2.multiply(dt));
-    }
-}
-
-class RK22 extends Euler {
-    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
-        super(diffEqn, dt, startTime, inits);
-    }
-    step0(dt = this.dt) {
-        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
-        var dirs = this.diffEqn.ydirs;
-        var holder = new Vec();
-        var lev = this.diffEqn.order;
-         for (var i = 0; i < lev - 2; i++) {
-            dirs[i].add(dirs[i + 1].multiply(dt, holder)).
-            add(dirs[i + 2].multiply(dt * dt * 0.5, holder));
-        }
-        if (lev - 2 >= 0) dirs[lev - 2].add(dirs[lev - 1].multiply(dt, holder))
-            .add(dir.multiply(dt * dt * 0.5, holder));
-        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
-        this.t += dt;
-        return holder.set(dir.x, dir.y, dir.z);
-    }
-    step(dt = this.dt) {
-        var s1 = this.states;
-        this.step0(dt);
-        var s2 = this.states;
-        var lev = this.diffEqn.order;
-        for(var i = 0; i < lev -1; i++){
-            this.diffEqn.ydirs[i]=s1.dirs[i].add(s1.dirs[i+1].add(s2.dirs[i+1],this.holder).multiply(0.5*dt));
-        }
-        var rk2 = s1.hdir.add(this.diffEqn.eqn(s2.t, s2.dirs)).multiply(0.5);
-        if (lev - 1 >= 0)this.diffEqn.ydirs[lev-1] = s1.dirs[lev-1].add(rk2.multiply(dt));
-    }
-}
-
-class RK23 extends Euler {
-    constructor(diffEqn = new DiffEqn(), dt = 0.1, startTime = 0, inits = [new Vec()]) {
-        super(diffEqn, dt, startTime, inits);
-    }
-    step0(dt = this.dt) {
-        var dir = this.diffEqn.eqn(this.t, this.diffEqn.ydirs).clone(this.holder);
-        var dirs = this.diffEqn.ydirs;
-        var holder = new Vec();
-        var lev = this.diffEqn.order;
-        for (var i = 0; i < lev - 1; i++) {
-            dirs[i].add(dirs[i + 1].multiply(dt, holder));
-        }
-        if (lev - 1 >= 0) dirs[lev - 1].add(dir.multiply(dt, holder));
-        this.t += dt;
-        return holder.set(dir.x, dir.y, dir.z);
-    }
-    step(dt = this.dt) {
-        var s1 = this.states;
-        this.step0(dt);
-        var s2 = this.states;
-        var lev = this.diffEqn.order;
-        var rk2 = s2.hdir.add(s1.hdir).multiply(0.5);
-        if (lev - 1 >= 0) this.diffEqn.ydirs[lev - 1] = s1.dirs[lev - 1].add(rk2.multiply(dt), s2.dirs[lev-1]);
-        for (var i = lev - 2; i >= 0; i--) 
-            this.diffEqn.ydirs[i] = 
-                s1.dirs[i].add(s1.dirs[i + 1].add(s2.dirs[i + 1], this.holder).multiply(0.5 * dt), s2.dirs[i]);      
-    }
-}
-```
-
-RK21 propagates the results down with second order taylor approximation, and applies runge-kutta 2 to compute the last derivative term. RK22 records the initial state as k1, propagates down with second order taylor approximation to obtain the k2 term, and computes each term with second order runge-kutta. RK23 propagates k1.5 with Euler's method, and propagates upward using Runge-Kutta, and defining a k2 for each term. Among them, RK22 has the most accurate result and consistent behavior and was thus put into use.
-
-To enable type checking, see https://code.visualstudio.com/docs/nodejs/working-with-javascript
+As a continuum of the computer science project started last year in my high school’s CS innovation, I decide to re-enter the project this year and make more specific guidelines as to the directions of this long term development. The initial details of this project are available here. 
+## Github
+In order to achieve structural development and version control that would allow more efficient and convenient purpose-driven deployment, the GitHub repository of the pendulum project is currently divided into several development branches: document, web grapher, and program-side-visualization, and several primary module branches: canvas, UI, and computation module. The code on GitHub for this project is now  open-sourced, so that everyone can have access to the development of Pendulum. The service of this software is also going to be projected to be free consequently, and every stable build in the master branch will be hosted on the Cloudnest website. 
+## Development Workflow
+The general workflow of the project entails: recognizing the need for a functionality/error in one of the development branches, put it on an agenda queue; for each functionality/error that come up in the agenda, develop the corresponding module branch and potentially its submodule branch until it has been completed and become sufficiently self-contained, then merge upward into the working tree until it has resolved the request of functionality, concluding the development cycle. Ideally at the end of each cycle a retrospective will be performed to propagate continued improvements. In this way the most amount of compatibility issues will be avoided. For additional information on the development cycle, please check this guide.
+### Document
+The document branch focuses on the development of Pendulum document. It may be migrated into its own repository in the future. It is projected to build interfaces to integrate various modules of Pendulum into Jupyter notebook as widgets. The document branch is projected to make use of the Canvas module and the UI module.
+### Program Side
+Program side faces users that run computations JavaScript and wish to visualize results through the web browser. The program side visualization branch focuses on developing data structures that synchronize the canvas and UI module, interfaces that provide quick access to the canvas module, and building frameworks in html for interactive visualization and data analysis. Program side builds various tool kits that makes web-based visualization of mathematical concepts or physical simulations easy, and it is also projected to integrate in api-modules that will allow various data collection process.
+### Web Grapher
+Web grapher focuses on developing the web-based software that enables constructions of physical and mathematical simulations/representations through mathematical expressions. It is the continuation of the original Pendulum grapher, with improvements on its asynchronous computations and mathematical data structure. The grapher will utilize the canvas module, the UI module, and the computation module, incorporating additional widgets from the UI module and changing synchronous commands issued from the central console to asynchronous ones.
+## Modularization
+One primary principle of this round of development is the modularization of the Pendulum project. Its ultimate goal is no longer just to build a single software that integrates graphics rendering, canvas display of mathematical entities, mathquill input and parsing, user interactions, but instead to make each of these field powerful, functional and self-contained modules, allowing developers to combine them in any way and even make them into widgets for other apps. Currently each module and their submodules are kept in github as separate branches, which may in the future become kept in their own repositories once I open an account solely for the purpose of the Pendulum project.
+### Canvas Module
+Canvas module will create an object-based interface that wraps around the threejs library. It’ll provide various interfaces for user interaction such as zooming or pinning, as well as a systematic approach to mathematical visualization including components such as coordinate transformers (locator), coordinate system display and labeling, etc. Graphing quality and efficiency will also be further improved, including addition of algorithms for dynamic meshing in 2D and 3D and graph animations.
+### UI Module
+UI module serves to create interfaces for the user to interact with the data and computations. This includes equation fields, object fields, siders, color pickers, etc.
+### Computation Module
+Computation module hosts all the backend computations ranging from dependency building and integration. The module should use dynamic programming. The Pendulum computation is a dependency aware system, unlike conventional programming and variable declaration.
+## Building and management
+### NPM 
+The project uses npm to manage is packages to easily keep its dependencies up to date. The dependencies within javascript are defined using commonJs style imports. The resultant javascript that gets used is built by browserify.
+### Build tools
+Grunt is used for the building of the entire project, which includes relevant css and javascript files. In particular, the browserify module is used for compiling javascript, while browserify-css is used for compiling css from various sources.
+### Managing work tree
+One primary question is whether the project should be hosted by an isolated user called Pendulum? And the other is whether the project should have separate repositories for its different features. One way of managing codes is simply use the current Pendulum folder and keep developing under the current worktree tree. But the flaw is obvious, the current work tree is slightly contaminated and modularization of each distinct features will be difficult in the future. However, referencing to the workflow of Mathquill and Jupyter, it seems reasonable to separate distinct features by branches and create merges as progresses ensue. 
