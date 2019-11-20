@@ -51,8 +51,8 @@ class NameControl {
         var defContainer = this.defControl.defContainer;
         $(this.nameContainer).innerHeight($(this.nameField).outerHeight());
         if (definition.offsetHeight > this.nameField.offsetHeight)
-            this.nameContainer.style.height = $(defContainer).outerHeight()+'px';
-        else defContainer.style.height = $(this.nameField).outerHeight() + 'px';
+            $(this.nameContainer).outerHeight($(defContainer).outerHeight());
+        else $(defContainer).outerHeight($(this.nameField).outerHeight());
     }
 
     loadDefControl(ec) {
@@ -72,8 +72,8 @@ class DefControl {
         var nameContainer = this.nameControl.nameContainer;
         $(this.defContainer).innerHeight($(this.defField).outerHeight());
         if (this.defField.offsetHeight > name.offsetHeight)
-            nameContainer.style.height = $(this.defContainer).outerHeight() + 'px';
-        else this.defContainer.style.height = $(name).outerHeight() + 'px';
+            $(nameContainer).outerHeight($(this.defContainer).outerHeight());
+        else $(this.defContainer).outerHeight($(name).outerHeight());
     }
 
     loadNameControl(nc = new NameControl()) {

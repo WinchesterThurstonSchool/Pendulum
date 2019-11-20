@@ -5,7 +5,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         clean: ['dist/'],
         browserify: {
-            'dist/js/<%= pkg.name %>.js': ['src/js/<%= pkg.name %>.js'],
+            'dist/js/<%= pkg.name %>.js': ['src/js-compatible/<%= pkg.name %>.js'],
             options: {
                 transform: [
                     ['browserify-css', {
@@ -17,11 +17,25 @@ module.exports = function (grunt) {
         babel: {
             options: {
                 sourceMap: true,
-                presets: ['@babel/preset-env']
+                presets: ['@babel/preset-typescript', '@babel/preset-env'],
+                plugins: [
+                    ["@babel/plugin-proposal-class-properties", {
+                        "loose": true
+                    }],
+                    "@babel/plugin-proposal-object-rest-spread"
+                ],
             },
             dist: {
-                files: {
-                    'dist/js/<%= pkg.name %>-compatible.js': 'dist/js/<%= pkg.name %>.js'
+                // files: {
+                //     // 'src/js-compatible/pendulum.js': 'src/js/pendulum.js'
+                    
+                // }
+                expand: true,
+                src: ['*.js','*.ts'],
+                cwd: 'src/js',
+                dest: 'src/js-compatible',
+                rename: function(dest, src){
+                    return dest+'/'+src.replace('.ts','.js');
                 }
             }
         },
@@ -46,22 +60,34 @@ module.exports = function (grunt) {
             },
             files: {
                 expand: true,
-                src: 'dist/js/pendulum-compatible.js',
+                src: 'dist/js/<%= pkg.name %>.js',
                 dest: '.',
                 rename:function(dest, src){
                     return dest+'/'+src.replace(".js",".min.js");
                 }
             }
-        }
+        },
+        watch: {
+            files: ['src/js/*.js','src/js/*.ts'],
+            tasks: ['default'],
+            options: {
+                interrupt: true,
+                debounceDelay: 2000,
+            },
+        },
     });
 
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-browserify');
 
-    // Do grunt-related things in here
-     grunt.registerTask('default', ['clean', 'browserify', 'copy']);
-     grunt.registerTask('product', ['clean', 'browserify', 'babel', 'copy', 'uglify']);
+     // Default performs a complete build from ground up to create the source
+     grunt.registerTask('default', ['clean', 'babel', 'browserify', 'copy']);
+     // Auto build starts a watching process to monitor and update build according to src/js
+     grunt.registerTask('auto-build', ['watch']);
+     // Build production code with an extra step of uglify
+     grunt.registerTask('build-prod', ['clean', 'babel', 'browserify', 'copy', 'uglify']);
 };
