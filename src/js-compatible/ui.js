@@ -60,6 +60,10 @@ function () {
     this.nameField = document.body;
     this.type = ':';
   }
+  /**
+   * Used to synchronize height between definition container and namefield container
+   */
+
 
   _createClass(NameControl, [{
     key: "updateSize",
@@ -67,7 +71,7 @@ function () {
       var definition = this.defControl.defField;
       var defContainer = this.defControl.defContainer;
       $(this.nameContainer).innerHeight($(this.nameField).outerHeight());
-      if (definition.offsetHeight > this.nameField.offsetHeight) $(this.nameContainer).outerHeight($(defContainer).outerHeight());else $(defContainer).outerHeight($(this.nameField).outerHeight());
+      if (definition.offsetHeight > this.nameField.offsetHeight) $(this.nameContainer).outerHeight($(defContainer).outerHeight(true), true);else $(defContainer).outerHeight($(this.nameField).outerHeight(true));
     }
   }, {
     key: "loadDefControl",
@@ -90,6 +94,10 @@ function () {
     this.defField = document.body;
     this.type = ':';
   }
+  /**
+   * Used to synchronize height between definition container and namefield container
+   */
+
 
   _createClass(DefControl, [{
     key: "updateSize",
@@ -97,7 +105,7 @@ function () {
       var name = this.nameControl.nameField;
       var nameContainer = this.nameControl.nameContainer;
       $(this.defContainer).innerHeight($(this.defField).outerHeight());
-      if (this.defField.offsetHeight > name.offsetHeight) $(nameContainer).outerHeight($(this.defContainer).outerHeight());else $(this.defContainer).outerHeight($(name).outerHeight());
+      if (this.defField.offsetHeight > name.offsetHeight) $(nameContainer).outerHeight($(this.defContainer).outerHeight(true), true);else $(this.defContainer).outerHeight($(name).outerHeight(true));
     }
   }, {
     key: "loadNameControl",

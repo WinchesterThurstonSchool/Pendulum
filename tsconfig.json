@@ -11,7 +11,7 @@
         "noEmit": true,
         // Enable strictest settings like strictNullChecks & noImplicitAny.
         "strict": true,
-        "types": ["node"],
+        "types": ["node", "jquery"],
         "typeRoots": ["node_modules/@types"],
         "noImplicitThis": true,
         "noImplicitAny": false

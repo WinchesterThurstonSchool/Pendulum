@@ -68,11 +68,12 @@ module.exports = function (grunt) {
             }
         },
         watch: {
-            files: ['src/js/*.js','src/js/*.ts'],
+            files: ['src/js/*.js','src/js/*.ts', 'src/index.html'],
             tasks: ['default'],
             options: {
+                spawn: true,
                 interrupt: true,
-                debounceDelay: 2000,
+                debounceDelay: 500
             },
         },
     });

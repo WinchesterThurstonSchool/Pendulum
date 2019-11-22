@@ -22,22 +22,16 @@
             }
         },
         {
-            "type": "shell",
-            "label": "auto-build",
-            "command": [
-                "grunt -gruntfile build.js auto-build"
-            ],
+            "type": "npm",
+            "script": "auto-build",
             "problemMatcher": [],
             "presentation": {
                 "echo": false,
-                "reveal": "never",
+                "reveal": "always",
                 "focus": false,
                 "panel": "dedicated",
                 "showReuseMessage": true,
                 "clear": false
-            },
-            "runOptions": {
-                "runOn": "folderOpen"
             }
         },
         {

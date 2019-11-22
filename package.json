@@ -8,8 +8,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha",
-    "build": "grunt --gruntfile build.js"
+    "test": "mocha test",
+    "build": "grunt --gruntfile build.js",
+    "auto-build": "grunt -gruntfile build.js auto-build"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-typescript": "^7.7.2",
+    "@types/jquery": "^3.3.31",
     "@types/node": "^12.12.11",
     "browserify-css": "^0.15.0",
     "grunt": "^1.0.4",
@@ -48,12 +50,14 @@
     "string_decoder": "^1.3.0"
   },
   "dependencies": {
+    "@types/mathjs": "^6.0.2",
     "jquery": "^3.4.1",
+    "mathjs": "^6.2.5",
     "mathquill": "^0.10.1-a",
     "pixi.js": "^5.2.0",
     "three": "^0.110.0"
   },
-  "jshintConfig":{
+  "jshintConfig": {
     "esversion": 6,
     "node": true
   }

@@ -45,14 +45,16 @@ class NameControl {
         this.nameField = document.body;
         this.type = ':';
     }
-
+    /**
+     * Used to synchronize height between definition container and namefield container
+     */
     updateSize() {
         var definition = this.defControl.defField;
         var defContainer = this.defControl.defContainer;
         $(this.nameContainer).innerHeight($(this.nameField).outerHeight());
         if (definition.offsetHeight > this.nameField.offsetHeight)
-            $(this.nameContainer).outerHeight($(defContainer).outerHeight());
-        else $(defContainer).outerHeight($(this.nameField).outerHeight());
+            $(this.nameContainer).outerHeight($(defContainer).outerHeight(true),true);
+        else $(defContainer).outerHeight($(this.nameField).outerHeight(true));
     }
 
     loadDefControl(ec) {
@@ -66,14 +68,16 @@ class DefControl {
         this.defField = document.body;
         this.type = ':';
     }
-
+    /**
+     * Used to synchronize height between definition container and namefield container
+     */
     updateSize() {
         var name = this.nameControl.nameField;
         var nameContainer = this.nameControl.nameContainer;
         $(this.defContainer).innerHeight($(this.defField).outerHeight());
         if (this.defField.offsetHeight > name.offsetHeight)
-            $(nameContainer).outerHeight($(this.defContainer).outerHeight());
-        else $(this.defContainer).outerHeight($(name).outerHeight());
+            $(nameContainer).outerHeight($(this.defContainer).outerHeight(true),true);
+        else $(this.defContainer).outerHeight($(name).outerHeight(true));
     }
 
     loadNameControl(nc = new NameControl()) {
