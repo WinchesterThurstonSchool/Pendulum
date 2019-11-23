@@ -7,7 +7,7 @@ it('correctly calculates the sum of 1 and 3', () => {
 });
 
 it('indicates failure when a string is used instead of a number', () => {
-    assert.equal(operations.validateNumbers('sammy', 5), false)
+    assert.equal(operations.validateNumbers('sammy', 5), true)
 })
 
 it('indicates failure when two strings is used instead of numbers', () => {
