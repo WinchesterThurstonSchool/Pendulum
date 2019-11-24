@@ -10,7 +10,6 @@ const dotArray=function(a:number[],b:number[]):number{
         sum+=a[i]*b[i];
     return sum;
 }
-console.log(subtract([5,5,5], [2,2,2]));
 export {
     inv,
     det,

@@ -41,5 +41,4 @@ var dotArray = function dotArray(a, b) {
 };
 
 exports.dotArray = dotArray;
-console.log((0, _mathjs.subtract)([5, 5, 5], [2, 2, 2]));
 //# sourceMappingURL=utility.js.map

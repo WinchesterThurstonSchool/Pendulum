@@ -68,7 +68,7 @@ module.exports = function (grunt) {
             }
         },
         watch: {
-            files: ['src/js/*.js','src/js/*.ts', 'src/index.html'],
+            files: ['src/js/*.js','src/js/*.ts', 'src/index.html', 'src/css/*'],
             tasks: ['default'],
             options: {
                 spawn: true,

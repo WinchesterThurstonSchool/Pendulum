@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Cloudnest - Pendulum</title>
+    <title>Cloudnest - Pendulum</title><script src="./js/pendulum.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
             <!-- <link rel="stylesheet" href="./mathquill.css"> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kodchasan">
@@ -15,7 +16,6 @@
 <body>
     <div id="root">
         <div id="navbar" align="center">
-            <img id="logo" src="../assets/Cloudnest Matallic-small.png" alt="logo">
             Pendulum
         </div>
         <div id="defpanel">
@@ -69,19 +69,16 @@
             </div>
         </div>
         <div id="graphpanel">
-            <div id="zoomPanel">
+            <div id="utilityPanel">
+                <input type="image" id="logo" src="../assets/Cloudnest-small.png" alt="logo" style="margin-bottom: 10pt;" onclick="window.location.href='http://cloudnest.org'">
+                <br>
                 <button id="zoomInBtn" class="btn glyphicon glyphicon-plus" onclick="zoomIn()"></button>
-                <br>
                 <button id="zoomOutBtn" class="btn glyphicon glyphicon-minus" onclick="zoomOut()"></button>
-                <br>
                 <button id="homeBtn" class="btn glyphicon glyphicon-home" onclick="resetScene()"></button>
-                <br>
                 <button id="graphicsSettings" class="btn glyphicon glyphicon-cog" onclick="switchCanvas()"></button>
             </div>
         </div>
     </div>
-    <script src="./js/pendulum.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 
 </html>

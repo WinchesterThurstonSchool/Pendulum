@@ -19,6 +19,7 @@ body {
     outline: none;
 }
 
+
 #root {
     --blue: #3abdff;
     --blueShadow: #007fbe;
@@ -30,12 +31,12 @@ body {
     --active-faded: rgb(255, 140, 0);
     height: 100%;
     display: grid;
-    grid-template-columns: fit-content(20%) 1fr;
-    grid-template-rows: 50px 1fr;
+    grid-template-columns: fit-content(25%) 1fr;
+    grid-template-rows: 36pt 1fr;
 }
 
 #navbar {
-    grid-column: 1 / span 2;
+    grid-column: 1 / span 1;
     justify-self: stretch;
     align-self: stretch;
     align-items: center;
@@ -58,9 +59,13 @@ body {
     float: left;
 }
 
+#logo:focus {
+    outline: none;
+}
+
 #graphpanel {
     grid-column: 2 / span 1;
-    grid-row: 2/span 1;
+    grid-row: 1/span 2;
     align-self: stretch;
     justify-self: stretch;
     overflow: hidden;
@@ -73,7 +78,7 @@ body {
     grid-row: 2/span 1;
     overflow-y: auto;
     align-items: flex-start;
-    min-width: 300px;
+    min-width: 360px;
     width: fit-content;
     width: -moz-fit-content;
     padding: 0px;
@@ -82,7 +87,7 @@ body {
     /* background: #5199eb86; */
     background: white;
     display: grid;
-    grid-template-columns: fit-content(50px) 1fr;
+    grid-template-columns: fit-content(36pt) 1fr;
 }
 
 #sidebar {
@@ -126,23 +131,28 @@ body {
 }
 
 
-#zoomPanel {
+#utilityPanel {
     position: fixed;
-    top: 70px;
+    top: 20px;
     right: 25px;
     z-index: 1;
     user-select: none;
 }
 
+#homepage,
 #zoomInBtn,
 #zoomOutBtn,
 #homeBtn {
-    margin: 2pt;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5pt;
     user-select: none;
 }
 
 #graphicsSettings {
-    margin: 2pt;
+    display: block;
+    margin:auto;
     margin-top: 8pt;
     user-select: none;
 }
@@ -246,7 +256,7 @@ body {
 }
 
 .expression-container:focus-within {
-    border-width: 2px 0px 2px 0px;
+    border-width: 2px 2px 2px 0px;
     border-color: lightskyblue;
 }
 
