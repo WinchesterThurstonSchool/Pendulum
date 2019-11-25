@@ -100006,16 +100006,16 @@ module.exports = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "det", {
-  enumerable: true,
-  get: function get() {
-    return _mathjs.det;
-  }
-});
 Object.defineProperty(exports, "inv", {
   enumerable: true,
   get: function get() {
     return _mathjs.inv;
+  }
+});
+Object.defineProperty(exports, "det", {
+  enumerable: true,
+  get: function get() {
+    return _mathjs.det;
   }
 });
 Object.defineProperty(exports, "subtract", {
@@ -100024,7 +100024,13 @@ Object.defineProperty(exports, "subtract", {
     return _mathjs.subtract;
   }
 });
-exports.dotArray = void 0;
+Object.defineProperty(exports, "multiply", {
+  enumerable: true,
+  get: function get() {
+    return _mathjs.multiply;
+  }
+});
+exports.dot = void 0;
 
 var _mathjs = require("mathjs");
 
@@ -100033,7 +100039,7 @@ var _d = true;
  * mathematical tools, data structures, and classes
  */
 
-var dotArray = function dotArray(a, b) {
+var dot = function dot(a, b) {
   var sum = 0;
 
   for (var i = 0; i < Math.min(a.length, b.length); i++) {
@@ -100043,7 +100049,7 @@ var dotArray = function dotArray(a, b) {
   return sum;
 };
 
-exports.dotArray = dotArray;
+exports.dot = dot;
 
 
 },{"mathjs":887}]},{},[894]);

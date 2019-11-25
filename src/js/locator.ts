@@ -32,7 +32,6 @@ class Locator {
     //Inverse transformation through: c = A^{-1}(C-B)
     Ainverse:number[][];
     constructor(){
-        console.log(this.B);
         this.Ainverse = (utility.inv(this.A) as number[][]);
     }
     private _standardMatrix=[0,0,0];
@@ -49,14 +48,14 @@ class Locator {
     }
     //To graphics X
     public X(...coord: number[]):number{
-        return utility.dotArray(this.T[0], this.virtualToStandard(coord))+this.B[0];
+        return utility.dot(this.T[0], this.virtualToStandard(coord))+this.B[0];
     }
     //To graphics Y
     public Y(...coord: number[]): number {
-        return utility.dotArray(this.T[1], this.virtualToStandard(coord)) + this.B[1];
+        return utility.dot(this.T[1], this.virtualToStandard(coord)) + this.B[1];
     }
     public Z(...coord: number[]): number {
-        return utility.dotArray(this.T[2], this.virtualToStandard(coord)) + this.B[2];
+        return utility.dot(this.T[2], this.virtualToStandard(coord)) + this.B[2];
     }
     private _graphicalMatrix = [0,0,0];
     private virtualToGraphical(virCoord: number[]):number[]{
@@ -115,9 +114,9 @@ class Locator {
     public xyz(...graCoord: number[]): number[] {
         this.checkCoord(graCoord);
         this._subtractionMatrix = (utility.subtract([...graCoord], this.B) as number[]);
-        this._standardMatrix[0] = utility.dotArray(this.T[0], this._subtractionMatrix);
-        this._standardMatrix[1] = utility.dotArray(this.T[1], this._subtractionMatrix);
-        this._standardMatrix[2] = utility.dotArray(this.T[2], this._subtractionMatrix);
+        this._standardMatrix[0] = utility.dot(this.T[0], this._subtractionMatrix);
+        this._standardMatrix[1] = utility.dot(this.T[1], this._subtractionMatrix);
+        this._standardMatrix[2] = utility.dot(this.T[2], this._subtractionMatrix);
         /* _subtractionMatrix is reused here as a holder for the _virtualMatrix for the sake of 
          * optimization.
          */

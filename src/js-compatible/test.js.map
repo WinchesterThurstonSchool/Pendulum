@@ -1,1 +1,1 @@
-{"version":3,"sources":["../js/test.js"],"names":["console","log","module","exports"],"mappings":"AAAA;;AACA;AACA;;AACAA,OAAO,CAACC,GAAR,CAAY,QAAZ;AAEAC,MAAM,CAACC,OAAP","sourcesContent":["/* jshint node: true */\r\n/*  jshint esversion: 6 */\r\n\"use strict\";\r\nconsole.log(\"hahaha\");\r\n\r\nmodule.exports=this;"],"file":"test.js"}
+{"version":3,"sources":["../js/test.js"],"names":[],"mappings":"AAAA;;AACA;AACA","sourcesContent":["/* jshint node: true */\r\n/*  jshint esversion: 6 */\r\n\"use strict\";"],"file":"test.js"}

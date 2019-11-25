@@ -62,7 +62,6 @@ function () {
     this._standardMatrix = [0, 0, 0];
     this._graphicalMatrix = [0, 0, 0];
     this._subtractionMatrix = [0, 0, 0];
-    console.log(this.B);
     this.Ainverse = utility.inv(this.A);
   }
 
@@ -88,7 +87,7 @@ function () {
         coord[_key] = arguments[_key];
       }
 
-      return utility.dotArray(this.T[0], this.virtualToStandard(coord)) + this.B[0];
+      return utility.dot(this.T[0], this.virtualToStandard(coord)) + this.B[0];
     } //To graphics Y
 
   }, {
@@ -98,7 +97,7 @@ function () {
         coord[_key2] = arguments[_key2];
       }
 
-      return utility.dotArray(this.T[1], this.virtualToStandard(coord)) + this.B[1];
+      return utility.dot(this.T[1], this.virtualToStandard(coord)) + this.B[1];
     }
   }, {
     key: "Z",
@@ -107,7 +106,7 @@ function () {
         coord[_key3] = arguments[_key3];
       }
 
-      return utility.dotArray(this.T[2], this.virtualToStandard(coord)) + this.B[2];
+      return utility.dot(this.T[2], this.virtualToStandard(coord)) + this.B[2];
     }
   }, {
     key: "virtualToGraphical",
@@ -182,9 +181,9 @@ function () {
 
       this.checkCoord(graCoord);
       this._subtractionMatrix = utility.subtract([].concat(graCoord), this.B);
-      this._standardMatrix[0] = utility.dotArray(this.T[0], this._subtractionMatrix);
-      this._standardMatrix[1] = utility.dotArray(this.T[1], this._subtractionMatrix);
-      this._standardMatrix[2] = utility.dotArray(this.T[2], this._subtractionMatrix);
+      this._standardMatrix[0] = utility.dot(this.T[0], this._subtractionMatrix);
+      this._standardMatrix[1] = utility.dot(this.T[1], this._subtractionMatrix);
+      this._standardMatrix[2] = utility.dot(this.T[2], this._subtractionMatrix);
       /* _subtractionMatrix is reused here as a holder for the _virtualMatrix for the sake of 
        * optimization.
        */
