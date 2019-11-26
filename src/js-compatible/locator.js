@@ -2,6 +2,11 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Locator = void 0;
+
 var utility = _interopRequireWildcard(require("./utility"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -31,38 +36,21 @@ function () {
   //Moves virtual coordinate deltax virtual units in the x direction
   //Moves virtual coordinate deltay virtual units in the y direction
   //Transformation matrix used as: C = Ap+B
-  //T is the actual matrix that user manipulate to change the transformation
-  //Inverse transformation through: c = A^{-1}(C-B)
   function Locator() {
-    var _this = this;
-
     _classCallCheck(this, Locator);
 
     this.lc = this;
     this.scalex = 1;
     this.scaley = 1;
     this.scalez = 1;
-    this.deltax = 1;
-    this.deltay = 1;
+    this.deltax = 0;
+    this.deltay = 0;
     this.deltaz = 0;
     this.A = [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]];
-
-    this.validateT = function (target, property, value) {
-      var Ainverse = utility.inv(value);
-      if (Ainverse != undefined) _this.Ainverse = Ainverse;else throw new Error('Cannot calculate inverse, determinant is zero');
-      target[property] = value;
-      return true;
-    };
-
-    this.T = new Proxy(this.A, {
-      set: this.validateT
-    });
     this.B = [0, 0, 0];
-    this.Ainverse = void 0;
     this._standardMatrix = [0, 0, 0];
     this._graphicalMatrix = [0, 0, 0];
     this._subtractionMatrix = [0, 0, 0];
-    this.Ainverse = utility.inv(this.A);
   }
 
   _createClass(Locator, [{
@@ -87,7 +75,7 @@ function () {
         coord[_key] = arguments[_key];
       }
 
-      return utility.dot(this.T[0], this.virtualToStandard(coord)) + this.B[0];
+      return utility.dot(this.A[0], this.virtualToStandard(coord)) + this.B[0];
     } //To graphics Y
 
   }, {
@@ -97,7 +85,7 @@ function () {
         coord[_key2] = arguments[_key2];
       }
 
-      return utility.dot(this.T[1], this.virtualToStandard(coord)) + this.B[1];
+      return utility.dot(this.A[1], this.virtualToStandard(coord)) + this.B[1];
     }
   }, {
     key: "Z",
@@ -106,7 +94,7 @@ function () {
         coord[_key3] = arguments[_key3];
       }
 
-      return utility.dot(this.T[2], this.virtualToStandard(coord)) + this.B[2];
+      return utility.dot(this.A[2], this.virtualToStandard(coord)) + this.B[2];
     }
   }, {
     key: "virtualToGraphical",
@@ -175,15 +163,23 @@ function () {
      * @param graCoord: a representation of a point in the virtual coordinate
      */
     value: function xyz() {
+      var Ainverse;
+
+      try {
+        Ainverse = utility.inv(this.A);
+      } catch (error) {
+        throw new Error("Cannot compute the virtual coordinate, the determinant of the multiplication matrix A is 0");
+      }
+
       for (var _len4 = arguments.length, graCoord = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
         graCoord[_key4] = arguments[_key4];
       }
 
       this.checkCoord(graCoord);
-      this._subtractionMatrix = utility.subtract([].concat(graCoord), this.B);
-      this._standardMatrix[0] = utility.dot(this.T[0], this._subtractionMatrix);
-      this._standardMatrix[1] = utility.dot(this.T[1], this._subtractionMatrix);
-      this._standardMatrix[2] = utility.dot(this.T[2], this._subtractionMatrix);
+      this._subtractionMatrix = utility.subtract(graCoord, this.B);
+      this._standardMatrix[0] = utility.dot(Ainverse[0], this._subtractionMatrix);
+      this._standardMatrix[1] = utility.dot(Ainverse[1], this._subtractionMatrix);
+      this._standardMatrix[2] = utility.dot(Ainverse[2], this._subtractionMatrix);
       /* _subtractionMatrix is reused here as a holder for the _virtualMatrix for the sake of 
        * optimization.
        */
@@ -234,15 +230,45 @@ function () {
   }, {
     key: "checkCoord",
     value: function checkCoord(coord) {
-      if (coord.length == 2) coord[2] = 0;
+      if (coord.length >= 3) return coord;
+      if (coord.length == 0) coord[0] = 0;
+      if (coord.length <= 1) coord[1] = 0;
+      if (coord.length <= 2) coord[2] = 0;
       return coord;
+    }
+    /**
+     * Resets all the virtual transformers in the instance,
+     * excludes the graphcis transformers A and B
+     */
+
+  }, {
+    key: "reset",
+    value: function reset() {
+      this.deltax = 0;
+      this.deltay = 0;
+      this.deltaz = 0;
+      this.scalex = 0;
+      this.scaley = 0;
+      this.scalez = 0;
+    }
+    /**
+     * Resets all the graphics matrices for affine transformaiton to the given values
+     * @param A Transform coefficient A, default is [[1.5,0,0],[0,1.5,0],[0,0,1.5]]
+     * @param B Transform offset B, default is [0,0,0]
+     */
+
+  }, {
+    key: "resetATransformation",
+    value: function resetATransformation() {
+      var A = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]];
+      var B = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [0, 0, 0];
+      this.A = A;
+      this.B = B;
     }
   }]);
 
   return Locator;
 }();
 
-exports = {
-  Locator: Locator
-};
+exports.Locator = Locator;
 //# sourceMappingURL=locator.js.map

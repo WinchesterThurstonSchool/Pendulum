@@ -1,17 +1,17 @@
 const utility = require('../src/js-compatible/utility');
 const assert = require('assert');
 const helper = require('./helper');
-describe("utility.", () => {
-    describe("subtract", () => {
-        it("should compute subtraction between scalars correctly", () => {
+describe("utility.", function(){
+    describe("subtract", function(){
+        it("should compute subtraction between scalars correctly", function(){
             for (let i = 0; i < 10; i++)
                 assert.equal(utility.subtract(i, -1), i + 1);
         });
-        it("should compute subtraction between vectors correctly", () => {
+        it("should compute subtraction between vectors correctly", function(){
             for (let i = -10; i <= 10; i++)
                 assert.deepEqual(utility.subtract([i, i * 2, i * i], [i, 2 * i, 3 * i]), [0, 0, i * i - 3 * i]);
         });
-        it("should not modify the first parameter", () => {
+        it("should not modify the first parameter", function(){
             for (let i = -25; i < 25; i++) {
                 let a = [25 + i, 35 - i];
                 let b = [45, 12];
@@ -19,7 +19,7 @@ describe("utility.", () => {
                 assert.deepEqual(a, [25 + i, 35 - i]);
             }
         });
-        it("should not modify the second parameter", () => {
+        it("should not modify the second parameter", function(){
             for (let i = -25; i < 25; i++) {
                 let a = [25, 35];
                 let b = [45 + i, 12 - i];
@@ -28,8 +28,8 @@ describe("utility.", () => {
             }
         });
     });
-    describe("inv", () => {
-        it("should find the inverse of a matrix correctly", () => {
+    describe("inv", function(){
+        it("should find the inverse of a matrix correctly", function(){
             let a = [
                 [0, 1, 2],
                 [3, 4, 5],
@@ -48,7 +48,7 @@ describe("utility.", () => {
                 [0, 0, 1]
             ], 0.00001);
         });
-        it("shoud not modify the parameter", () => {
+        it("shoud not modify the parameter", function(){
             let a = [
                 [0, 1, 2],
                 [3, 4, 5],
@@ -62,25 +62,25 @@ describe("utility.", () => {
             ]);
         });
     });
-    describe("dot", () => {
-        it("returns 0 if two vectors are perpendicular", () => {
+    describe("dot", function(){
+        it("returns 0 if two vectors are perpendicular", function(){
             let a = [1, 1, 0];
             let b = [1, -1, 0];
             assert.deepEqual(utility.dot(a, b), 0);
         });
-        it("dot([1,1,1],[-1,3,4])=6", () => {
+        it("dot([1,1,1],[-1,3,4])=6", function(){
             let a = [1, 1, 1];
             let b = [1, -1, 0];
             assert.deepEqual(utility.dot(a, b), 0);
         });
     });
-    describe("multiply", () => {
-        it("correctly computes the product of numbers", () => {
+    describe("multiply", function(){
+        it("correctly computes the product of numbers", function(){
             let a = 0;
             for (let b = 1; b < 100; b++)
                 assert.deepEqual(utility.multiply(a, b), a * b);
         });
-        it("correctly computes the product of matrices", () => {
+        it("correctly computes the product of matrices", function(){
             for (let i = 1; i < 100; i++) {
                 let a = [
                     [0, 0, i * 2],
@@ -100,7 +100,7 @@ describe("utility.", () => {
             }
 
         });
-        it("doesn't change the value of its parameters", () => {
+        it("doesn't change the value of its parameters", function(){
             let a = [
                 [1, 0, 2],
                 [2, 1, 1],

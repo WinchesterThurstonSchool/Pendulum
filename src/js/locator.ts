@@ -8,31 +8,16 @@ class Locator {
     scaley = 1;
     scalez = 1;
     //Moves virtual coordinate deltax virtual units in the x direction
-    deltax = 1;
+    deltax = 0;
     //Moves virtual coordinate deltay virtual units in the y direction
-    deltay = 1;
+    deltay = 0;
     deltaz = 0;
     //Transformation matrix used as: C = Ap+B
-    private A = [[1.5,0,0],
-                [0,1.5,0],
-                [0,0,1.5]];
-    validateT = (target, property, value)=>{
-        let Ainverse = (utility.inv(value) as number[][]);
-        if(Ainverse!=undefined)
-            this.Ainverse = Ainverse;
-        else throw new Error('Cannot calculate inverse, determinant is zero');
-        target[property] = value;
-        return true;
-    }
-    //T is the actual matrix that user manipulate to change the transformation
-    T = new Proxy(this.A, {
-        set: this.validateT
-    });
+    A = [[1.5,0,0],
+         [0,1.5,0],
+         [0,0,1.5]];
     B = [0,0,0];
-    //Inverse transformation through: c = A^{-1}(C-B)
-    Ainverse:number[][];
     constructor(){
-        this.Ainverse = (utility.inv(this.A) as number[][]);
     }
     private _standardMatrix=[0,0,0];
     /**
@@ -48,14 +33,14 @@ class Locator {
     }
     //To graphics X
     public X(...coord: number[]):number{
-        return utility.dot(this.T[0], this.virtualToStandard(coord))+this.B[0];
+        return utility.dot(this.A[0], this.virtualToStandard(coord))+this.B[0];
     }
     //To graphics Y
     public Y(...coord: number[]): number {
-        return utility.dot(this.T[1], this.virtualToStandard(coord)) + this.B[1];
+        return utility.dot(this.A[1], this.virtualToStandard(coord)) + this.B[1];
     }
     public Z(...coord: number[]): number {
-        return utility.dot(this.T[2], this.virtualToStandard(coord)) + this.B[2];
+        return utility.dot(this.A[2], this.virtualToStandard(coord)) + this.B[2];
     }
     private _graphicalMatrix = [0,0,0];
     private virtualToGraphical(virCoord: number[]):number[]{
@@ -112,11 +97,17 @@ class Locator {
      * @param graCoord: a representation of a point in the virtual coordinate
      */
     public xyz(...graCoord: number[]): number[] {
+        let Ainverse;
+        try{
+            Ainverse = utility.inv(this.A);
+        }catch(error){
+            throw new Error("Cannot compute the virtual coordinate, the determinant of the multiplication matrix A is 0");
+        }
         this.checkCoord(graCoord);
-        this._subtractionMatrix = (utility.subtract([...graCoord], this.B) as number[]);
-        this._standardMatrix[0] = utility.dot(this.T[0], this._subtractionMatrix);
-        this._standardMatrix[1] = utility.dot(this.T[1], this._subtractionMatrix);
-        this._standardMatrix[2] = utility.dot(this.T[2], this._subtractionMatrix);
+        this._subtractionMatrix = (utility.subtract(graCoord, this.B) as number[]);
+        this._standardMatrix[0] = utility.dot(Ainverse[0], this._subtractionMatrix);
+        this._standardMatrix[1] = utility.dot(Ainverse[1], this._subtractionMatrix);
+        this._standardMatrix[2] = utility.dot(Ainverse[2], this._subtractionMatrix);
         /* _subtractionMatrix is reused here as a holder for the _virtualMatrix for the sake of 
          * optimization.
          */
@@ -158,11 +149,35 @@ class Locator {
      * Validate that the coordinate has the coorect dimension
      * @param coord the coordinate
      */
-    private checkCoord(coord:number[]):number[]{
-        if (coord.length == 2) coord[2] = 0;
+    private checkCoord(coord: number[]): number[] {
+        if (coord.length >= 3) return coord;
+        if (coord.length == 0) coord[0] = 0;
+        if (coord.length <= 1) coord[1] = 0;
+        if (coord.length <= 2) coord[2] = 0;
         return coord;
     }
+    /**
+     * Resets all the virtual transformers in the instance,
+     * excludes the graphcis transformers A and B
+     */
+    public reset():void{
+        this.deltax=0;
+        this.deltay=0;
+        this.deltaz=0
+        this.scalex=0;
+        this.scaley=0;
+        this.scalez=0;
+    }
+    /**
+     * Resets all the graphics matrices for affine transformaiton to the given values
+     * @param A Transform coefficient A, default is [[1.5,0,0],[0,1.5,0],[0,0,1.5]]
+     * @param B Transform offset B, default is [0,0,0]
+     */
+    public resetATransformation(A = [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]], B = [0, 0, 0]):void{
+        this.A = A;
+        this.B = B;
+    }
 }
-exports={
+export {
     Locator
 }
