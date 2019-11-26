@@ -37,6 +37,7 @@
     "@babel/preset-typescript": "^7.7.2",
     "@types/jquery": "^3.3.31",
     "@types/node": "^12.12.11",
+    "browserify": "^16.5.0",
     "browserify-css": "^0.15.0",
     "fresh": ">=0.5.2",
     "grunt": "^1.0.4",
@@ -53,6 +54,7 @@
   },
   "dependencies": {
     "@types/mathjs": "^6.0.2",
+    "ismobilejs": "^1.0.3",
     "jquery": "^3.4.1",
     "mathjs": "^6.2.5",
     "mathquill": "^0.10.1-a",

@@ -4,6 +4,8 @@ var THREE = _interopRequireWildcard(require("three"));
 
 var PIXI = _interopRequireWildcard(require("pixi.js"));
 
+var _locator = require("./locator");
+
 require("jquery");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -48,6 +50,7 @@ function () {
     this.rootScene = void 0;
     this.width = void 0;
     this.height = void 0;
+    this.lc = void 0;
     this.width = canvas.offsetWidth;
     this.height = canvas.offsetHeight;
   }
@@ -99,6 +102,7 @@ function (_Graphics) {
     _this.renderer = void 0;
     _this.lights = {};
     _this.camera = void 0;
+    _this.lc = void 0;
     _this.renderer = _this.createWebGLRenderer();
     _this.domObject = _this.renderer.domElement; //Attach dom object
 
@@ -121,7 +125,9 @@ function (_Graphics) {
     _this.addLight("ambient", ambientLight); //Setup camera
 
 
-    _this.camera = _this.createPerspectiveCamera();
+    _this.camera = _this.createPerspectiveCamera(); //Setup locator for cooridnate transformation
+
+    _this.lc = new _locator.Locator();
     return _this;
   }
 
@@ -205,6 +211,7 @@ function (_Graphics2) {
     _this2.rootScene = void 0;
     _this2.app = void 0;
     _this2.renderer = void 0;
+    _this2.lc = void 0;
     _this2.app = new PIXI.Application({
       width: _this2.width,
       height: _this2.height,
@@ -215,7 +222,7 @@ function (_Graphics2) {
       resolution: 1 // default: 1
 
     });
-    _this2.domObject = new PIXI.Application().view;
+    _this2.domObject = _this2.app.view;
     _this2.domObject.id = id; //Setup root scene
 
     _this2.rootScene = _this2.app.stage; //Setup renderer
@@ -226,6 +233,9 @@ function (_Graphics2) {
 
     _this2.renderer.resize(_this2.width, _this2.height);
 
+    _this2.lc = new _locator.Locator();
+    _this2.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
+    _this2.lc.B = [_this2.width / 2, _this2.height / 2, 0];
     return _this2;
   }
 
@@ -242,6 +252,7 @@ function (_Graphics2) {
     value: function onResize() {
       this.width = this.canvas.offsetWidth;
       this.height = this.canvas.offsetHeight;
+      this.lc.B = [this.width / 2, this.height / 2, 0];
       this.renderer.resize(this.width, this.height);
       $(this.canvas).outerWidth(this.width);
       $(this.canvas).outerHeight(this.height);

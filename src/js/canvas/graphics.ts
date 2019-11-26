@@ -134,7 +134,7 @@ class Graphics2D extends Graphics {
             transparent: true, // default: false
             resolution: 1 // default: 1
         });
-        this.domObject = (new PIXI.Application()).view;
+        this.domObject = this.app.view;
         this.domObject.id=id;
         //Setup root scene
         this.rootScene = this.app.stage;

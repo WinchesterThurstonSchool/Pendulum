@@ -36,6 +36,14 @@ function () {
   //Moves virtual coordinate deltax virtual units in the x direction
   //Moves virtual coordinate deltay virtual units in the y direction
   //Transformation matrix used as: C = Ap+B
+
+  /**
+   * Transformation coefficient. Has to be a 3 by 3 matrix with none zero determinant
+   */
+
+  /**
+   * Transformation constant. Has to be a 3 vector
+   */
   function Locator() {
     _classCallCheck(this, Locator);
 
