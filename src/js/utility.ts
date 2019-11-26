@@ -1,4 +1,4 @@
-import {inv, det, subtract, multiply} from 'mathjs'
+import {inv, det, add, subtract, multiply, cross} from 'mathjs'
 
 let _d = true;
 /* This is a module that provides all kinds of
@@ -10,10 +10,13 @@ const dot=function(a:number[],b:number[]):number{
         sum+=a[i]*b[i];
     return sum;
 }
+
 export {
     inv,
     det,
     dot,
+    add,
     subtract,
-    multiply
+    multiply,
+    cross
 };

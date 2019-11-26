@@ -1,4 +1,4 @@
-const Locator = require('../src/js-compatible/locator').Locator;
+const Locator = require('../src/js-compatible/canvas/locator').Locator;
 const assert = require('assert');
 describe("Locator", function(){
     let lc = new Locator();
@@ -7,9 +7,11 @@ describe("Locator", function(){
         console.log("new Locator created");
     });
     it("obtains the original coordinate after forward and backward transformations", function(){
-        assert.deepEqual(lc.xyz(lc.X(1, -2, 1), lc.Y(1, -2, 1), lc.Z(1, -2, 1)), [1, -2, 1]);
+        for(let i = 0; i<100000; i++)
+            assert.deepEqual(lc.xyz(lc.X(1, -2, 1), lc.Y(1, -2, 1), lc.Z(1, -2, 1)), [1, -2, 1]);
     });
-    it("completes the coordinate with 0 for input vectors that have less than 3 dimensions", function(){
+    it("checkCoord", function(){
+        //completes the coordinate with 0 for input vectors that have less than 3 dimensions
         assert.deepEqual(lc.xyz(lc.X(1), lc.Y(1,2), lc.Z(1,2,3)), [1, 2, 3]);
     });
     it("updates the inverse matrix after reassignment to A", function(){
@@ -26,7 +28,7 @@ describe("Locator", function(){
         lc.A[2] = [0, 0, 1];
         assert.deepEqual(lc.xyz(lc.X(1, -2, 1), lc.Y(1, -2, 1), lc.Z(1, -2, 1)), [1, -2, 1]);
     });
-    it("calculates the transformation correctly", function(){
+    it("computes forward transformations correctly", function(){
         for (let i = 0; i < 2000; i++) {
             assert.equal(lc.X(i, -i * 2, 199 - i), i * 1.5);
             assert.equal(lc.Y(i, -i * 2, 199 - i), (-i * 2) * 1.5);
@@ -62,7 +64,6 @@ describe("Locator", function(){
             [0, 1, 0],
             [0, 0, 1]
         ]);
-        assert.deepEqual(lc.xyz(lc.X(1, -2, 1), lc.Y(1, -2, 1), lc.Z(1, -2, 1)), [1, -2, 1]);
         for(let i = -200; i<200; i++)
             assert.equal(lc.X(i), i);
     });

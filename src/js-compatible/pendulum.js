@@ -10,7 +10,7 @@ $(function () {
 
   var UI = require('./ui.js');
 
-  var canvas = require('./canvas.js');
+  var canvas = require('./canvas/graphics.js');
 
   var element = document.body;
   UI.loadTags();

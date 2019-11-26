@@ -15,6 +15,12 @@ Object.defineProperty(exports, "det", {
     return _mathjs.det;
   }
 });
+Object.defineProperty(exports, "add", {
+  enumerable: true,
+  get: function get() {
+    return _mathjs.add;
+  }
+});
 Object.defineProperty(exports, "subtract", {
   enumerable: true,
   get: function get() {
@@ -25,6 +31,12 @@ Object.defineProperty(exports, "multiply", {
   enumerable: true,
   get: function get() {
     return _mathjs.multiply;
+  }
+});
+Object.defineProperty(exports, "cross", {
+  enumerable: true,
+  get: function get() {
+    return _mathjs.cross;
   }
 });
 exports.dot = void 0;

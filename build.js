@@ -31,7 +31,7 @@ module.exports = function (grunt) {
                     
                 // }
                 expand: true,
-                src: ['*.js','*.ts'],
+                src: ['**/*.js','**/*.ts'],
                 cwd: 'src/js',
                 dest: 'src/js-compatible',
                 rename: function(dest, src){
@@ -68,7 +68,7 @@ module.exports = function (grunt) {
             }
         },
         watch: {
-            files: ['src/js/*.js','src/js/*.ts', 'src/index.html', 'src/css/*'],
+            files: ['src/js/**', 'src/index.html', 'src/css/**'],
             tasks: ['default'],
             options: {
                 spawn: true,
