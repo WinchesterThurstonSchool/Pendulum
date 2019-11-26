@@ -12,7 +12,8 @@ abstract class Graphics {
     abstract domObject: HTMLCanvasElement;
     abstract rootScene: any;
     width:number;
-    height:number;
+    height: number;
+    abstract lc: Locator;
     /**
      * Initializes a common interface for graphics manipulations
      * @param canvas The div in which the graphics renderer sits in
@@ -42,7 +43,6 @@ abstract class Graphics {
     public detach(): void {
         this.canvas.removeChild(this.domObject);
     }
-
 }
 
 class Graphics3D extends Graphics {
@@ -51,6 +51,7 @@ class Graphics3D extends Graphics {
     private renderer:THREE.Renderer;
     lights: {name?:THREE.Light}={};
     camera: THREE.Camera;
+    lc: Locator;
     constructor(public canvas:HTMLDivElement, public id = "g3d"){
         super(canvas);
         this.renderer = this.createWebGLRenderer();
@@ -70,6 +71,8 @@ class Graphics3D extends Graphics {
         this.addLight("ambient", ambientLight);
         //Setup camera
         this.camera=this.createPerspectiveCamera();
+        //Setup locator for cooridnate transformation
+        this.lc=new Locator();
     }
     public addLight(name: string, light:THREE.Light){
         this.lights[name]=light;
@@ -121,6 +124,7 @@ class Graphics2D extends Graphics {
     rootScene: PIXI.Container;
     app: PIXI.Application;
     private renderer:PIXI.Renderer;
+    lc: Locator;
     constructor(public canvas:HTMLDivElement, public id = "g2d"){
         super(canvas);
         this.app = new PIXI.Application({
@@ -140,7 +144,9 @@ class Graphics2D extends Graphics {
         //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
         // this.renderer.resolution = window.devicePixelRatio; 
         this.renderer.resize(this.width, this.height);
-        
+        this.lc = new Locator();
+        this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
+        this.lc.B=[this.width/2, this.height/2,0];
     }
     updateData(){
 
@@ -150,7 +156,8 @@ class Graphics2D extends Graphics {
     }
     onResize(){
         this.width=this.canvas.offsetWidth;
-        this.height=this.canvas.offsetHeight;
+        this.height = this.canvas.offsetHeight;
+        this.lc.B = [this.width / 2, this.height / 2, 0]
         this.renderer.resize(this.width, this.height);
         $(this.canvas).outerWidth(this.width);
         $(this.canvas).outerHeight(this.height);

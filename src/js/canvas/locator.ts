@@ -13,9 +13,15 @@ class Locator {
     deltay = 0;
     deltaz = 0;
     //Transformation matrix used as: C = Ap+B
+    /**
+     * Transformation coefficient. Has to be a 3 by 3 matrix with none zero determinant
+     */
     A = [[1.5,0,0],
          [0,1.5,0],
          [0,0,1.5]];
+    /**
+     * Transformation constant. Has to be a 3 vector
+     */
     B = [0,0,0];
     constructor(){
     }
