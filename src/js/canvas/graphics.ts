@@ -14,6 +14,11 @@ abstract class Graphics {
     width:number;
     height: number;
     abstract lc: Locator;
+    clock: THREE.Clock;
+    /**
+     * Pauses the asynchronous animation if set to true
+     */
+    pause: boolean = false;
     /**
      * Initializes a common interface for graphics manipulations
      * @param canvas The div in which the graphics renderer sits in
@@ -21,11 +26,12 @@ abstract class Graphics {
     constructor(public canvas:HTMLDivElement){
         this.width = canvas.offsetWidth;
         this.height = canvas.offsetHeight;
+        this.clock = new THREE.Clock(false);
     }
     /**
      * Updates all the datasets (graphed functions) in this canvas
      */
-    abstract updateData():void;
+    abstract updateDataSets():void;
     /**
      * Called to render the root scene
      */
@@ -35,16 +41,80 @@ abstract class Graphics {
      * Attaches this.domObject to the specified panel
      */
     public attach(): void {
+        this.pause = false;
         this.canvas.appendChild(this.domObject);
+        this.clock.start();
+        this.animate();
     }
     /**
      * Detaches this.domObject from the specified panel
      */
     public detach(): void {
+        this.clock.stop();
         this.canvas.removeChild(this.domObject);
+        this.pause = true;
+    }
+    public animate(){
+        if(!this.pause)
+            requestAnimationFrame(this.animate);
+        this.updateDataSets();
+        this.render();
     }
 }
 
+/**
+ * Standard 2D graphical representation
+ */
+class Graphics2D extends Graphics {
+    domObject: HTMLCanvasElement;
+    rootScene: PIXI.Container;
+    app: PIXI.Application;
+    private renderer: PIXI.Renderer;
+    lc: Locator;
+    constructor(public canvas: HTMLDivElement, public id = "g2d") {
+        super(canvas);
+        this.app = new PIXI.Application({
+            width: this.width,
+            height: this.height,
+            antialias: true, // default: false
+            transparent: true, // default: false
+            resolution: 1 // default: 1
+        });
+        this.domObject = this.app.view;
+        this.domObject.id = id;
+        //Setup root scene
+        this.rootScene = this.app.stage;
+        //Setup renderer
+        this.renderer = this.app.renderer;
+        this.app.renderer.autoDensity = true;
+        //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
+        // this.renderer.resolution = window.devicePixelRatio; 
+        this.renderer.resize(this.width, this.height);
+        this.lc = new Locator();
+        this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
+        this.lc.B = [this.width / 2, this.height / 2, 0];
+    }
+    updateDataSets() {
+
+    }
+    render() {
+        this.app.render();
+    }
+    onResize() {
+        this.width = this.canvas.offsetWidth;
+        this.height = this.canvas.offsetHeight;
+        this.lc.B = [this.width / 2, this.height / 2, 0]
+        this.renderer.resize(this.width, this.height);
+        $(this.canvas).outerWidth(this.width);
+        $(this.canvas).outerHeight(this.height);
+        this.updateDataSets();
+        this.render();
+    }
+}
+
+/**
+ * Standard 3D graphical representation
+ */
 class Graphics3D extends Graphics {
     domObject: HTMLCanvasElement;
     rootScene: THREE.Scene;
@@ -99,7 +169,7 @@ class Graphics3D extends Graphics {
         camera.up.set(0, 0, 1);
         return camera
     }
-    updateData(){
+    updateDataSets(){
 
     }
     render(){
@@ -119,49 +189,8 @@ class Graphics3D extends Graphics {
     }
 }
 
-class Graphics2D extends Graphics {
-    domObject: HTMLCanvasElement;
-    rootScene: PIXI.Container;
-    app: PIXI.Application;
-    private renderer:PIXI.Renderer;
-    lc: Locator;
-    constructor(public canvas:HTMLDivElement, public id = "g2d"){
-        super(canvas);
-        this.app = new PIXI.Application({
-            width: this.width,
-            height: this.height,
-            antialias: true, // default: false
-            transparent: true, // default: false
-            resolution: 1 // default: 1
-        });
-        this.domObject = this.app.view;
-        this.domObject.id=id;
-        //Setup root scene
-        this.rootScene = this.app.stage;
-        //Setup renderer
-        this.renderer = this.app.renderer;
-        this.app.renderer.autoDensity = true;
-        //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
-        // this.renderer.resolution = window.devicePixelRatio; 
-        this.renderer.resize(this.width, this.height);
-        this.lc = new Locator();
-        this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
-        this.lc.B=[this.width/2, this.height/2,0];
-    }
-    updateData(){
-
-    }
-    render(){
-        this.app.render();
-    }
-    onResize(){
-        this.width=this.canvas.offsetWidth;
-        this.height = this.canvas.offsetHeight;
-        this.lc.B = [this.width / 2, this.height / 2, 0]
-        this.renderer.resize(this.width, this.height);
-        $(this.canvas).outerWidth(this.width);
-        $(this.canvas).outerHeight(this.height);
-        this.updateData();
-        this.render();
-    }
+export {
+    Graphics,
+    Graphics2D,
+    Graphics3D
 }
