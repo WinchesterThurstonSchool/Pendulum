@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
+
 var THREE = _interopRequireWildcard(require("three"));
 
 var PIXI = _interopRequireWildcard(require("pixi.js"));
@@ -38,6 +43,10 @@ var Graphics =
 /*#__PURE__*/
 function () {
   /**
+   * Pauses the asynchronous animation if set to true
+   */
+
+  /**
    * Initializes a common interface for graphics manipulations
    * @param canvas The div in which the graphics renderer sits in
    */
@@ -51,8 +60,11 @@ function () {
     this.width = void 0;
     this.height = void 0;
     this.lc = void 0;
+    this.clock = void 0;
+    this.pause = false;
     this.width = canvas.offsetWidth;
     this.height = canvas.offsetHeight;
+    this.clock = new THREE.Clock(false);
   }
   /**
    * Updates all the datasets (graphed functions) in this canvas
@@ -66,7 +78,10 @@ function () {
      * Attaches this.domObject to the specified panel
      */
     value: function attach() {
+      this.pause = false;
       this.canvas.appendChild(this.domObject);
+      this.clock.start();
+      this.animate();
     }
     /**
      * Detaches this.domObject from the specified panel
@@ -75,60 +90,153 @@ function () {
   }, {
     key: "detach",
     value: function detach() {
+      this.clock.stop();
       this.canvas.removeChild(this.domObject);
+      this.pause = true;
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      if (!this.pause) requestAnimationFrame(this.animate);
+      this.updateDataSets();
+      this.render();
     }
   }]);
 
   return Graphics;
 }();
+/**
+ * Standard 2D graphical representation
+ */
+
+
+exports.Graphics = Graphics;
+
+var Graphics2D =
+/*#__PURE__*/
+function (_Graphics) {
+  _inherits(Graphics2D, _Graphics);
+
+  function Graphics2D(canvas) {
+    var _this;
+
+    var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "g2d";
+
+    _classCallCheck(this, Graphics2D);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Graphics2D).call(this, canvas));
+    _this.canvas = canvas;
+    _this.id = id;
+    _this.domObject = void 0;
+    _this.rootScene = void 0;
+    _this.app = void 0;
+    _this.renderer = void 0;
+    _this.lc = void 0;
+    _this.app = new PIXI.Application({
+      width: _this.width,
+      height: _this.height,
+      antialias: true,
+      // default: false
+      transparent: true,
+      // default: false
+      resolution: 1 // default: 1
+
+    });
+    _this.domObject = _this.app.view;
+    _this.domObject.id = id; //Setup root scene
+
+    _this.rootScene = _this.app.stage; //Setup renderer
+
+    _this.renderer = _this.app.renderer;
+    _this.app.renderer.autoDensity = true; //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
+    // this.renderer.resolution = window.devicePixelRatio; 
+
+    _this.renderer.resize(_this.width, _this.height);
+
+    _this.lc = new _locator.Locator();
+    _this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
+    _this.lc.B = [_this.width / 2, _this.height / 2, 0];
+    return _this;
+  }
+
+  _createClass(Graphics2D, [{
+    key: "updateDataSets",
+    value: function updateDataSets() {}
+  }, {
+    key: "render",
+    value: function render() {
+      this.app.render();
+    }
+  }, {
+    key: "onResize",
+    value: function onResize() {
+      this.width = this.canvas.offsetWidth;
+      this.height = this.canvas.offsetHeight;
+      this.lc.B = [this.width / 2, this.height / 2, 0];
+      this.renderer.resize(this.width, this.height);
+      $(this.canvas).outerWidth(this.width);
+      $(this.canvas).outerHeight(this.height);
+      this.updateDataSets();
+      this.render();
+    }
+  }]);
+
+  return Graphics2D;
+}(Graphics);
+/**
+ * Standard 3D graphical representation
+ */
+
+
+exports.Graphics2D = Graphics2D;
 
 var Graphics3D =
 /*#__PURE__*/
-function (_Graphics) {
-  _inherits(Graphics3D, _Graphics);
+function (_Graphics2) {
+  _inherits(Graphics3D, _Graphics2);
 
   function Graphics3D(canvas) {
-    var _this;
+    var _this2;
 
     var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "g3d";
 
     _classCallCheck(this, Graphics3D);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Graphics3D).call(this, canvas));
-    _this.canvas = canvas;
-    _this.id = id;
-    _this.domObject = void 0;
-    _this.rootScene = void 0;
-    _this.renderer = void 0;
-    _this.lights = {};
-    _this.camera = void 0;
-    _this.lc = void 0;
-    _this.renderer = _this.createWebGLRenderer();
-    _this.domObject = _this.renderer.domElement; //Attach dom object
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(Graphics3D).call(this, canvas));
+    _this2.canvas = canvas;
+    _this2.id = id;
+    _this2.domObject = void 0;
+    _this2.rootScene = void 0;
+    _this2.renderer = void 0;
+    _this2.lights = {};
+    _this2.camera = void 0;
+    _this2.lc = void 0;
+    _this2.renderer = _this2.createWebGLRenderer();
+    _this2.domObject = _this2.renderer.domElement; //Attach dom object
 
-    _this.domObject.id = id; //Create scene
+    _this2.domObject.id = id; //Create scene
 
-    _this.rootScene = new THREE.Scene(); //Setup lighting
+    _this2.rootScene = new THREE.Scene(); //Setup lighting
 
     var topLight = new THREE.DirectionalLight(0xffffff, 0.5);
     topLight.position.set(0, 0, 5);
 
-    _this.addLight("top", topLight);
+    _this2.addLight("top", topLight);
 
     var botLight = new THREE.DirectionalLight(0xffffff, 0.5);
     botLight.position.set(0, 0, -5);
 
-    _this.addLight("bot", botLight);
+    _this2.addLight("bot", botLight);
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 
-    _this.addLight("ambient", ambientLight); //Setup camera
+    _this2.addLight("ambient", ambientLight); //Setup camera
 
 
-    _this.camera = _this.createPerspectiveCamera(); //Setup locator for cooridnate transformation
+    _this2.camera = _this2.createPerspectiveCamera(); //Setup locator for cooridnate transformation
 
-    _this.lc = new _locator.Locator();
-    return _this;
+    _this2.lc = new _locator.Locator();
+    return _this2;
   }
 
   _createClass(Graphics3D, [{
@@ -165,8 +273,8 @@ function (_Graphics) {
       return camera;
     }
   }, {
-    key: "updateData",
-    value: function updateData() {}
+    key: "updateDataSets",
+    value: function updateDataSets() {}
   }, {
     key: "render",
     value: function render() {
@@ -192,75 +300,5 @@ function (_Graphics) {
   return Graphics3D;
 }(Graphics);
 
-var Graphics2D =
-/*#__PURE__*/
-function (_Graphics2) {
-  _inherits(Graphics2D, _Graphics2);
-
-  function Graphics2D(canvas) {
-    var _this2;
-
-    var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "g2d";
-
-    _classCallCheck(this, Graphics2D);
-
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(Graphics2D).call(this, canvas));
-    _this2.canvas = canvas;
-    _this2.id = id;
-    _this2.domObject = void 0;
-    _this2.rootScene = void 0;
-    _this2.app = void 0;
-    _this2.renderer = void 0;
-    _this2.lc = void 0;
-    _this2.app = new PIXI.Application({
-      width: _this2.width,
-      height: _this2.height,
-      antialias: true,
-      // default: false
-      transparent: true,
-      // default: false
-      resolution: 1 // default: 1
-
-    });
-    _this2.domObject = _this2.app.view;
-    _this2.domObject.id = id; //Setup root scene
-
-    _this2.rootScene = _this2.app.stage; //Setup renderer
-
-    _this2.renderer = _this2.app.renderer;
-    _this2.app.renderer.autoDensity = true; //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
-    // this.renderer.resolution = window.devicePixelRatio; 
-
-    _this2.renderer.resize(_this2.width, _this2.height);
-
-    _this2.lc = new _locator.Locator();
-    _this2.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
-    _this2.lc.B = [_this2.width / 2, _this2.height / 2, 0];
-    return _this2;
-  }
-
-  _createClass(Graphics2D, [{
-    key: "updateData",
-    value: function updateData() {}
-  }, {
-    key: "render",
-    value: function render() {
-      this.app.render();
-    }
-  }, {
-    key: "onResize",
-    value: function onResize() {
-      this.width = this.canvas.offsetWidth;
-      this.height = this.canvas.offsetHeight;
-      this.lc.B = [this.width / 2, this.height / 2, 0];
-      this.renderer.resize(this.width, this.height);
-      $(this.canvas).outerWidth(this.width);
-      $(this.canvas).outerHeight(this.height);
-      this.updateData();
-      this.render();
-    }
-  }]);
-
-  return Graphics2D;
-}(Graphics);
+exports.Graphics3D = Graphics3D;
 //# sourceMappingURL=graphics.js.map
