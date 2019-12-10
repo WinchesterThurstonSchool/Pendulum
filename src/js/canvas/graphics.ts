@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import * as PIXI from 'pixi.js';
 import {Locator} from './locator';
 import 'jquery';
+import { Dataset } from './types';
 /**
  * A wrapper around THREE and PIXI rendering engines to give them the same syntax 
  * to handle with.
@@ -11,6 +12,7 @@ abstract class Graphics {
     abstract id: string;
     abstract domObject: HTMLCanvasElement;
     abstract rootScene: any;
+    protected graphs: {id?: Dataset}={};
     width:number;
     height: number;
     abstract lc: Locator;
@@ -29,9 +31,62 @@ abstract class Graphics {
         this.clock = new THREE.Clock(false);
     }
     /**
+     * Adds a dataset to the current list of datasets
+     * @param dataset the dataset to be added, it has to have an id
+     */
+    addDataset(dataset: Dataset, color: number, material?:THREE.Material) {
+        if(dataset.id != undefined){
+            this.graphs[dataset.id] = dataset;
+        }
+        else throw new Error("Failed to add dataset, the id of "+dataset+" is not defined");
+    }
+    /**
+     * Removes the specified dataset
+     * @param id The id of the dataset to be removed
+     */
+    removeDataset(id: number):Dataset;
+    /**
+     * Removes the specified dataset
+     * @param dataset The dataset to be removed
+     */
+    removeDataset(dataset: Dataset): void;
+    removeDataset(id: number|Dataset):Dataset|void{
+        // @TODO: implement the method
+        if(id instanceof Dataset){
+
+        }else{
+
+        }
+    }
+    /**
+     * adds the graph to the Graphs list directly
+     * @param graph the graph to be added
+     */
+    addGraph(graph: Graph){
+        // @TODO: Implement the method
+    }
+    /**
+     * Removes the specified graph
+     * @param id The id of the graph to be removed
+     */
+    removeGraph(id: number): Dataset;
+    /**
+     * Removes the specified graph
+     * @param dataset The graph to be removed
+     */
+    removeGraph(graph: Graph): void;
+    removeGraph(id: number | Graph): Dataset | void {
+        // @TODO: implement the method
+        if (id instanceof Dataset) {
+
+        } else {
+
+        }
+    }
+    /**
      * Updates all the datasets (graphed functions) in this canvas
      */
-    abstract updateDataSets():void;
+    abstract updateGraphs():void;
     /**
      * Called to render the root scene
      */
@@ -57,7 +112,7 @@ abstract class Graphics {
     public animate(){
         if(!this.pause)
             requestAnimationFrame(this.animate);
-        this.updateDataSets();
+        this.updateGraphs();
         this.render();
     }
 }
@@ -71,6 +126,7 @@ class Graphics2D extends Graphics {
     app: PIXI.Application;
     private renderer: PIXI.Renderer;
     lc: Locator;
+    vertices: THREE.Vector3[]=[];
     constructor(public canvas: HTMLDivElement, public id = "g2d") {
         super(canvas);
         this.app = new PIXI.Application({
@@ -94,8 +150,13 @@ class Graphics2D extends Graphics {
         this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
         this.lc.B = [this.width / 2, this.height / 2, 0];
     }
-    updateDataSets() {
+    updateGraphs() {
+        for(let id in this.graphs){
+            (this.graphs[id] as Dataset).update(this.lc,this.vertices);
+        }
+        for(let id in this.graphs){
 
+        }
     }
     render() {
         this.app.render();
@@ -107,7 +168,7 @@ class Graphics2D extends Graphics {
         this.renderer.resize(this.width, this.height);
         $(this.canvas).outerWidth(this.width);
         $(this.canvas).outerHeight(this.height);
-        this.updateDataSets();
+        this.updateGraphs();
         this.render();
     }
 }
@@ -167,9 +228,9 @@ class Graphics3D extends Graphics {
         camera.position.y = -5;
         camera.lookAt(0, 0, 0);
         camera.up.set(0, 0, 1);
-        return camera
+        return camera;
     }
-    updateDataSets(){
+    updateGraphs(){
 
     }
     render(){
@@ -189,8 +250,44 @@ class Graphics3D extends Graphics {
     }
 }
 
+
+/**
+ * Each Graph provides an interface for specific
+ * datasets to interact with the graphics library
+ */
+class Graph {
+    dataset: Dataset;
+    lc: Locator;
+    constructor(dataset: Dataset, lc: Locator) {
+        this.dataset = dataset;
+        this.lc = lc;
+    }
+}
+
+/**
+ * dataset representations through PIXI
+ */
+class PIXIGraph {
+    static getMaterial(color: number, material: new ({ }) => THREE.Material, opacity: number): THREE.Material {
+        return new material({
+            opacity: 0.8,
+            transparent: (opacity === 1) ? false : true,
+            side: THREE.DoubleSide,
+            color: 0x7890ab
+        });
+    }
+}
+
+/**
+ * dataset representations through THREE
+ */
+class THREEGraph {
+
+}
+
 export {
     Graphics,
     Graphics2D,
-    Graphics3D
+    Graphics3D,
+    Graph
 }

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
+exports.Graph = exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
 
@@ -57,6 +57,7 @@ function () {
     this.id = void 0;
     this.domObject = void 0;
     this.rootScene = void 0;
+    this.datasets = {};
     this.width = void 0;
     this.height = void 0;
     this.lc = void 0;
@@ -67,11 +68,23 @@ function () {
     this.clock = new THREE.Clock(false);
   }
   /**
-   * Updates all the datasets (graphed functions) in this canvas
+   * Adds a dataset to the current list of datasets
+   * @param dataset the dataset to be added, it has to have an id
    */
 
 
   _createClass(Graphics, [{
+    key: "addDataset",
+    value: function addDataset(dataset) {
+      if (dataset.id != undefined) {
+        this.datasets[dataset.id] = dataset;
+      } else throw new Error("Failed to add dataset, the id of " + dataset + " is not defined");
+    }
+    /**
+     * Updates all the datasets (graphed functions) in this canvas
+     */
+
+  }, {
     key: "attach",
 
     /**
@@ -98,7 +111,7 @@ function () {
     key: "animate",
     value: function animate() {
       if (!this.pause) requestAnimationFrame(this.animate);
-      this.updateDataSets();
+      this.updateDatasets();
       this.render();
     }
   }]);
@@ -132,6 +145,7 @@ function (_Graphics) {
     _this.app = void 0;
     _this.renderer = void 0;
     _this.lc = void 0;
+    _this.vertices = [];
     _this.app = new PIXI.Application({
       width: _this.width,
       height: _this.height,
@@ -160,8 +174,14 @@ function (_Graphics) {
   }
 
   _createClass(Graphics2D, [{
-    key: "updateDataSets",
-    value: function updateDataSets() {}
+    key: "updateDatasets",
+    value: function updateDatasets() {
+      for (var _id in this.datasets) {
+        this.datasets[_id].update(this.lc, this.vertices);
+      }
+
+      for (var _id2 in this.datasets) {}
+    }
   }, {
     key: "render",
     value: function render() {
@@ -176,7 +196,7 @@ function (_Graphics) {
       this.renderer.resize(this.width, this.height);
       $(this.canvas).outerWidth(this.width);
       $(this.canvas).outerHeight(this.height);
-      this.updateDataSets();
+      this.updateDatasets();
       this.render();
     }
   }]);
@@ -273,8 +293,8 @@ function (_Graphics2) {
       return camera;
     }
   }, {
-    key: "updateDataSets",
-    value: function updateDataSets() {}
+    key: "updateDatasets",
+    value: function updateDatasets() {}
   }, {
     key: "render",
     value: function render() {
@@ -299,6 +319,28 @@ function (_Graphics2) {
 
   return Graphics3D;
 }(Graphics);
+/**
+ * Each Graph provides an interface for specific
+ * datasets to interact with the graphics library
+ */
+
 
 exports.Graphics3D = Graphics3D;
+
+var Graph = function Graph(dataset) {
+  _classCallCheck(this, Graph);
+
+  this.dataset = void 0;
+  this.dataset = dataset;
+};
+
+exports.Graph = Graph;
+
+var PIXIGraph = function PIXIGraph() {
+  _classCallCheck(this, PIXIGraph);
+};
+
+var THREEGraph = function THREEGraph() {
+  _classCallCheck(this, THREEGraph);
+};
 //# sourceMappingURL=graphics.js.map

@@ -27,3 +27,8 @@ The project uses npm to manage is packages to easily keep its dependencies up to
 Grunt is used for the building of the entire project, which includes relevant css and javascript files. In particular, the browserify module is used for compiling javascript, while browserify-css is used for compiling css from various sources.
 ### Managing work tree
 One primary question is whether the project should be hosted by an isolated user called Pendulum? And the other is whether the project should have separate repositories for its different features. One way of managing codes is simply use the current Pendulum folder and keep developing under the current worktree tree. But the flaw is obvious, the current work tree is slightly contaminated and modularization of each distinct features will be difficult in the future. However, referencing to the workflow of Mathquill and Jupyter, it seems reasonable to separate distinct features by branches and create merges as progresses ensue. 
+## Implementation
+### Program structure
+https://drive.google.com/file/d/1gnjmQY8rVansunjxVkMmdSUQfv_gHPMu/view?usp=sharing
+### Workflow
+It is recommended to first draw the program structure of a module with a UML diagram and then to create all the classes, interfaces, fields without functional behaviors but only the inheritance structure from bottom to top. After that, go from top to bottom to implement all the methods. 
