@@ -2,15 +2,23 @@
 import * as THREE from 'three';
 import * as PIXI from 'pixi.js';
 import { Dataset,Curve,Surface,Solid} from './types';
+import { Graphics } from './graphics';
 
 /**
  * Each Graph provides an interface for specific
  * datasets to interact with the graphics library
  */
 class Graph {
+    id: string;
     dataset: Dataset;
-    constructor(dataset: Dataset) {
+    /**
+     * Indicates whether the visualization (geometry, vertices, etc.) of this has been initialized
+     */
+    initialized: boolean;
+    constructor(dataset: Dataset, graphics: Graphics, color: number, material?: THREE.Material) {
+        this.id = dataset.id;
         this.dataset = dataset;
+        this.initialized = false;
     }
 }
 

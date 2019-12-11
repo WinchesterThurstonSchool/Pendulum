@@ -4,15 +4,17 @@ import * as PIXI from 'pixi.js';
 import {Locator} from './locator';
 import 'jquery';
 import { Dataset } from './types';
+import { Graph } from './graph';
 /**
  * A wrapper around THREE and PIXI rendering engines to give them the same syntax 
  * to handle with.
  */
 abstract class Graphics {
     abstract id: string;
+    syncTargets: Map<string,Graphics>=new Map();
     abstract domObject: HTMLCanvasElement;
     abstract rootScene: any;
-    protected graphs: {id?: Dataset}={};
+    protected graphs: Map<string, Graph>=new Map();
     width:number;
     height: number;
     abstract lc: Locator;
@@ -31,75 +33,88 @@ abstract class Graphics {
         this.clock = new THREE.Clock(false);
     }
     /**
-     * Adds a dataset to the current list of datasets
+     * Adds a dataset to the current list of datasets to this and all the synchronized targets
      * @param dataset the dataset to be added, it has to have an id
+     * @returns the Graph object created that contains the dataset
      */
-    addDataset(dataset: Dataset, color: number, material?:THREE.Material) {
+    addDataset(dataset: Dataset, color: number, material?:THREE.Material):Graph{
+        for(let graphics of this.syncTargets){
+            graphics[1].addDataset(dataset, color, material);
+        }
         if(dataset.id != undefined){
-            this.graphs[dataset.id] = dataset;
+            let graph = new Graph(dataset, this, color, material);
+            this.addGraph(graph);
+            return graph;
         }
         else throw new Error("Failed to add dataset, the id of "+dataset+" is not defined");
     }
     /**
-     * Removes the specified dataset
+     * Removes the specified dataset from this and all the synchronized targets
      * @param id The id of the dataset to be removed
      */
-    removeDataset(id: number):Dataset;
+    removeDataset(id: string):void;
     /**
-     * Removes the specified dataset
+     * Removes the specified dataset from this and all the synchronized targets
      * @param dataset The dataset to be removed
      */
     removeDataset(dataset: Dataset): void;
-    removeDataset(id: number|Dataset):Dataset|void{
-        // @TODO: implement the method
+    removeDataset(id: string|Dataset):void{
         if(id instanceof Dataset){
-
+            this.removeGraph(id.id);
         }else{
-
+            for (let graphics of this.syncTargets)
+                graphics[1].removeDataset(id);
+            this.removeGraph(id);
         }
     }
     /**
-     * adds the graph to the Graphs list directly
+     * Adds the graph to the Graphs list directly without initialization
+     * to this and all the synchronized targets
      * @param graph the graph to be added
      */
     addGraph(graph: Graph){
-        // @TODO: Implement the method
+        for (let graphics of this.syncTargets)
+            graphics[1].addGraph(graph);
+        this.graphs.set(graph.id, graph);
     }
+    
     /**
-     * Removes the specified graph
+     * Removes the specified graph from this and all the synchronized targets
      * @param id The id of the graph to be removed
+     * @return whether the graph existed and has been successfully removed
      */
-    removeGraph(id: number): Dataset;
+    removeGraph(id: string): boolean;
     /**
-     * Removes the specified graph
+     * Removes the specified graph from this and all the synchronized targets
      * @param dataset The graph to be removed
+     * @returns whether the graph existed and has been successfully removed
      */
-    removeGraph(graph: Graph): void;
-    removeGraph(id: number | Graph): Dataset | void {
-        // @TODO: implement the method
+    removeGraph(graph: Graph): boolean;
+    removeGraph(id: string | Graph): boolean {
         if (id instanceof Dataset) {
-
+            return this.removeGraph(id.id);
         } else {
-
+            for (let graphics of this.syncTargets)
+                graphics[1].removeGraph(id as string);
+            return this.graphs.delete((id as string));
         }
     }
     /**
-     * Updates all the datasets (graphed functions) in this canvas
+     * Initializes all the renderer related fields in graphs that hasn't been intialized
+     */
+    abstract initializeGraphs(): void;
+    /**
+     * Updates all the graphs in this canvas
      */
     abstract updateGraphs():void;
-    /**
-     * Called to render the root scene
-     */
-    abstract render(): void;
-    abstract onResize(): void;
     /**
      * Attaches this.domObject to the specified panel
      */
     public attach(): void {
-        this.pause = false;
         this.canvas.appendChild(this.domObject);
+        this.initializeGraphs();
         this.clock.start();
-        this.animate();
+        this.startAnimation();
     }
     /**
      * Detaches this.domObject from the specified panel
@@ -115,6 +130,26 @@ abstract class Graphics {
         this.updateGraphs();
         this.render();
     }
+    public startAnimation(){
+        this.pause=false;
+        this.animate();
+    }
+    public pauseAnimation(){
+        this.pause = true;
+    }
+    /**
+     * Called to render the root scene
+     */
+    abstract render(): void;
+    abstract onResize(): void;
+    public addSyncTarget(graphics: Graphics){
+        if(graphics===this)
+            throw new Error("Cannot add self to the sync target list");
+        this.syncTargets.set(graphics.id, graphics);
+    }
+    public removeSyncTarget(graphics: Graphics): boolean{
+        return this.syncTargets.delete(graphics.id);
+    }
 }
 
 /**
@@ -126,7 +161,6 @@ class Graphics2D extends Graphics {
     app: PIXI.Application;
     private renderer: PIXI.Renderer;
     lc: Locator;
-    vertices: THREE.Vector3[]=[];
     constructor(public canvas: HTMLDivElement, public id = "g2d") {
         super(canvas);
         this.app = new PIXI.Application({
@@ -150,13 +184,14 @@ class Graphics2D extends Graphics {
         this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
         this.lc.B = [this.width / 2, this.height / 2, 0];
     }
-    updateGraphs() {
-        for(let id in this.graphs){
-            (this.graphs[id] as Dataset).update(this.lc,this.vertices);
-        }
-        for(let id in this.graphs){
+    addDataset(dataset: Dataset, color: number): Graph {
+        return super.addDataset(dataset, color);
+    }
+    initializeGraphs(){
 
-        }
+    }
+    updateGraphs() {
+
     }
     render() {
         this.app.render();
@@ -230,6 +265,9 @@ class Graphics3D extends Graphics {
         camera.up.set(0, 0, 1);
         return camera;
     }
+    initializeGraphs(){
+
+    }
     updateGraphs(){
 
     }
@@ -250,44 +288,8 @@ class Graphics3D extends Graphics {
     }
 }
 
-
-/**
- * Each Graph provides an interface for specific
- * datasets to interact with the graphics library
- */
-class Graph {
-    dataset: Dataset;
-    lc: Locator;
-    constructor(dataset: Dataset, lc: Locator) {
-        this.dataset = dataset;
-        this.lc = lc;
-    }
-}
-
-/**
- * dataset representations through PIXI
- */
-class PIXIGraph {
-    static getMaterial(color: number, material: new ({ }) => THREE.Material, opacity: number): THREE.Material {
-        return new material({
-            opacity: 0.8,
-            transparent: (opacity === 1) ? false : true,
-            side: THREE.DoubleSide,
-            color: 0x7890ab
-        });
-    }
-}
-
-/**
- * dataset representations through THREE
- */
-class THREEGraph {
-
-}
-
 export {
     Graphics,
     Graphics2D,
     Graphics3D,
-    Graph
 }

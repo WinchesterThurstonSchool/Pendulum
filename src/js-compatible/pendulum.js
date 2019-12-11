@@ -24,6 +24,5 @@ $(function () {
     g2d: new Graphics2D(canvas),
     g3d: new Graphics3D(canvas)
   };
-  console.log(GraphicsSystems);
 });
 //# sourceMappingURL=pendulum.js.map

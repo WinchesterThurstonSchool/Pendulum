@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Graph = exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
+exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
 
@@ -12,6 +12,10 @@ var PIXI = _interopRequireWildcard(require("pixi.js"));
 var _locator = require("./locator");
 
 require("jquery");
+
+var _types = require("./types");
+
+var _graph2 = require("./graph");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -22,6 +26,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
@@ -55,9 +63,10 @@ function () {
 
     this.canvas = canvas;
     this.id = void 0;
+    this.syncTargets = new Map();
     this.domObject = void 0;
     this.rootScene = void 0;
-    this.datasets = {};
+    this.graphs = new Map();
     this.width = void 0;
     this.height = void 0;
     this.lc = void 0;
@@ -68,20 +77,160 @@ function () {
     this.clock = new THREE.Clock(false);
   }
   /**
-   * Adds a dataset to the current list of datasets
+   * Adds a dataset to the current list of datasets to this and all the synchronized targets
    * @param dataset the dataset to be added, it has to have an id
+   * @returns the Graph object created that contains the dataset
    */
 
 
   _createClass(Graphics, [{
     key: "addDataset",
-    value: function addDataset(dataset) {
+    value: function addDataset(dataset, color, material) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.syncTargets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var graphics = _step.value;
+          graphics[1].addDataset(dataset, color, material);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
       if (dataset.id != undefined) {
-        this.datasets[dataset.id] = dataset;
+        var _graph = new _graph2.Graph(dataset, this, color, material);
+
+        this.addGraph(_graph);
+        return _graph;
       } else throw new Error("Failed to add dataset, the id of " + dataset + " is not defined");
     }
     /**
-     * Updates all the datasets (graphed functions) in this canvas
+     * Removes the specified dataset from this and all the synchronized targets
+     * @param id The id of the dataset to be removed
+     */
+
+  }, {
+    key: "removeDataset",
+    value: function removeDataset(id) {
+      if (id instanceof _types.Dataset) {
+        this.removeGraph(id.id);
+      } else {
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = this.syncTargets[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var graphics = _step2.value;
+            graphics[1].removeDataset(id);
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+              _iterator2["return"]();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+
+        this.removeGraph(id);
+      }
+    }
+    /**
+     * Adds the graph to the Graphs list directly without initialization
+     * to this and all the synchronized targets
+     * @param graph the graph to be added
+     */
+
+  }, {
+    key: "addGraph",
+    value: function addGraph(graph) {
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = this.syncTargets[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var graphics = _step3.value;
+          graphics[1].addGraph(graph);
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+            _iterator3["return"]();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      this.graphs.set(graph.id, graph);
+    }
+    /**
+     * Removes the specified graph from this and all the synchronized targets
+     * @param id The id of the graph to be removed
+     * @return whether the graph existed and has been successfully removed
+     */
+
+  }, {
+    key: "removeGraph",
+    value: function removeGraph(id) {
+      if (id instanceof _types.Dataset) {
+        return this.removeGraph(id.id);
+      } else {
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+          for (var _iterator4 = this.syncTargets[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var graphics = _step4.value;
+            graphics[1].removeGraph(id);
+          }
+        } catch (err) {
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+              _iterator4["return"]();
+            }
+          } finally {
+            if (_didIteratorError4) {
+              throw _iteratorError4;
+            }
+          }
+        }
+
+        return this.graphs["delete"](id);
+      }
+    }
+    /**
+     * Initializes all the renderer related fields in graphs that hasn't been intialized
      */
 
   }, {
@@ -91,10 +240,10 @@ function () {
      * Attaches this.domObject to the specified panel
      */
     value: function attach() {
-      this.pause = false;
       this.canvas.appendChild(this.domObject);
+      this.initializeGraphs();
       this.clock.start();
-      this.animate();
+      this.startAnimation();
     }
     /**
      * Detaches this.domObject from the specified panel
@@ -111,8 +260,34 @@ function () {
     key: "animate",
     value: function animate() {
       if (!this.pause) requestAnimationFrame(this.animate);
-      this.updateDatasets();
+      this.updateGraphs();
       this.render();
+    }
+  }, {
+    key: "startAnimation",
+    value: function startAnimation() {
+      this.pause = false;
+      this.animate();
+    }
+  }, {
+    key: "pauseAnimation",
+    value: function pauseAnimation() {
+      this.pause = true;
+    }
+    /**
+     * Called to render the root scene
+     */
+
+  }, {
+    key: "addSyncTarget",
+    value: function addSyncTarget(graphics) {
+      if (graphics === this) throw new Error("Cannot add self to the sync target list");
+      this.syncTargets.set(graphics.id, graphics);
+    }
+  }, {
+    key: "removeSyncTarget",
+    value: function removeSyncTarget(graphics) {
+      return this.syncTargets["delete"](graphics.id);
     }
   }]);
 
@@ -145,7 +320,6 @@ function (_Graphics) {
     _this.app = void 0;
     _this.renderer = void 0;
     _this.lc = void 0;
-    _this.vertices = [];
     _this.app = new PIXI.Application({
       width: _this.width,
       height: _this.height,
@@ -174,14 +348,16 @@ function (_Graphics) {
   }
 
   _createClass(Graphics2D, [{
-    key: "updateDatasets",
-    value: function updateDatasets() {
-      for (var _id in this.datasets) {
-        this.datasets[_id].update(this.lc, this.vertices);
-      }
-
-      for (var _id2 in this.datasets) {}
+    key: "addDataset",
+    value: function addDataset(dataset, color) {
+      return _get(_getPrototypeOf(Graphics2D.prototype), "addDataset", this).call(this, dataset, color);
     }
+  }, {
+    key: "initializeGraphs",
+    value: function initializeGraphs() {}
+  }, {
+    key: "updateGraphs",
+    value: function updateGraphs() {}
   }, {
     key: "render",
     value: function render() {
@@ -196,7 +372,7 @@ function (_Graphics) {
       this.renderer.resize(this.width, this.height);
       $(this.canvas).outerWidth(this.width);
       $(this.canvas).outerHeight(this.height);
-      this.updateDatasets();
+      this.updateGraphs();
       this.render();
     }
   }]);
@@ -293,8 +469,11 @@ function (_Graphics2) {
       return camera;
     }
   }, {
-    key: "updateDatasets",
-    value: function updateDatasets() {}
+    key: "initializeGraphs",
+    value: function initializeGraphs() {}
+  }, {
+    key: "updateGraphs",
+    value: function updateGraphs() {}
   }, {
     key: "render",
     value: function render() {
@@ -319,28 +498,6 @@ function (_Graphics2) {
 
   return Graphics3D;
 }(Graphics);
-/**
- * Each Graph provides an interface for specific
- * datasets to interact with the graphics library
- */
-
 
 exports.Graphics3D = Graphics3D;
-
-var Graph = function Graph(dataset) {
-  _classCallCheck(this, Graph);
-
-  this.dataset = void 0;
-  this.dataset = dataset;
-};
-
-exports.Graph = Graph;
-
-var PIXIGraph = function PIXIGraph() {
-  _classCallCheck(this, PIXIGraph);
-};
-
-var THREEGraph = function THREEGraph() {
-  _classCallCheck(this, THREEGraph);
-};
 //# sourceMappingURL=graphics.js.map
