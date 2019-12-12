@@ -1,49 +1,49 @@
 import * as THREE from "three";
 import {Locator} from "./locator";
-import {Graph} from "./graphics";
+import {Graph} from "./graph";
 
 abstract class Dataset{
-    abstract id:string;
-    abstract initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[]):void;
+    abstract id: string;
+    abstract initialize(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[]): void;
     abstract update(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[]):void;
 }
 
-class Curve extends Dataset{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
+class Curve extends Dataset {
+    vertices: THREE.Vector3[] = [];
+    constructor(public id: string) {
+        super();
+    }
+    initialize(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
         throw new Error("Method not implemented.");
     }
     update(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
         throw new Error("Method not implemented.");
     }
-    vertices: THREE.Vector3[] = [];
-    constructor(public id:string){
-        super();
-    }
 }
 
 class Surface extends Dataset {
-    initialize(vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
-        throw new Error("Method not implemented.");
-    }
-    update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
-        throw new Error("Method not implemented.");
-    }
     vertices: THREE.Vector3[] = [];
     faces: THREE.Face3[] =  [];
     constructor(public id:string){
         super();
     }
-}
-
-class Solid extends Dataset{
-    initialize(vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
+    initialize(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
         throw new Error("Method not implemented.");
     }
     update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
         throw new Error("Method not implemented.");
     }
+}
+
+class Solid extends Dataset {
     constructor(public id: string){
         super();
+    }
+    initialize(locator: Locator, vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
+        throw new Error("Method not implemented.");
+    }
+    update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
+        throw new Error("Method not implemented.");
     }
 }
 
@@ -56,9 +56,6 @@ interface VecFunc {
 }
 
 class Function1V extends Curve implements ScalFunc{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
-        throw new Error("Method not implemented.");
-    }
     update(locator: Locator, vertices: THREE.Vector3[]): void {
         throw new Error("Method not implemented.");
     }
@@ -69,9 +66,6 @@ class Function1V extends Curve implements ScalFunc{
 }
 
 class Function2V extends Surface implements ScalFunc{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
-        throw new Error("Method not implemented.");
-    }
     update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
         throw new Error("Method not implemented.");
     }
@@ -82,9 +76,6 @@ class Function2V extends Surface implements ScalFunc{
 }
 
 class Parametric1v extends Curve implements VecFunc{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
-        throw new Error("Method not implemented.");
-    }
     update(locator: Locator, vertices: THREE.Vector3[]): void {
         throw new Error("Method not implemented.");
     }
@@ -95,9 +86,6 @@ class Parametric1v extends Curve implements VecFunc{
 }
 
 class Parametric2V extends Surface implements VecFunc{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
-        throw new Error("Method not implemented.");
-    }
     update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
         throw new Error("Method not implemented.");
     }
@@ -108,9 +96,6 @@ class Parametric2V extends Surface implements VecFunc{
 }
 
 class Parametric3V extends Solid implements VecFunc{
-    initialize(vertices: THREE.Vector3[], faces?: THREE.Face3[] | undefined): void {
-        throw new Error("Method not implemented.");
-    }
     update(locator: Locator, vertices: THREE.Vector3[], faces: THREE.Face3[]): void {
         throw new Error("Method not implemented.");
     }

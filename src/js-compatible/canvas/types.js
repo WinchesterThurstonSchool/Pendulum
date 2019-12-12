@@ -37,11 +37,6 @@ function (_Dataset) {
   _inherits(Curve, _Dataset);
 
   _createClass(Curve, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");
@@ -70,11 +65,6 @@ function (_Dataset2) {
   _inherits(Surface, _Dataset2);
 
   _createClass(Surface, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");
@@ -104,11 +94,6 @@ function (_Dataset3) {
   _inherits(Solid, _Dataset3);
 
   _createClass(Solid, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");
@@ -142,11 +127,6 @@ function (_Curve) {
   }
 
   _createClass(Function1V, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices) {
       throw new Error("Method not implemented.");
@@ -175,11 +155,6 @@ function (_Surface) {
   }
 
   _createClass(Function2V, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");
@@ -208,11 +183,6 @@ function (_Curve2) {
   }
 
   _createClass(Parametric1v, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices) {
       throw new Error("Method not implemented.");
@@ -241,11 +211,6 @@ function (_Surface2) {
   }
 
   _createClass(Parametric2V, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");
@@ -274,11 +239,6 @@ function (_Solid) {
   }
 
   _createClass(Parametric3V, [{
-    key: "initialize",
-    value: function initialize(vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }, {
     key: "update",
     value: function update(locator, vertices, faces) {
       throw new Error("Method not implemented.");

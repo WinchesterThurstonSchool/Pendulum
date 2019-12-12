@@ -1,1 +1,1 @@
-{"version":3,"sources":["../js/test.js"],"names":["console","log","Number"],"mappings":"AAAA;;AACA;AACA;;AACAA,OAAO,CAACC,GAAR,CAAY,cAAcC,MAA1B","sourcesContent":["/* jshint node: true */\r\n/*  jshint esversion: 6 */\r\n\"use strict\";\r\nconsole.log(10 instanceof Number);"],"file":"test.js"}
+{"version":3,"sources":["../js/test.js"],"names":[],"mappings":"AAAA;;AACA;AACA","sourcesContent":["/* jshint node: true */\r\n/*  jshint esversion: 6 */\r\n\"use strict\";\r\n"],"file":"test.js"}
