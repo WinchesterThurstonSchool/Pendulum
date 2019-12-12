@@ -7,15 +7,15 @@ exports.Parametric3V = exports.Parametric2V = exports.Parametric1v = exports.Fun
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -36,13 +36,6 @@ var Curve =
 function (_Dataset) {
   _inherits(Curve, _Dataset);
 
-  _createClass(Curve, [{
-    key: "update",
-    value: function update(locator, vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }]);
-
   function Curve(id) {
     var _this;
 
@@ -54,6 +47,18 @@ function (_Dataset) {
     return _this;
   }
 
+  _createClass(Curve, [{
+    key: "initialize",
+    value: function initialize(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }, {
+    key: "update",
+    value: function update(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }]);
+
   return Curve;
 }(Dataset);
 
@@ -63,13 +68,6 @@ var Surface =
 /*#__PURE__*/
 function (_Dataset2) {
   _inherits(Surface, _Dataset2);
-
-  _createClass(Surface, [{
-    key: "update",
-    value: function update(locator, vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }]);
 
   function Surface(id) {
     var _this2;
@@ -83,6 +81,18 @@ function (_Dataset2) {
     return _this2;
   }
 
+  _createClass(Surface, [{
+    key: "initialize",
+    value: function initialize(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }, {
+    key: "update",
+    value: function update(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }]);
+
   return Surface;
 }(Dataset);
 
@@ -93,13 +103,6 @@ var Solid =
 function (_Dataset3) {
   _inherits(Solid, _Dataset3);
 
-  _createClass(Solid, [{
-    key: "update",
-    value: function update(locator, vertices, faces) {
-      throw new Error("Method not implemented.");
-    }
-  }]);
-
   function Solid(id) {
     var _this3;
 
@@ -109,6 +112,18 @@ function (_Dataset3) {
     _this3.id = id;
     return _this3;
   }
+
+  _createClass(Solid, [{
+    key: "initialize",
+    value: function initialize(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }, {
+    key: "update",
+    value: function update(locator, vertices, faces) {
+      throw new Error("Method not implemented.");
+    }
+  }]);
 
   return Solid;
 }(Dataset);

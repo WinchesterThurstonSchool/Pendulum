@@ -65,6 +65,7 @@ var Graph = function Graph(dataset, graphics, color, material) {
   this.color = color;
   this.material = material;
   this.id = void 0;
+  this.initialized = false;
   this.id = dataset.id;
 };
 /**
@@ -93,8 +94,17 @@ function (_Graph) {
   }
 
   _createClass(PIXIGraph, [{
+    key: "initialize",
+    value: function initialize() {
+      if (this.initialized) return;
+      this.dataset.initialize(this.graphics.lc, this.vertices);
+      this.initialized = true;
+    }
+  }, {
     key: "update",
-    value: function update() {}
+    value: function update() {
+      this.dataset.update(this.graphics.lc, this.vertices);
+    }
   }]);
 
   return PIXIGraph;
@@ -146,8 +156,17 @@ function (_Graph2) {
   }
 
   _createClass(THREEGraph, [{
+    key: "initialize",
+    value: function initialize() {
+      if (this.initialized) return;
+      this.dataset.initialize(this.graphics.lc, this.vertices, this.faces);
+      this.initialized = true;
+    }
+  }, {
     key: "update",
-    value: function update() {}
+    value: function update() {
+      this.dataset.update(this.graphics.lc, this.vertices, this.faces);
+    }
   }]);
 
   return THREEGraph;
