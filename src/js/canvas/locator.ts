@@ -16,30 +16,30 @@ class Locator {
     /**
      * Transformation coefficient. Has to be a 3 by 3 matrix with none zero determinant
      */
-    A = [[1.5,0,0],
-         [0,1.5,0],
-         [0,0,1.5]];
+    A = [[0.25, 0, 0],
+    [0, 0.25, 0],
+    [0, 0, 0.25]];
     /**
      * Transformation constant. Has to be a 3 vector
      */
-    B = [0,0,0];
-    constructor(){
+    B = [0, 0, 0];
+    constructor() {
     }
-    private _standardMatrix=[0,0,0];
+    private _standardMatrix = [0, 0, 0];
     /**
      * Returns a matrix representing the standard coordinate of coord
      * @param virCoord: a representation of a point in the virtual coordinate
      */
-    private virtualToStandard(virCoord: number[]):number[]{
+    private virtualToStandard(virCoord: number[]): number[] {
         this.checkCoord(virCoord);
-        this._standardMatrix[0] = (virCoord[0]+this.deltax)*this.scalex;
-        this._standardMatrix[1] = (virCoord[1]+this.deltay)*this.scaley; 
-        this._standardMatrix[2] = (virCoord[2]+this.deltaz)*this.scalez;
+        this._standardMatrix[0] = (virCoord[0] + this.deltax) * this.scalex;
+        this._standardMatrix[1] = (virCoord[1] + this.deltay) * this.scaley;
+        this._standardMatrix[2] = (virCoord[2] + this.deltaz) * this.scalez;
         return this._standardMatrix
     }
     //To graphics X
-    public X(...coord: number[]):number{
-        return utility.dot(this.A[0], this.virtualToStandard(coord))+this.B[0];
+    public X(...coord: number[]): number {
+        return utility.dot(this.A[0], this.virtualToStandard(coord)) + this.B[0];
     }
     //To graphics Y
     public Y(...coord: number[]): number {
@@ -48,11 +48,11 @@ class Locator {
     public Z(...coord: number[]): number {
         return utility.dot(this.A[2], this.virtualToStandard(coord)) + this.B[2];
     }
-    private _graphicalMatrix = [0,0,0];
-    private virtualToGraphical(virCoord: number[]):number[]{
-            this._graphicalMatrix[0] = this.X(...virCoord);
-            this._graphicalMatrix[1] = this.Y(...virCoord);
-            this._graphicalMatrix[2] = this.Z(...virCoord);
+    private _graphicalMatrix = [0, 0, 0];
+    private virtualToGraphical(virCoord: number[]): number[] {
+        this._graphicalMatrix[0] = this.X(...virCoord);
+        this._graphicalMatrix[1] = this.Y(...virCoord);
+        this._graphicalMatrix[2] = this.Z(...virCoord);
         return this._graphicalMatrix;
     }
     /**
@@ -61,10 +61,10 @@ class Locator {
      * @param getElement the method returns a single component if the value is set to true
      * or else it returns an array that corresponds to the spatial distance in graphics coordinate
      */
-    public Width(width: number, getElement:true): number | number[] {
-        if(getElement){
-            return this.X(width,0,0)-this.X(0,0,0);
-        }else{
+    public Width(width: number, getElement: true): number | number[] {
+        if (getElement) {
+            return this.X(width, 0, 0) - this.X(0, 0, 0);
+        } else {
             return (utility.subtract(this.virtualToGraphical([width, 0, 0]).slice(), this.virtualToGraphical([width, 0, 0])) as number[]);
         }
     }
@@ -104,9 +104,9 @@ class Locator {
      */
     public xyz(...graCoord: number[]): number[] {
         let Ainverse;
-        try{
+        try {
             Ainverse = utility.inv(this.A);
-        }catch(error){
+        } catch (error) {
             throw new Error("Cannot compute the virtual coordinate, the determinant of the multiplication matrix A is 0");
         }
         this.checkCoord(graCoord);
@@ -122,16 +122,28 @@ class Locator {
         this._subtractionMatrix[2] = this._standardMatrix[2] / this.scalez - this.deltaz;
         return this._subtractionMatrix;
     }
-    // Unimplemented until they are needed
-    // public float width(int Width) {
-    //     return x(Width, 0) - x(0, 0);
-    // }
-    // public float height(int Height) {
-    //     return y(0, Height) - y(0, 0);
-    // }
-    // public float length(int Length) {
-    //     return z(0,0,Length) - this.Z(0,0,0);
-    // }
+
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a width based on the Width (x-direction)
+     */
+    public width(Width: number): number {
+        return Width / this.A[0][0] / this.scalex;
+    }
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a height based on the Height (y-direction)
+     */
+    public height(Height: number): number {
+        return Height / this.A[1][1] / this.scaley;
+    }
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a length based on the Length (z-direction)
+     */
+    public length(Length: number): number {
+        return Length / this.A[2][2] / this.scalez;
+    }
 
     /**
      * Pinned zooming
@@ -142,7 +154,7 @@ class Locator {
      * @param pinZ In graphical units
      * @param factorz Scale scalez by this amount
      */
-    public zoom(pinX: number, factorx: number, pinY: number, factory: number, pinZ = 0, factorz = 1):void{
+    public zoom(pinX: number, factorx: number, pinY: number, factory: number, pinZ = 0, factorz = 1): void {
         let pinxyz = this.xyz(pinX, pinY, pinZ);
         this.scalex *= factorx;
         this.scaley *= factory;
@@ -166,20 +178,20 @@ class Locator {
      * Resets all the virtual transformers in the instance,
      * excludes the graphcis transformers A and B
      */
-    public reset():void{
-        this.deltax=0;
-        this.deltay=0;
-        this.deltaz=0
-        this.scalex=0;
-        this.scaley=0;
-        this.scalez=0;
+    public reset(): void {
+        this.deltax = 0;
+        this.deltay = 0;
+        this.deltaz = 0
+        this.scalex = 0;
+        this.scaley = 0;
+        this.scalez = 0;
     }
     /**
      * Resets all the graphics matrices for affine transformaiton to the given values
      * @param A Transform coefficient A, default is [[1.5,0,0],[0,1.5,0],[0,0,1.5]]
      * @param B Transform offset B, default is [0,0,0]
      */
-    public resetATransformation(A = [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]], B = [0, 0, 0]):void{
+    public resetATransformation(A = [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], B = [0, 0, 0]): void {
         this.A = A;
         this.B = B;
     }

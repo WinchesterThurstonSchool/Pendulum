@@ -7,6 +7,8 @@ exports.Graphics3D = exports.Graphics2D = exports.Graphics = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
 
+require("./controls");
+
 var PIXI = _interopRequireWildcard(require("pixi.js"));
 
 var _locator = require("./locator");
@@ -46,6 +48,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Graphics =
 /*#__PURE__*/
 function () {
+  /**
+   * Corresponds to the width of the canvas expressed in pixels
+   */
+
+  /**
+   * Corresponds to the height of the canvas expressed in pixels
+   */
+
+  /**
+   * The rendering interval of the Graphics
+   */
   // /**
   //  * Indicator for performed synchronization
   //  */
@@ -67,15 +80,26 @@ function () {
     this.syncTargets = new Map();
     this.domObject = void 0;
     this.rootScene = void 0;
+    this.gridPainter = void 0;
     this.graphs = new Map();
-    this.width = void 0;
-    this.height = void 0;
+    this.Width = void 0;
+    this.Height = void 0;
+    this.I = [];
     this.lc = void 0;
     this.clock = void 0;
     this.pause = false;
-    this.width = canvas.offsetWidth;
-    this.height = canvas.offsetHeight;
+    this.gridStyle = void 0;
+    this.Width = canvas.offsetWidth;
+    this.Height = canvas.offsetHeight;
     this.clock = new THREE.Clock(false);
+    this.gridStyle = {
+      axisColors: [0xff0000, 0x00ff00, 0x0000ff],
+      origin: [0, 0, 0],
+      pointer: "arrow",
+      pointerSize: 0.1,
+      markColors: [[0xbbbbbb, 0xdddddd], [0xbbbbbb, 0xdddddd], [0xbbbbbb, 0xdddddd]]
+    };
+    this.gridPainter = undefined;
   }
   /**
    * Adds a dataset to the current list of datasets to this and all the synchronized targets
@@ -169,12 +193,31 @@ function () {
       }
     }
     /**
-     * Initializes all the graphs that haven't been initialized
+     * Adds a dynamic grid system to the graph, overrides the existing one
+     * @param origin the origin of the grid, where axes are extended from
+     * @param marks (intervals, holder)=> [x:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],minor:[...]],
+     *                                     y:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],...],...]
+     * @param gridStyle the colors of each axis, the style of trailing pointers, allowed values include "arrow", "sphere",
+     * "none", the size of the pointer, and the set of colors corresponding to major and minor marks in each direction
      */
 
   }, {
-    key: "intialieGraphs",
-    value: function intialieGraphs() {
+    key: "removeGrid",
+
+    /**
+     * removes the grid from the graph
+     */
+    value: function removeGrid() {
+      this.gridPainter = undefined;
+    }
+  }, {
+    key: "intializeGraphs",
+
+    /**
+     * Initializes all the graphs that haven't been initialized
+     */
+    value: function intializeGraphs() {
+      var intervals = this.computeIntervals();
       var _iteratorNormalCompletion3 = true;
       var _didIteratorError3 = false;
       var _iteratorError3 = undefined;
@@ -182,7 +225,7 @@ function () {
       try {
         for (var _iterator3 = this.graphs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
           var item = _step3.value;
-          item[1].initialize();
+          item[1].initialize(intervals);
         }
       } catch (err) {
         _didIteratorError3 = true;
@@ -206,6 +249,8 @@ function () {
   }, {
     key: "updateGraphs",
     value: function updateGraphs() {
+      var intervals = this.computeIntervals();
+      if (this.gridPainter != undefined) this.gridPainter.update(intervals);
       var _iteratorNormalCompletion4 = true;
       var _didIteratorError4 = false;
       var _iteratorError4 = undefined;
@@ -213,7 +258,7 @@ function () {
       try {
         for (var _iterator4 = this.graphs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
           var item = _step4.value;
-          item[1].update();
+          item[1].update(intervals);
         }
       } catch (err) {
         _didIteratorError4 = true;
@@ -238,6 +283,7 @@ function () {
     key: "attach",
     value: function attach() {
       this.canvas.appendChild(this.domObject);
+      window.addEventListener("resize", this.onResize.bind(this));
       this.clock.start();
       this.startAnimation();
     }
@@ -249,13 +295,16 @@ function () {
     key: "detach",
     value: function detach() {
       this.clock.stop();
-      this.canvas.removeChild(this.domObject);
+
+      this.canvas.onresize = function () {};
+
+      window.removeEventListener("resize", this.onResize.bind(this));
       this.pause = true;
     }
   }, {
     key: "animate",
     value: function animate() {
-      if (!this.pause) requestAnimationFrame(this.animate);
+      if (!this.pause) requestAnimationFrame(this.animate.bind(this));
       this.updateGraphs();
       this.render();
     }
@@ -318,8 +367,8 @@ function (_Graphics) {
     _this.lc = void 0;
     _this.graphs = new Map();
     _this.app = new PIXI.Application({
-      width: _this.width,
-      height: _this.height,
+      width: _this.Width,
+      height: _this.Height,
       antialias: true,
       // default: false
       transparent: true,
@@ -336,15 +385,35 @@ function (_Graphics) {
     _this.app.renderer.autoDensity = true; //purpose served by autoDensity which takes into acount of the window.devicePixelRatio
     // this.renderer.resolution = window.devicePixelRatio; 
 
-    _this.renderer.resize(_this.width, _this.height);
+    _this.renderer.resize(_this.Width, _this.Height);
 
     _this.lc = new _locator.Locator();
-    _this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 0]];
-    _this.lc.B = [_this.width / 2, _this.height / 2, 0];
+    _this.lc.A = [[30, 0, 0], [0, -30, 0], [0, 0, 30]];
+    _this.lc.B = [_this.Width / 2, _this.Height / 2, 0];
+    _this.I[0] = _this.Width;
+    _this.I[1] = _this.Height;
     return _this;
   }
 
   _createClass(Graphics2D, [{
+    key: "computeIntervals",
+    value: function computeIntervals() {
+      var Intervals = [[0, this.Width], [this.Height, 0]];
+      var intervals = [[], []];
+
+      for (var i = 0; i < 2; i++) {
+        var _this$lc, _this$lc2;
+
+        var _holder = [0, 0, 0];
+        _holder[i] = Intervals[i][0];
+        intervals[i][0] = (_this$lc = this.lc).xyz.apply(_this$lc, _holder)[i];
+        _holder[i] = Intervals[i][1];
+        intervals[i][1] = (_this$lc2 = this.lc).xyz.apply(_this$lc2, _holder)[i];
+      }
+
+      return intervals;
+    }
+  }, {
     key: "addDataset",
     value: function addDataset(dataset, color, material) {
       var synchronize = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
@@ -417,6 +486,27 @@ function (_Graphics) {
       this.rootScene.addChild(graph.PIXIObject);
     }
   }, {
+    key: "addGrid",
+    value: function addGrid(marks) {
+      var gridStyle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+        axisColors: [0x777777, 0x777777, 0x777777],
+        origin: [0, 0, 0],
+        pointer: "arrow",
+        pointerSize: 2,
+        markColors: [[0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb]]
+      };
+
+      /*[x:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],minor:[...]],
+      *                                     y:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],...],...]
+      */
+      var holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
+      var grid = new _graph3.PIXIGrid(this, function (intervals) {
+        return marks(intervals, holder);
+      }, gridStyle);
+      this.rootScene.addChild(grid.PIXIObject);
+      this.gridPainter = grid;
+    }
+  }, {
     key: "render",
     value: function render() {
       this.app.render();
@@ -424,12 +514,12 @@ function (_Graphics) {
   }, {
     key: "onResize",
     value: function onResize() {
-      this.width = this.canvas.offsetWidth;
-      this.height = this.canvas.offsetHeight;
-      this.lc.B = [this.width / 2, this.height / 2, 0];
-      this.renderer.resize(this.width, this.height);
-      $(this.canvas).outerWidth(this.width);
-      $(this.canvas).outerHeight(this.height);
+      this.Width = this.canvas.offsetWidth;
+      this.Height = this.canvas.offsetHeight;
+      this.lc.B = [this.Width / 2, this.Height / 2, 0];
+      this.renderer.resize(this.Width, this.Height); // $(this.canvas).outerWidth(this.width);
+      // $(this.canvas).outerHeight(this.height);
+
       this.updateGraphs();
       this.render();
     }
@@ -464,6 +554,7 @@ function (_Graphics2) {
     _this2.renderer = void 0;
     _this2.lights = {};
     _this2.camera = void 0;
+    _this2.control = void 0;
     _this2.lc = void 0;
     _this2.graphs = new Map();
     _this2.renderer = _this2.createWebGLRenderer();
@@ -490,7 +581,10 @@ function (_Graphics2) {
 
     _this2.camera = _this2.createPerspectiveCamera(); //Setup locator for cooridnate transformation
 
-    _this2.lc = new _locator.Locator();
+    _this2.lc = new _locator.Locator(); // @ts-ignore
+
+    _this2.control = new THREE.OrbitControls(_this2.camera, _this2.domObject);
+    _this2.I[0] = _this2.I[1] = _this2.I[2] = _this2.getInterval();
     return _this2;
   }
 
@@ -514,18 +608,41 @@ function (_Graphics2) {
         alpha: true
       });
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(this.width, this.height);
+      renderer.setSize(this.Width, this.Height);
       return renderer;
     }
   }, {
     key: "createPerspectiveCamera",
     value: function createPerspectiveCamera() {
-      var aspect = this.width / this.height;
+      var aspect = this.Width / this.Height;
       var camera = new THREE.PerspectiveCamera(75, aspect, 0.01, 500);
       camera.position.y = -5;
       camera.lookAt(0, 0, 0);
       camera.up.set(0, 0, 1);
       return camera;
+    }
+  }, {
+    key: "computeIntervals",
+    value: function computeIntervals() {
+      var Intervals = [[-5, 5], [-5, 5], [-5, 5]];
+      var intervals = [[], [], []];
+
+      for (var i = 0; i < 3; i++) {
+        var _this$lc3, _this$lc4;
+
+        var _holder2 = [0, 0, 0];
+        _holder2[i] = Intervals[i][0];
+        intervals[i][0] = (_this$lc3 = this.lc).xyz.apply(_this$lc3, _holder2)[i];
+        _holder2[i] = Intervals[i][1];
+        intervals[i][1] = (_this$lc4 = this.lc).xyz.apply(_this$lc4, _holder2)[i];
+      }
+
+      return intervals;
+    }
+  }, {
+    key: "getInterval",
+    value: function getInterval() {
+      return Math.min(this.Width, this.Height) * 4 / 5;
     }
     /**
      * Adds a dataset to the current list of datasets to this and all the synchronized targets
@@ -607,6 +724,11 @@ function (_Graphics2) {
       this.rootScene.add(graph.THREEObject);
     }
   }, {
+    key: "addGrid",
+    value: function addGrid(marks, gridStyle) {
+      var holder = [[[[0, 0, 0]]]]; // ((intervals: number[][]) => marks(intervals, holder), gridStyle);
+    }
+  }, {
     key: "render",
     value: function render() {
       this.renderer.render(this.rootScene, this.camera);
@@ -614,12 +736,14 @@ function (_Graphics2) {
   }, {
     key: "onResize",
     value: function onResize() {
-      this.width = this.canvas.offsetWidth;
-      this.height = this.canvas.offsetHeight;
-      this.renderer.setSize(this.width, this.height);
+      this.Width = this.canvas.offsetWidth;
+      this.Height = this.canvas.offsetHeight; // $(this.canvas).outerWidth(this.width);
+      // $(this.canvas).outerHeight(this.height);
+
+      this.renderer.setSize(this.Width, this.Height);
 
       if (this.camera instanceof THREE.PerspectiveCamera) {
-        this.camera.aspect = this.width / this.height;
+        this.camera.aspect = this.Width / this.Height;
         this.camera.updateProjectionMatrix();
       }
 

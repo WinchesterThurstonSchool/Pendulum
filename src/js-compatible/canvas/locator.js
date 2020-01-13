@@ -54,7 +54,7 @@ function () {
     this.deltax = 0;
     this.deltay = 0;
     this.deltaz = 0;
-    this.A = [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]];
+    this.A = [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]];
     this.B = [0, 0, 0];
     this._standardMatrix = [0, 0, 0];
     this._graphicalMatrix = [0, 0, 0];
@@ -196,17 +196,37 @@ function () {
       this._subtractionMatrix[1] = this._standardMatrix[1] / this.scaley - this.deltay;
       this._subtractionMatrix[2] = this._standardMatrix[2] / this.scalez - this.deltaz;
       return this._subtractionMatrix;
-    } // Unimplemented until they are needed
-    // public float width(int Width) {
-    //     return x(Width, 0) - x(0, 0);
-    // }
-    // public float height(int Height) {
-    //     return y(0, Height) - y(0, 0);
-    // }
-    // public float length(int Length) {
-    //     return z(0,0,Length) - this.Z(0,0,0);
-    // }
+    }
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a width based on the Width (x-direction)
+     */
 
+  }, {
+    key: "width",
+    value: function width(Width) {
+      return Width / this.A[0][0] / this.scalex;
+    }
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a height based on the Height (y-direction)
+     */
+
+  }, {
+    key: "height",
+    value: function height(Height) {
+      return Height / this.A[1][1] / this.scaley;
+    }
+    /**
+     * The method assumes non-rotational transformations and uses the diagonals 
+     * of A for the sake of efficiency, returns a length based on the Length (z-direction)
+     */
+
+  }, {
+    key: "length",
+    value: function length(Length) {
+      return Length / this.A[2][2] / this.scalez;
+    }
     /**
      * Pinned zooming
      * @param pinX In graphical units
@@ -268,7 +288,7 @@ function () {
   }, {
     key: "resetATransformation",
     value: function resetATransformation() {
-      var A = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [[1.5, 0, 0], [0, 1.5, 0], [0, 0, 1.5]];
+      var A = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]];
       var B = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [0, 0, 0];
       this.A = A;
       this.B = B;

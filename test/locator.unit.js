@@ -30,9 +30,9 @@ describe("Locator", function(){
     });
     it("computes forward transformations correctly", function(){
         for (let i = 0; i < 2000; i++) {
-            assert.equal(lc.X(i, -i * 2, 199 - i), i * 1.5);
-            assert.equal(lc.Y(i, -i * 2, 199 - i), (-i * 2) * 1.5);
-            assert.equal(lc.Z(i, -i * 2, 199 - i), (199 - i) * 1.5);
+            assert.equal(lc.X(i, -i * 2, 199 - i), i * 0.25);
+            assert.equal(lc.Y(i, -i * 2, 199 - i), (-i * 2) * 0.25);
+            assert.equal(lc.Z(i, -i * 2, 199 - i), (199 - i) * 0.25);
         }
         for(let i = 0; i<2000; i++){
             lc.deltax = 2*i;
@@ -40,9 +40,9 @@ describe("Locator", function(){
             lc.deltaz = 5*i;
             lc.scalex = -2*i;
             lc.B[1]=-4.6*i;
-            assert.equal(lc.X(12, 2, 3), (12+2*i)*(-2*i)*1.5);
-            assert.equal(lc.Y(12, 2, 3), (2-3*i)*1.5-4.6*i);
-            assert.equal(lc.Z(12, 2, 3), (3+5*i)*1.5);
+            assert.equal(lc.X(12, 2, 3), (12+2*i)*(-2*i)*0.25);
+            assert.equal(lc.Y(12, 2, 3), (2-3*i)*0.25-4.6*i);
+            assert.equal(lc.Z(12, 2, 3), (3+5*i)*0.25);
         }
         lc.reset();
         lc.B[1]=0;
@@ -53,9 +53,9 @@ describe("Locator", function(){
             lc.scalex = -19;
             lc.scaley = -37;
             lc.scalez = 43;
-            assert.equal(lc.X(i, -i * 2, 199 - i), (i + 23) * -19 * 1.5);
-            assert.equal(lc.Y(i, -i * 2, 199 - i), (-i*2+5) * -37 * 1.5);
-            assert.equal(lc.Z(i, -i * 2, 199 - i), (199-i+2) * 43 * 1.5);
+            assert.equal(lc.X(i, -i * 2, 199 - i), (i + 23) * -19 * 0.25);
+            assert.equal(lc.Y(i, -i * 2, 199 - i), (-i*2+5) * -37 * 0.25);
+            assert.equal(lc.Z(i, -i * 2, 199 - i), (199-i+2) * 43 * 0.25);
         }
     });
     it("correctly resets affine transformation to the given values", function(){
