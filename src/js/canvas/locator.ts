@@ -48,6 +48,9 @@ class Locator {
     public Z(...coord: number[]): number {
         return utility.dot(this.A[2], this.virtualToStandard(coord)) + this.B[2];
     }
+    public XYZ(...coord: number[]): number[]{
+        return [this.X(...coord), this.Y(...coord), this.Z(...coord)];
+    }
     private _graphicalMatrix = [0, 0, 0];
     private virtualToGraphical(virCoord: number[]): number[] {
         this._graphicalMatrix[0] = this.X(...virCoord);

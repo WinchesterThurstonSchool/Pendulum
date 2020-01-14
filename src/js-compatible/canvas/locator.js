@@ -105,6 +105,11 @@ function () {
       return utility.dot(this.A[2], this.virtualToStandard(coord)) + this.B[2];
     }
   }, {
+    key: "XYZ",
+    value: function XYZ() {
+      return [this.X.apply(this, arguments), this.Y.apply(this, arguments), this.Z.apply(this, arguments)];
+    }
+  }, {
     key: "virtualToGraphical",
     value: function virtualToGraphical(virCoord) {
       this._graphicalMatrix[0] = this.X.apply(this, _toConsumableArray(virCoord));

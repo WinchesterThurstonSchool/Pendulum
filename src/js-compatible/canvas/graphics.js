@@ -23,6 +23,10 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
@@ -258,6 +262,12 @@ function () {
       try {
         for (var _iterator4 = this.graphs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
           var item = _step4.value;
+
+          if (!item[1].initialized) {
+            item[1].initialize(intervals);
+            item[1].initialized = true;
+          }
+
           item[1].update(intervals);
         }
       } catch (err) {
@@ -274,6 +284,9 @@ function () {
           }
         }
       }
+
+      this.lc.deltax -= 0.01;
+      this.lc.deltaz -= 0.05;
     }
     /**
      * Attaches this.domObject to the specified panel
@@ -499,8 +512,8 @@ function (_Graphics) {
       /*[x:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],minor:[...]],
       *                                     y:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],...],...]
       */
-      var holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
-      var grid = new _graph3.PIXIGrid(this, function (intervals) {
+      var holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
+      var grid = new _graph3.PIXIGrid("*PIXIGrid", this, function (intervals) {
         return marks(intervals, holder);
       }, gridStyle);
       this.rootScene.addChild(grid.PIXIObject);
@@ -616,7 +629,7 @@ function (_Graphics2) {
     value: function createPerspectiveCamera() {
       var aspect = this.Width / this.Height;
       var camera = new THREE.PerspectiveCamera(75, aspect, 0.01, 500);
-      camera.position.y = -5;
+      camera.position.y = -10;
       camera.lookAt(0, 0, 0);
       camera.up.set(0, 0, 1);
       return camera;
@@ -725,8 +738,27 @@ function (_Graphics2) {
     }
   }, {
     key: "addGrid",
-    value: function addGrid(marks, gridStyle) {
-      var holder = [[[[0, 0, 0]]]]; // ((intervals: number[][]) => marks(intervals, holder), gridStyle);
+    value: function addGrid(marks) {
+      var gridStyle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+        axisColors: [0x777777, 0x777777, 0x777777],
+        origin: [0, 0, 0],
+        pointer: "arrow",
+        pointerSize: 2,
+        markColors: [[0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb]]
+      };
+      var holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
+      var grid = new _graph3.THREEGrid("*THREEGrid", this, function (intervals) {
+        return marks(intervals, holder);
+      }, gridStyle);
+      this.rootScene.add(grid.THREEObject);
+      this.gridPainter = grid;
+    }
+  }, {
+    key: "removeGrid",
+    value: function removeGrid() {
+      _get(_getPrototypeOf(Graphics3D.prototype), "removeGrid", this).call(this);
+
+      this.rootScene.remove(this.gridPainter.THREEObject);
     }
   }, {
     key: "render",

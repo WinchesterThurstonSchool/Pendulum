@@ -3,15 +3,19 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.THREEGraph = exports.PIXIGraph = exports.PIXIGrid = exports.Graph = void 0;
+exports.THREEGraph = exports.PIXIGraph = exports.THREEGrid = exports.PIXIGrid = exports.Graph = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
 
 var PIXI = _interopRequireWildcard(require("pixi.js"));
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -110,7 +114,6 @@ function (_Graph) {
     value: function initialize(intervals) {
       if (this.initialized) return;
       this.dataset.initialize(this.graphics.lc, this.vertices);
-      this.initialized = true;
     }
   }, {
     key: "update",
@@ -129,10 +132,10 @@ var PIXIGrid =
 function (_Graph2) {
   _inherits(PIXIGrid, _Graph2);
 
-  function PIXIGrid(graphics, marksFunction) {
+  function PIXIGrid(id, graphics, marksFunction) {
     var _this2;
 
-    var gridStyle = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+    var gridStyle = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
       axisColors: [0xff0000, 0x00ff00, 0x0000ff],
       origin: [0, 0, 0],
       pointer: "arrow",
@@ -142,7 +145,7 @@ function (_Graph2) {
 
     _classCallCheck(this, PIXIGrid);
 
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(PIXIGrid).call(this, "*PIXIGrid", graphics));
+    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(PIXIGrid).call(this, id, graphics));
     _this2.marksFunction = marksFunction;
     _this2.gridStyle = gridStyle;
     _this2.PIXIObject = new PIXI.Graphics();
@@ -219,10 +222,10 @@ var THREEGrid =
 function (_Graph3) {
   _inherits(THREEGrid, _Graph3);
 
-  function THREEGrid(graphics, marksFunction) {
+  function THREEGrid(id, graphics, marksFunction) {
     var _this3;
 
-    var gridStyle = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+    var gridStyle = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
       axisColors: [0xff0000, 0x00ff00, 0x0000ff],
       origin: [0, 0, 0],
       pointer: "arrow",
@@ -232,10 +235,13 @@ function (_Graph3) {
 
     _classCallCheck(this, THREEGrid);
 
-    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(THREEGrid).call(this, "*PIXIGrid", graphics));
+    _this3 = _possibleConstructorReturn(this, _getPrototypeOf(THREEGrid).call(this, id, graphics));
     _this3.marksFunction = marksFunction;
     _this3.gridStyle = gridStyle;
+    _this3.lines = [];
     _this3.THREEObject = void 0;
+    _this3.lineCount = void 0;
+    _this3.THREEObject = new THREE.Group();
     return _this3;
   }
 
@@ -243,57 +249,144 @@ function (_Graph3) {
     key: "initialize",
     value: function initialize(intervals) {}
   }, {
+    key: "clear",
+    value: function clear() {
+      this.lineCount = 0;
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.lines[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var line = _step2.value;
+          line.geometry.vertices[0].set(0, 0, 0);
+          line.geometry.vertices[1].set(0, 0, 0);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+            _iterator2["return"]();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+    }
+  }, {
+    key: "draw",
+    value: function draw(a, b, color, width) {
+      if (this.lines[this.lineCount] == undefined) {
+        // let geometry = new THREE.Geometry();
+        // geometry.vertices.push(new Vector3(...a));
+        // geometry.vertices.push(new Vector3(...b));
+        // let material = new MeshLineMaterial({
+        //     useMap: false,
+        //     color: new THREE.Color(color),
+        //     opacity: 1,
+        //     sizeAttenuation: !false,
+        //     lineWidth: .01,
+        //     near: (this.graphics as Graphics3D).camera.near,
+        //     far: (this.graphics as Graphics3D).camera.far
+        // });
+        // let line = new MeshLine();
+        // this.lines[this.lineCount]=line;
+        // line.setGeometry(geometry);
+        // var mesh = new THREE.Mesh(line.geometry, material); // this syntax could definitely be improved!
+        // this.THREEObject.add(mesh);
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(_construct(THREE.Vector3, _toConsumableArray(a)));
+        geometry.vertices.push(_construct(THREE.Vector3, _toConsumableArray(b)));
+
+        var _material = new THREE.LineBasicMaterial({
+          color: color,
+          linewidth: width
+        });
+
+        this.lines[this.lineCount] = new THREE.Line(geometry, _material);
+        this.THREEObject.add(this.lines[this.lineCount]);
+      } else {
+        var line = this.lines[this.lineCount];
+        line.geometry.vertices[0].set(a[0], a[1], a[2]);
+        line.geometry.vertices[1].set(b[0], b[1], b[2]);
+        line.material.color.setHex(color);
+        line.material.linewidth = width;
+        line.geometry.verticesNeedUpdate = true;
+      }
+
+      this.lineCount++;
+    }
+  }, {
     key: "update",
     value: function update(intervals) {
-      //Geometry definition
-      var size = 2000;
       var lc = this.graphics.lc;
+      this.clear();
       var marks = this.marksFunction(intervals);
 
       for (var i = 0; i < marks.length; i++) {
         var vMarks = marks[i];
 
-        for (var j = 0; j < vMarks.length; j++) {
+        for (var j = vMarks.length - 1; j >= 0; j--) {
           var _color2 = this.gridStyle.markColors[i][j];
-          this.PIXIObject.lineStyle(1 / (j + 1), _color2);
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
+          var _lineWidth = 0.1;
+          var next1CoordSameLevel = marks[(i + 1) % marks.length][j],
+              next2CoordSameLevel = marks[(i + 2) % marks.length][j]; // if(next1CoordSameLevel==undefined||next1CoordSameLevel.length==0)
+          //     next1CoordSameLevel = next2CoordSameLevel;
+          // if(next2CoordSameLevel == undefined||next2CoordSameLevel.length==0){
+          //     next2CoordSameLevel = next1CoordSameLevel;
+          //     if(next2CoordSameLevel == undefined||next2CoordSameLevel.length==0){
+          //         next1CoordSameLevel=next2CoordSameLevel = [[0,0,0]]
+          //     }
+          // }
+
+          var min = Math.max(next1CoordSameLevel[0][i], next2CoordSameLevel[0][i]);
+          var max = Math.min(next1CoordSameLevel[next1CoordSameLevel.length - 1][i], next2CoordSameLevel[next2CoordSameLevel.length - 1][i]);
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
 
           try {
-            for (var _iterator2 = vMarks[j][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var v = _step2.value;
-              v[i] = intervals[i][0]; // console.log(v);
+            for (var _iterator3 = vMarks[j][Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var v = _step3.value;
+              v[i] = min;
 
-              this.PIXIObject.moveTo(lc.X.apply(lc, _toConsumableArray(v)), lc.Y.apply(lc, _toConsumableArray(v)));
-              v[i] = intervals[i][1]; // console.log(v);
+              var _vertexA = lc.XYZ.apply(lc, _toConsumableArray(v));
 
-              this.PIXIObject.lineTo(lc.X.apply(lc, _toConsumableArray(v)), lc.Y.apply(lc, _toConsumableArray(v)));
+              v[i] = max;
+
+              var _vertexB = lc.XYZ.apply(lc, _toConsumableArray(v));
+
+              this.draw(_vertexA, _vertexB, _color2, _lineWidth);
             }
           } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                _iterator2["return"]();
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
               }
             } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
+              if (_didIteratorError3) {
+                throw _iteratorError3;
               }
             }
           }
         }
 
         var axisColor = this.gridStyle.axisColors[i];
-        this.PIXIObject.lineStyle(2, axisColor);
+        var lineWidth = 0.5;
         var begin = this.gridStyle.origin.slice();
         var end = this.gridStyle.origin.slice();
-        begin[i] = intervals[i][0];
-        end[i] = intervals[i][1];
-        this.PIXIObject.moveTo(lc.X.apply(lc, _toConsumableArray(begin)), lc.Y.apply(lc, _toConsumableArray(begin)));
-        this.PIXIObject.lineTo(lc.X.apply(lc, _toConsumableArray(end)), lc.Y.apply(lc, _toConsumableArray(end)));
+        begin[i] = -25;
+        var vertexA = lc.XYZ.apply(lc, _toConsumableArray(begin));
+        end[i] = 25;
+        var vertexB = lc.XYZ.apply(lc, _toConsumableArray(end));
+        this.draw(vertexA, vertexB, axisColor, lineWidth);
       }
     }
   }]);
@@ -304,6 +397,8 @@ function (_Graph3) {
  * dataset representations through THREE
  */
 
+
+exports.THREEGrid = THREEGrid;
 
 var THREEGraph =
 /*#__PURE__*/
@@ -352,7 +447,6 @@ function (_Graph4) {
     value: function initialize(intervals) {
       if (this.initialized) return;
       this.dataset.initialize(this.graphics.lc, this.vertices, this.faces);
-      this.initialized = true;
     }
   }, {
     key: "update",

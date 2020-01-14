@@ -5,8 +5,7 @@ import * as PIXI from 'pixi.js';
 import { Locator } from './locator';
 import 'jquery';
 import { Dataset } from './types';
-import { Graph, PIXIGrid, PIXIGraph, THREEGraph } from './graph';
-import { GridHelper } from 'three';
+import { Graph, PIXIGrid, THREEGrid, PIXIGraph, THREEGraph } from './graph';
 /**
  * A wrapper around THREE and PIXI rendering engines to give them the same syntax 
  * to handle with.
@@ -166,8 +165,15 @@ abstract class Graphics {
         let intervals = this.computeIntervals();
         if (this.gridPainter != undefined) this.gridPainter.update(intervals);
         for (let item of this.graphs) {
+            if(!item[1].initialized){
+                item[1].initialize(intervals);
+                item[1].initialized=true;
+            }
             item[1].update(intervals);
         }
+        this.lc.deltax -= 0.01;
+        this.lc.deltaz -= 0.05;
+
     }
     /**
      * Attaches this.domObject to the specified panel
@@ -291,8 +297,8 @@ class Graphics2D extends Graphics {
         /*[x:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],minor:[...]],
      *                                     y:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],...],...]
      */
-        let holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
-        let grid = new PIXIGrid(this, (intervals: number[][]) => marks(intervals, holder), gridStyle);
+        let holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
+        let grid = new PIXIGrid("*PIXIGrid",this, (intervals: number[][]) => marks(intervals, holder), gridStyle);
         this.rootScene.addChild(grid.PIXIObject);
         this.gridPainter = grid;
     };
@@ -368,7 +374,7 @@ class Graphics3D extends Graphics {
     private createPerspectiveCamera(): THREE.PerspectiveCamera {
         let aspect = this.Width / this.Height;
         let camera = new THREE.PerspectiveCamera(75, aspect, 0.01, 500);
-        camera.position.y = -5;
+        camera.position.y = -10;
         camera.lookAt(0, 0, 0);
         camera.up.set(0, 0, 1);
         return camera;
@@ -413,16 +419,22 @@ class Graphics3D extends Graphics {
         this.graphs.set(graph.id, graph);
         this.rootScene.add(graph.THREEObject);
     }
-    addGrid(marks: (intervals: number[][], holder: number[][][][]) => number[][][][], gridStyle: {
-        axisColors: number[],
-        origin: number[],
-        pointer: string,
-        pointerSize: number,
-        markColors: number[][],
+    addGrid(marks: (intervals: number[][], holder: number[][][][]) => number[][][][], gridStyle = {
+        axisColors: [0x777777, 0x777777, 0x777777],
+        origin: [0, 0, 0],
+        pointer: "arrow",
+        pointerSize: 2,
+        markColors: [[0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb], [0x999999, 0xbbbbbb]],
     }): void {
-        let holder = [[[[0, 0, 0]]]];
-        // ((intervals: number[][]) => marks(intervals, holder), gridStyle);
+        let holder = [[[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]], [[[0, 0, 0]], [[0, 0, 0]]]];
+        let grid = new THREEGrid("*THREEGrid", this, (intervals: number[][]) => marks(intervals, holder), gridStyle);
+        this.rootScene.add(grid.THREEObject);
+        this.gridPainter = grid;
     };
+    removeGrid(){
+        super.removeGrid();
+        this.rootScene.remove((this.gridPainter as THREEGrid).THREEObject);
+    }
     render() {
         this.renderer.render(this.rootScene, this.camera);
     }
