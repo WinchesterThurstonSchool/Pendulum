@@ -9,6 +9,8 @@ var THREE = _interopRequireWildcard(require("three"));
 
 var PIXI = _interopRequireWildcard(require("pixi.js"));
 
+var _types = require("./types");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -113,12 +115,51 @@ function (_Graph) {
     key: "initialize",
     value: function initialize(intervals) {
       if (this.initialized) return;
-      this.dataset.initialize(this.graphics.lc, this.vertices);
+      this.dataset.initialize(this.graphics.lc, intervals, this.vertices);
+      this.initialized = true;
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this.PIXIObject.clear();
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.vertices[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var vertex = _step.value;
+          vertex.set(0, 0, 0);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     }
   }, {
     key: "update",
     value: function update(intervals) {
-      this.dataset.update(this.graphics.lc, this.vertices);
+      this.clear();
+      this.dataset.update(this.graphics.lc, intervals, this.vertices);
+
+      if (this.dataset instanceof _types.Function1V) {
+        this.PIXIObject.moveTo(this.vertices[0].x, this.vertices[0].y);
+        this.PIXIObject.lineStyle(1.5, this.color);
+
+        for (var i = 1; i < this.vertices.length; i++) {
+          this.PIXIObject.lineTo(this.vertices[i].x, this.vertices[i].y);
+        }
+      }
     }
   }]);
 
@@ -170,13 +211,13 @@ function (_Graph2) {
         for (var j = 0; j < vMarks.length; j++) {
           var _color = this.gridStyle.markColors[i][j];
           this.PIXIObject.lineStyle(1 / (j + 2), _color);
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
 
           try {
-            for (var _iterator = vMarks[j][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var v = _step.value;
+            for (var _iterator2 = vMarks[j][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var v = _step2.value;
               v[i] = intervals[i][0]; // console.log(v);
 
               this.PIXIObject.moveTo(lc.X.apply(lc, _toConsumableArray(v)), lc.Y.apply(lc, _toConsumableArray(v)));
@@ -185,16 +226,16 @@ function (_Graph2) {
               this.PIXIObject.lineTo(lc.X.apply(lc, _toConsumableArray(v)), lc.Y.apply(lc, _toConsumableArray(v)));
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                _iterator["return"]();
+              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+                _iterator2["return"]();
               }
             } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
+              if (_didIteratorError2) {
+                throw _iteratorError2;
               }
             }
           }
@@ -252,27 +293,27 @@ function (_Graph3) {
     key: "clear",
     value: function clear() {
       this.lineCount = 0;
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
 
       try {
-        for (var _iterator2 = this.lines[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var line = _step2.value;
+        for (var _iterator3 = this.lines[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var line = _step3.value;
           line.geometry.vertices[0].set(0, 0, 0);
           line.geometry.vertices[1].set(0, 0, 0);
         }
       } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-            _iterator2["return"]();
+          if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+            _iterator3["return"]();
           }
         } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
+          if (_didIteratorError3) {
+            throw _iteratorError3;
           }
         }
       }
@@ -343,15 +384,15 @@ function (_Graph3) {
           //     }
           // }
 
-          var min = Math.max(next1CoordSameLevel[0][i], next2CoordSameLevel[0][i]);
-          var max = Math.min(next1CoordSameLevel[next1CoordSameLevel.length - 1][i], next2CoordSameLevel[next2CoordSameLevel.length - 1][i]);
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
+          var min = Math.min(next1CoordSameLevel[0][i], next2CoordSameLevel[0][i]);
+          var max = Math.max(next1CoordSameLevel[next1CoordSameLevel.length - 1][i], next2CoordSameLevel[next2CoordSameLevel.length - 1][i]);
+          var _iteratorNormalCompletion4 = true;
+          var _didIteratorError4 = false;
+          var _iteratorError4 = undefined;
 
           try {
-            for (var _iterator3 = vMarks[j][Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var v = _step3.value;
+            for (var _iterator4 = vMarks[j][Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+              var v = _step4.value;
               v[i] = min;
 
               var _vertexA = lc.XYZ.apply(lc, _toConsumableArray(v));
@@ -363,16 +404,16 @@ function (_Graph3) {
               this.draw(_vertexA, _vertexB, _color2, _lineWidth);
             }
           } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                _iterator3["return"]();
+              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+                _iterator4["return"]();
               }
             } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
+              if (_didIteratorError4) {
+                throw _iteratorError4;
               }
             }
           }
@@ -446,12 +487,12 @@ function (_Graph4) {
     key: "initialize",
     value: function initialize(intervals) {
       if (this.initialized) return;
-      this.dataset.initialize(this.graphics.lc, this.vertices, this.faces);
+      this.dataset.initialize(this.graphics.lc, intervals, this.vertices, this.faces);
     }
   }, {
     key: "update",
     value: function update(intervals) {
-      this.dataset.update(this.graphics.lc, this.vertices, this.faces);
+      this.dataset.update(this.graphics.lc, intervals, this.vertices, this.faces);
     }
   }]);
 

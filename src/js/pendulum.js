@@ -12,12 +12,12 @@ $(() => {
         Graphics2D,
         Graphics3D
     } = require('./canvas/graphics.js');
-    let canvas = document.getElementById("graphpanel");]
+    let canvas = document.getElementById("graphpanel");
     let graphics = {
         g2d: new Graphics2D(canvas),
         g3d: new Graphics3D(canvas)
     };
-    graphics.g3d.attach();
+    graphics.g2d.attach();
     graphics.g2d.addGrid((intervals, holder) => {
         /*[x:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],minor:[...]],
          *                                     y:[major:[mark 0:[x1, y1, z1], 1:[x2,y2,z2], ...],...],...]
@@ -89,4 +89,6 @@ $(() => {
         }
         return holder;
     });
+    let main = require('./main').main;
+    main(graphics.g2d);
 });

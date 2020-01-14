@@ -1,11 +1,11 @@
 //Module import
 import * as THREE from 'three';
 import * as PIXI from 'pixi.js';
-import { Dataset, Curve, Surface, Solid } from './types';
+import { Dataset, Curve, Surface, Solid, Function1V } from './types';
 import { Graphics, Graphics3D } from './graphics';
 import { Locator } from './locator';
 import { timingSafeEqual } from 'crypto';
-import { Group, Vector3, Line } from 'three';
+import { Group, Vector3, Line, VertexColors } from 'three';
 import { MeshLine, MeshLineMaterial } from 'three.meshline';
 import { runInThisContext } from 'vm';
 const materials = {
@@ -64,10 +64,24 @@ class PIXIGraph extends Graph {
     }
     initialize(intervals: number[][]): void {
         if (this.initialized) return;
-        this.dataset.initialize(this.graphics.lc, this.vertices);
+        this.dataset.initialize(this.graphics.lc,intervals, this.vertices);
+        this.initialized=true;
+    }
+    clear():void{
+        this.PIXIObject.clear();
+        for(let vertex of this.vertices)
+            vertex.set(0,0,0);
     }
     update(intervals: number[][]): void {
-        this.dataset.update(this.graphics.lc, this.vertices);
+        this.clear();
+        this.dataset.update(this.graphics.lc, intervals, this.vertices);
+        if(this.dataset instanceof Function1V){
+            this.PIXIObject.moveTo(this.vertices[0].x, this.vertices[0].y);
+            this.PIXIObject.lineStyle(1.5, this.color);
+            for (let i = 1; i < this.vertices.length; i++) {
+                this.PIXIObject.lineTo(this.vertices[i].x, this.vertices[i].y);
+            }
+        }
     }
 }
 
@@ -245,10 +259,10 @@ class THREEGraph extends Graph {
     }
     initialize(intervals: number[][]): void {
         if (this.initialized) return;
-        this.dataset.initialize(this.graphics.lc, this.vertices, this.faces);
+        this.dataset.initialize(this.graphics.lc,intervals, this.vertices, this.faces);
     }
     update(intervals: number[][]): void {
-        this.dataset.update(this.graphics.lc, this.vertices, this.faces)
+        this.dataset.update(this.graphics.lc, intervals, this.vertices, this.faces)
     }
 }
 

@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Parametric3V = exports.Parametric2V = exports.Parametric1v = exports.Function2V = exports.Function1V = exports.Solid = exports.Surface = exports.Curve = exports.Dataset = void 0;
 
+var _three = require("three");
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -49,12 +51,12 @@ function (_Dataset) {
 
   _createClass(Curve, [{
     key: "initialize",
-    value: function initialize(locator, vertices, faces) {
+    value: function initialize(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }]);
@@ -83,12 +85,12 @@ function (_Dataset2) {
 
   _createClass(Surface, [{
     key: "initialize",
-    value: function initialize(locator, vertices, faces) {
+    value: function initialize(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }]);
@@ -115,12 +117,12 @@ function (_Dataset3) {
 
   _createClass(Solid, [{
     key: "initialize",
-    value: function initialize(locator, vertices, faces) {
+    value: function initialize(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }]);
@@ -135,21 +137,34 @@ var Function1V =
 function (_Curve) {
   _inherits(Function1V, _Curve);
 
-  function Function1V() {
+  function Function1V(id, f) {
+    var _this4;
+
     _classCallCheck(this, Function1V);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Function1V).apply(this, arguments));
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Function1V).call(this, id));
+    _this4.f = void 0;
+    _this4.f = f;
+    return _this4;
   }
 
   _createClass(Function1V, [{
-    key: "update",
-    value: function update(locator, vertices) {
-      throw new Error("Method not implemented.");
+    key: "initialize",
+    value: function initialize(lc, intervals, vertices) {
+      for (var i = 0; i <= 200; i += 1) {
+        var _x = i / 200 * (intervals[0][1] - intervals[0][0]) + intervals[0][0];
+
+        vertices.push(new _three.Vector3(lc.X(_x), lc.Y(_x, this.f(_x), 0), 0));
+      }
     }
   }, {
-    key: "f",
-    value: function f(x) {
-      throw new Error("Method not implemented.");
+    key: "update",
+    value: function update(lc, intervals, vertices) {
+      for (var i = 0; i <= 200; i += 1) {
+        var _x2 = i / 200 * (intervals[0][1] - intervals[0][0]) + intervals[0][0];
+
+        vertices[i].set(lc.X(_x2), lc.Y(_x2, this.f(_x2), 0), 0);
+      }
     }
   }]);
 
@@ -171,7 +186,7 @@ function (_Surface) {
 
   _createClass(Function2V, [{
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {
@@ -199,7 +214,7 @@ function (_Curve2) {
 
   _createClass(Parametric1v, [{
     key: "update",
-    value: function update(locator, vertices) {
+    value: function update(lc, intervals, vertices) {
       throw new Error("Method not implemented.");
     }
   }, {
@@ -227,7 +242,7 @@ function (_Surface2) {
 
   _createClass(Parametric2V, [{
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {
@@ -255,7 +270,7 @@ function (_Solid) {
 
   _createClass(Parametric3V, [{
     key: "update",
-    value: function update(locator, vertices, faces) {
+    value: function update(lc, intervals, vertices, faces) {
       throw new Error("Method not implemented.");
     }
   }, {

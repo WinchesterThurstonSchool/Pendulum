@@ -6,6 +6,7 @@ import { Locator } from './locator';
 import 'jquery';
 import { Dataset } from './types';
 import { Graph, PIXIGrid, THREEGrid, PIXIGraph, THREEGraph } from './graph';
+import {subtract} from '../utility';
 /**
  * A wrapper around THREE and PIXI rendering engines to give them the same syntax 
  * to handle with.
@@ -167,13 +168,9 @@ abstract class Graphics {
         for (let item of this.graphs) {
             if(!item[1].initialized){
                 item[1].initialize(intervals);
-                item[1].initialized=true;
             }
             item[1].update(intervals);
         }
-        this.lc.deltax -= 0.01;
-        this.lc.deltaz -= 0.05;
-
     }
     /**
      * Attaches this.domObject to the specified panel
@@ -255,6 +252,35 @@ class Graphics2D extends Graphics {
         this.lc.B = [this.Width / 2, this.Height / 2, 0];
         this.I[0] = this.Width;
         this.I[1] = this.Height;
+        function DragControl(lc: Locator, canvas = document.body) {
+            canvas.addEventListener('wheel', (e) => {
+                lc.scalex /= Math.max(1 + e.deltaY * 0.001, 0.001);
+                lc.scaley /= Math.max(1 + e.deltaY * 0.001, 0.001);
+                lc.scalez /= Math.max(1 + e.deltaY * 0.001, 0.001);
+            })
+            var X, Y;
+            canvas.addEventListener('mousemove', (e) => {
+                if (mousedown) {
+                    var newX = e.clientX,
+                        newY = e.clientY;
+                    let delta =  subtract(lc.xyz(newX, newY, 0), lc.xyz(X, Y, 0));
+                    lc.deltax += delta[0];
+                    lc.deltay += delta[1];
+                    X = newX;
+                    Y = newY;
+                }
+            });
+            var mousedown = false;
+            canvas.addEventListener('mousedown', (e) => {
+                X = e.clientX;
+                Y = e.clientY;
+                mousedown = true;
+            });
+            window.addEventListener('mouseup', (e) => {
+                mousedown = false;
+            })
+        }
+        DragControl(this.lc, this.canvas);
     }
     computeIntervals(): number[][] {
         let Intervals = [[0, this.Width], [this.Height, 0]];

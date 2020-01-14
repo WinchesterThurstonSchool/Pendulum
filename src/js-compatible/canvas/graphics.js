@@ -19,6 +19,8 @@ var _types = require("./types");
 
 var _graph3 = require("./graph");
 
+var _utility = require("../utility");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -265,7 +267,6 @@ function () {
 
           if (!item[1].initialized) {
             item[1].initialize(intervals);
-            item[1].initialized = true;
           }
 
           item[1].update(intervals);
@@ -284,9 +285,6 @@ function () {
           }
         }
       }
-
-      this.lc.deltax -= 0.01;
-      this.lc.deltaz -= 0.05;
     }
     /**
      * Attaches this.domObject to the specified panel
@@ -318,8 +316,14 @@ function () {
     key: "animate",
     value: function animate() {
       if (!this.pause) requestAnimationFrame(this.animate.bind(this));
+      requestAnimationFrame(this.anotherMethod);
       this.updateGraphs();
       this.render();
+    }
+  }, {
+    key: "anotherMethod",
+    value: function anotherMethod() {
+      console.log('ran');
     }
   }, {
     key: "startAnimation",
@@ -405,6 +409,38 @@ function (_Graphics) {
     _this.lc.B = [_this.Width / 2, _this.Height / 2, 0];
     _this.I[0] = _this.Width;
     _this.I[1] = _this.Height;
+
+    function DragControl(lc) {
+      var canvas = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document.body;
+      canvas.addEventListener('wheel', function (e) {
+        lc.scalex /= Math.max(1 + e.deltaY * 0.001, 0.001);
+        lc.scaley /= Math.max(1 + e.deltaY * 0.001, 0.001);
+        lc.scalez /= Math.max(1 + e.deltaY * 0.001, 0.001);
+      });
+      var X, Y;
+      canvas.addEventListener('mousemove', function (e) {
+        if (mousedown) {
+          var newX = e.clientX,
+              newY = e.clientY;
+          var delta = (0, _utility.subtract)(lc.xyz(newX, newY, 0), lc.xyz(X, Y, 0));
+          lc.deltax += delta[0];
+          lc.deltay += delta[1];
+          X = newX;
+          Y = newY;
+        }
+      });
+      var mousedown = false;
+      canvas.addEventListener('mousedown', function (e) {
+        X = e.clientX;
+        Y = e.clientY;
+        mousedown = true;
+      });
+      window.addEventListener('mouseup', function (e) {
+        mousedown = false;
+      });
+    }
+
+    DragControl(_this.lc, _this.canvas);
     return _this;
   }
 
