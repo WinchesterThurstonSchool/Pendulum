@@ -3,9 +3,6 @@
 
 The active development of Pendulum had been migrated to Pendulum-beta, this repository is purely informational
 
-10/14/2019 
-
-As a continuum of the computer science project started last year in my high school’s CS innovation, I decide to re-enter the project this year and make more specific guidelines as to the directions of this long term development. The initial details of this project are available here. 
 ## Github
 In order to achieve structural development and version control that would allow more efficient and convenient purpose-driven deployment, the GitHub repository of the pendulum project is currently divided into several development branches: document, web grapher, and program-side-visualization, and several primary module branches: canvas, UI, and computation module. The code on GitHub for this project is now  open-sourced, so that everyone can have access to the development of Pendulum. The service of this software is also going to be projected to be free consequently, and every stable build in the master branch will be hosted on the Cloudnest website. 
 ## Development Workflow
