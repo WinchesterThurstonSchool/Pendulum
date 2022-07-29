@@ -1,4 +1,7 @@
 # Pendulum Project
+07/29/2022
+The active development of Pendulum had been migrated to Pendulum-beta, this repository is purely informational
+
 10/14/2019 
 
 As a continuum of the computer science project started last year in my high school’s CS innovation, I decide to re-enter the project this year and make more specific guidelines as to the directions of this long term development. The initial details of this project are available here. 
