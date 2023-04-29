@@ -58,7 +58,7 @@
     "jquery": "^3.4.1",
     "mathjs": "^6.2.5",
     "mathquill": "^0.10.1-a",
-    "mocha": "^6.2.2",
+    "mocha": "^10.2.0",
     "pixi.js": "^5.2.0",
     "three": "^0.110.0",
     "three.meshline": "^1.2.0"
