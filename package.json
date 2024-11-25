@@ -55,7 +55,7 @@
   "dependencies": {
     "@types/mathjs": "^6.0.2",
     "ismobilejs": "^1.0.3",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "mathjs": "^6.2.5",
     "mathquill": "^0.10.1-a",
     "mocha": "^6.2.2",
